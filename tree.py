@@ -10,15 +10,16 @@ def mean_squared_error(target_column):
 
 
 def weighted_average_of_mse(target_columns):
-    result = 0
-    for col in target_columns:
-        result += mean_squared_error(col)/len(target_columns)
-    return result / sum(map(len, target_columns))
+    weights = 0
+    for target_column in target_columns:
+        weights += len(target_column)*mean_squared_error(target_column)
+    return weights / sum(map(len, target_columns))
 
 
-def tree(dataset, target, frac=1.):
+def tree(dataset, target, frac=0.5):
     dataset = dataset.sample(frac=frac, replace=False)
     N = len(dataset)
+    print('N:', N)
     features = [col for col in dataset.columns if col != target]
     for feature in features:
         dataset.sort_values(feature, inplace=True)

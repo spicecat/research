@@ -18,12 +18,11 @@ def weighted_average_of_mse(target_columns):
 
 def tree(dataset, target, frac=0.5):
     dataset = dataset.sample(frac=frac, replace=False)
-    N = len(dataset)
-    print('N:', N)
+    n = len(dataset)
     features = [col for col in dataset.columns if col != target]
     for feature in features:
         dataset.sort_values(feature, inplace=True)
-        for row_index in range(1, N):
+        for row_index in range(1, n):
             print(row_index, feature, weighted_average_of_mse(
                 (dataset[target][:row_index], dataset[target][row_index:])))
     return dataset

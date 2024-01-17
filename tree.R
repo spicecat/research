@@ -8,7 +8,6 @@ summary(tree.boston)
 plot(tree.boston)
 text(tree.boston, pretty = 0)
 
-library(MASS)
 tree <- function(dataset, dependent_variable, explanatory_variables, threshold, train){
   num <- dim(dataset)[2]
   dataset <- dataset[train,]

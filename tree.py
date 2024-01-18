@@ -1,7 +1,12 @@
 import pandas as pd
+from sklearn.tree import DecisionTreeRegressor, 
 
+boston = pd.read_csv('boston.csv')
+
+included_rows = [505, 324, 167, 129, 418, 471,
+                 299, 270, 466, 187, 307, 481,  85, 277, 362]
 included_columns = ['CRIM', 'RM', 'Price']
-boston = pd.read_csv('boston.csv').loc[:, included_columns]
+boston = boston.loc[included_rows, included_columns]
 
 
 def mean_squared_error(target_column):
@@ -15,8 +20,10 @@ def weighted_average_of_mse(target_columns):
         weights += len(target_column)*mean_squared_error(target_column)
     return weights / sum(map(len, target_columns))
 
+# class
 
-def tree(dataset, target, frac=0.5):
+
+def regression_tree(dataset, target, frac=0.5):
     dataset = dataset.sample(frac=frac, replace=False)
     n = len(dataset)
     features = [col for col in dataset.columns if col != target]
@@ -28,4 +35,6 @@ def tree(dataset, target, frac=0.5):
     return dataset
 
 
-print(tree(boston, 'Price', 0.01))
+# print(boston)
+# print(regression_tree(boston, 'Price', 1))
+print(tree(boston, 'Price'))

@@ -4,9 +4,8 @@ boston = pd.read_csv('boston.csv')
 
 included_rows = [505, 324, 167, 129, 418, 471,
                  299, 270, 466, 187, 307, 481,  85, 277, 362]
-# included_columns = ['CRIM', 'RM', 'Price']
-included_columns = ['CRIM', 'Price']
-boston = boston.loc[:, included_columns]
+included_columns = ['CRIM', 'RM', 'TAX', 'Price']
+boston = boston.loc[included_rows, included_columns]
 
 
 def train_split(data, target, frac=1.):
@@ -14,24 +13,28 @@ def train_split(data, target, frac=1.):
     return train.drop(target, axis=1), train[target]
 
 
-class DecisionNode:
-    def __init__(self, feature, threshold, left, right):
+class TerminalNode():
+    def __init__(self, outcomes, score=None, value=None):
+        self.outcomes = outcomes
+        self.samples = len(outcomes)
+        self.score = score
+        self.value = value
+
+    def __str__(self):
+        # return str(self.outcomes)
+        return f'score={self.score:.3f}, samples={self.samples}, value={self.value:.3f}'
+
+
+class DecisionNode(TerminalNode):
+    def __init__(self, feature, threshold, left, right, outcomes, score, value):
+        super().__init__(outcomes, score, value)
         self.left = left
         self.right = right
         self.feature = feature
         self.threshold = threshold
 
     def __str__(self):
-        return f'[{self.feature} < {self.threshold}]\n Left: \n{self.left}\n Right: \n{self.right}'
-
-
-class TerminalNode:
-    def __init__(self, outcomes):
-        self.outcomes = outcomes
-
-    def __str__(self):
-        # return str(self.outcomes)
-        return f'samples={len(self.outcomes)}, value={self.outcomes.iloc[:, -1].mean()}'
+        return f'[{self.feature} < {self.threshold:.3f}]\n Left: \n{self.left}\n Right: \n{self.right}'
 
 
 class DecisionTreeRegressor():
@@ -56,7 +59,7 @@ class DecisionTreeRegressor():
         b_feature = None
         b_threshold = None
         b_score = float('inf')
-        b_groups = ()
+        b_groups = (None, None)
         features = data.columns[:-1]
         target = data.columns[-1]
         n = len(data)
@@ -75,22 +78,25 @@ class DecisionTreeRegressor():
                                    data.iloc[row_index][feature])/2
                     b_score = score
                     b_groups = left, right
-        return DecisionNode(b_feature, b_threshold, *b_groups)
+        return DecisionNode(b_feature, b_threshold, TerminalNode(b_groups[0]),
+                            TerminalNode(b_groups[1]), data, b_score, data.iloc[:, -1].mean())
 
     def _split(self, node):
-        left, right = node.left, node.right
+        left, right = node.left.outcomes, node.right.outcomes
         # process left child
         if len(left) > self.min_samples_leaf:
             node.left = self._get_split(left)
             self._split(node.left)
         else:
-            node.left = TerminalNode(left)
+            node.left.score = self._mean_squared_error(left.iloc[:, -1])
+            node.left.value = left.iloc[:, -1].mean()
         # process right child
         if len(right) > self.min_samples_leaf:
             node.right = self._get_split(right)
             self._split(node.right)
         else:
-            node.right = TerminalNode(right)
+            node.right.score = self._mean_squared_error(right.iloc[:, -1])
+            node.right.value = right.iloc[:, -1].mean()
 
     def fit(self, x, y):
         data = pd.concat([x, y], axis=1)
@@ -102,6 +108,9 @@ class DecisionTreeRegressor():
 
 
 x_train, y_train = train_split(boston, 'Price')
-regressor = DecisionTreeRegressor(min_samples_leaf=300)
+regressor = DecisionTreeRegressor(min_samples_leaf=5)
 regressor.fit(x_train, y_train)
+# print(x_train)
+# print(y_train)
+
 print(regressor.root)

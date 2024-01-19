@@ -14,3 +14,13 @@
 [1] "estimate is"
 [1] 13.72386
 
+
+[CRIM < 0.625475]
+ Left: 
+[CRIM < 0.10046]
+ Left: 
+samples=154, value=27.09805194805195
+ Right: 
+samples=157, value=23.778980891719748
+ Right: 
+samples=195, value=17.92410256410256

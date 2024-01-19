@@ -42,17 +42,23 @@ class DecisionTreeRegressor():
         self.root = None
         self.min_samples_leaf = min_samples_leaf
 
-    def _mean_squared_error(self, target_column):
-        average = target_column.mean()
-        return sum((target_column-average) ** 2)
-
-    def _weighted_average_of_mse(self, target_columns):
-        n = sum(map(len, target_columns))
+    def _weighted_average_of_mse(self, datasets):
+        def _mean_squared_error(dataset):
+            target_column = dataset.iloc[:, -1]
+            average = self._value(dataset)
+            return sum((target_column-average) ** 2)
+        n = sum(map(len, datasets))
         weight = 0
-        for target_column in target_columns:
-            size = len(target_column)
-            weight += self._mean_squared_error(target_column)*(size/n)
+        for dataset in datasets:
+            size = len(dataset)
+            weight += _mean_squared_error(dataset)*(size/n)
         return weight
+
+    def _value(self, data):
+        return data.iloc[:, -1].mean()
+
+    def _score(self, data):
+        return self._weighted_average_of_mse([data])
 
     def _get_split(self, data):
         data = data.copy()
@@ -61,7 +67,6 @@ class DecisionTreeRegressor():
         b_score = float('inf')
         b_groups = (None, None)
         features = data.columns[:-1]
-        target = data.columns[-1]
         n = len(data)
         for feature in features:
             data.sort_values(feature, inplace=True)
@@ -70,8 +75,7 @@ class DecisionTreeRegressor():
                     continue
                 left = data[:row_index]
                 right = data[row_index:]
-                score = self._weighted_average_of_mse(
-                    (left[target], right[target]))
+                score = self._weighted_average_of_mse((left, right))
                 if score < b_score:
                     b_feature = feature
                     b_threshold = (data.iloc[row_index-1][feature] +
@@ -79,7 +83,7 @@ class DecisionTreeRegressor():
                     b_score = score
                     b_groups = left, right
         return DecisionNode(b_feature, b_threshold, TerminalNode(b_groups[0]),
-                            TerminalNode(b_groups[1]), data, b_score, data.iloc[:, -1].mean())
+                            TerminalNode(b_groups[1]), data, b_score, self._value(data))
 
     def _split(self, node):
         left, right = node.left.outcomes, node.right.outcomes
@@ -88,15 +92,15 @@ class DecisionTreeRegressor():
             node.left = self._get_split(left)
             self._split(node.left)
         else:
-            node.left.score = self._mean_squared_error(left.iloc[:, -1])
-            node.left.value = left.iloc[:, -1].mean()
+            node.left.score = self._score(left)
+            node.left.value = self._value(left)
         # process right child
         if len(right) > self.min_samples_leaf:
             node.right = self._get_split(right)
             self._split(node.right)
         else:
-            node.right.score = self._mean_squared_error(right.iloc[:, -1])
-            node.right.value = right.iloc[:, -1].mean()
+            node.right.score = self._score(right)
+            node.right.value = self._value(right)
 
     def fit(self, x, y):
         data = pd.concat([x, y], axis=1)
@@ -110,7 +114,5 @@ class DecisionTreeRegressor():
 x_train, y_train = train_split(boston, 'Price')
 regressor = DecisionTreeRegressor(min_samples_leaf=5)
 regressor.fit(x_train, y_train)
-# print(x_train)
-# print(y_train)
-
+print(boston)
 print(regressor.root)

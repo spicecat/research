@@ -15,12 +15,16 @@
 [1] 13.72386
 
 
-[CRIM < 0.625475]
+[RM < 6.322]
  Left: 
-[CRIM < 0.10046]
+[RM < 5.954]
  Left: 
-samples=154, value=27.09805194805195
+score=49.580, samples=5, value=19.800
  Right: 
-samples=157, value=23.778980891719748
+score=61.847, samples=3, value=13.433
  Right: 
-samples=195, value=17.92410256410256
+[RM < 6.766]
+ Left: 
+score=4.220, samples=3, value=25.100
+ Right: 
+score=16.528, samples=4, value=30.575

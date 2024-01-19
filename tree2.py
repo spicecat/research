@@ -20,13 +20,14 @@ y = data['Price']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 # Create a regression tree regressor
-regressor = DecisionTreeRegressor()
+regressor = DecisionTreeRegressor(min_samples_leaf=2)
 
 # Fit the regression tree regressor to the training data
 regressor.fit(X_train, y_train)
 
 
 # Visualize the regression tree regressor
-plot_tree(regressor, filled=True)
+plot_tree(regressor, filled=True, fontsize=5)
 
+plt.savefig('tree2.png')
 plt.show()

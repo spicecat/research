@@ -1,0 +1,16 @@
+[1] "if less than"
+[1] "crim <= 6.68632"
+[1] "then"
+[1] "if less than"
+[1] "crim <= 0.091335"
+[1] "estimate is"
+[1] 27.30282
+[1] "if greater than"
+[1] "crim <= 0.091335"
+[1] "estimate is"
+[1] 22.88732
+[1] "if greater than"
+[1] "crim <= 6.68632"
+[1] "estimate is"
+[1] 13.72386
+

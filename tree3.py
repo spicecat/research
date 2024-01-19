@@ -111,3 +111,4 @@ dataset = [[2.771244718, 1.784783929, 0],
            [6.642287351, 3.319983761, 1]]
 tree = build_tree(dataset, 10, 1)
 print_tree(tree)
+print(tree,)

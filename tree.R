@@ -11,15 +11,15 @@ set.seed(1)
 tree <- function(dataset, dependent_variable, explanatory_variables, threshold, train) {
   num <- dim(dataset)[2]
   dataset <- dataset[train, ]
-  best_var <- c()
-  best_rule <- c()
-  best_mse <- c()
+  best_var <- NULL
+  best_rule <- NULL
+  best_mse <- NULL
   for (explan_var in explanatory_variables) {
     a <- paste(explan_var, "_sorted", sep = "")
     dataset <- cbind(dataset, data.frame(sort(dataset[, explan_var])))
     colnames(dataset) <- append(names(dataset)[seq_along(names(dataset)) - 1], a)
     b <- paste(explan_var, "_midpoints", sep = "")
-    c <- c(0)
+    c <- 0
     for (x in 1:(length(dataset[, a]) - 1)) {
       c <- append(c, ((dataset[x, a] + dataset[x + 1, a]) / 2))
     }
@@ -28,7 +28,7 @@ tree <- function(dataset, dependent_variable, explanatory_variables, threshold, 
     dataset <- cbind(dataset, dataset[order(dataset[, explan_var]), dependent_variable])
     d <- paste(explan_var, "_sorted_dependent", sep = "")
     colnames(dataset) <- append(names(dataset)[seq_along(names(dataset)) - 1], d)
-    e <- c(0)
+    e <- 0
     for (y in 2:length(dataset[, a])) {
       midpt <- dataset[y, b]
       estimate_below <- mean(dataset[1:(y - 1), d])

@@ -9,7 +9,7 @@ data = pd.read_csv('boston.csv')
 
 included_rows = [505, 324, 167, 129, 418, 471,
                  299, 270, 466, 187, 307, 481,  85, 277, 362]
-included_columns = ['CRIM', 'RM', 'Price']
+included_columns = ['CRIM', 'RM', 'TAX', 'Price']
 data = data.loc[included_rows, included_columns]
 
 # Convert the DataFrame to a NumPy array

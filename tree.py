@@ -112,7 +112,7 @@ class DecisionTreeRegressor():
 
 
 x_train, y_train = train_split(boston, 'Price')
-regressor = DecisionTreeRegressor(min_samples_leaf=5)
+regressor = DecisionTreeRegressor(min_samples_leaf=2)
 regressor.fit(x_train, y_train)
 print(boston)
 print(regressor.root)

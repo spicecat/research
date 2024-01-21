@@ -4,12 +4,13 @@ boston = pd.read_csv('boston.csv')
 
 included_rows = [505, 324, 167, 129, 418, 471,
                  299, 270, 466, 187, 307, 481,  85, 277, 362]
-included_columns = ['CRIM', 'RM', 'TAX', 'Price']
-boston = boston.loc[included_rows, included_columns]
+boston = boston.loc[included_rows]
 
 
-def train_split(data, target, frac=1.):
-    train = data.sample(frac=frac)
+def train_split(data, target, features=None, frac=1.):
+    if features is None:
+        features = data.columns
+    train = data.loc[:, features].sample(frac=frac)
     return train.drop(target, axis=1), train[target]
 
 
@@ -42,14 +43,14 @@ class DecisionTreeRegressor():
         self.root = None
         self.min_samples_leaf = min_samples_leaf
 
-    def _weighted_average_of_mse(self, datasets):
+    def _weighted_average_of_mse(self, splits):
         def _mean_squared_error(dataset):
             target_column = dataset.iloc[:, -1]
             average = self._value(dataset)
             return sum((target_column-average) ** 2)
-        n = sum(map(len, datasets))
+        n = sum(map(len, splits))
         weight = 0
-        for dataset in datasets:
+        for dataset in splits:
             size = len(dataset)
             weight += _mean_squared_error(dataset)*(size/n)
         return weight
@@ -114,5 +115,5 @@ class DecisionTreeRegressor():
 x_train, y_train = train_split(boston, 'Price')
 regressor = DecisionTreeRegressor(min_samples_leaf=2)
 regressor.fit(x_train, y_train)
-print(boston)
+print(x_train)
 print(regressor.root)

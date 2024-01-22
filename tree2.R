@@ -135,11 +135,11 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
 )
 
 
-included_rows <- c(
-  505, 324, 167, 129, 418, 471,
-  299, 270, 466, 187, 307, 481, 85, 277, 362
-) + 1
-boston <- boston[included_rows, ]
+# included_rows <- c(
+#   505, 324, 167, 129, 418, 471,
+#   299, 270, 466, 187, 307, 481, 85, 277, 362
+# ) + 1
+# boston <- boston[included_rows, ]
 
 # Split the data into training and testing sets
 train <- train_split(boston, 1.)

@@ -2,11 +2,6 @@ import pandas as pd
 
 boston = pd.read_csv('boston.csv')
 
-included_rows = [505, 324, 167, 129, 418, 471,
-                 299, 270, 466, 187, 307, 481,  85, 277, 362]
-boston = boston.loc[included_rows]
-
-
 def train_split(data, target, features=None, frac=1.):
     if features is None:
         features = data.columns
@@ -124,6 +119,9 @@ class DecisionTreeRegressor():
         self.root = root
         return root
 
+# included_rows = [505, 324, 167, 129, 418, 471,
+#                  299, 270, 466, 187, 307, 481,  85, 277, 362]
+# boston = boston.loc[included_rows]
 
 x_train, y_train = train_split(boston, 'Price', ["CRIM", "ZN", "INDUS"])
 regressor = DecisionTreeRegressor(min_samples_leaf=2)

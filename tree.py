@@ -24,7 +24,7 @@ class TerminalNode():
 
     def __str__(self):
         return (
-            f'''{self.depth*'  '}score={self.score:.3f}, samples={
+            f'''{self.depth*'  '}{self.depth} score={self.score:.3f}, samples={
                 self.samples}, value={self.value:.3f}'''
         )
 
@@ -40,7 +40,7 @@ class DecisionNode(TerminalNode):
 
     def __str__(self):
         return (
-            f'''{self.depth*'  '}[{self.feature} < {self.threshold:.3f}] score={self.score:.3f}, samples={self.samples}, value={self.value:.3f}
+            f'''{self.depth*'  '}{self.depth} [{self.feature} < {self.threshold:.3f}] score={self.score:.3f}, samples={self.samples}, value={self.value:.3f}
 {self.depth*'  '}{self.left}
 {self.depth*'  '}{self.right}
 '''

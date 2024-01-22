@@ -20,8 +20,8 @@ tree <- function(dataset, dependent_variable, explanatory_variables, threshold, 
     colnames(dataset) <- append(names(dataset)[seq_along(names(dataset)) - 1], a)
     b <- paste(explan_var, "_midpoints", sep = "")
     c <- 0
-    for (x in 1:(length(dataset[, a]) - 1)) {
-      c <- append(c, ((dataset[x, a] + dataset[x + 1, a]) / 2))
+    for (x in 2:length(dataset[, a])) {
+      c <- append(c, ((dataset[x - 1, a] + dataset[x, a]) / 2))
     }
     dataset <- cbind(dataset, c)
     colnames(dataset) <- append(names(dataset)[seq_along(names(dataset)) - 1], b)
@@ -33,6 +33,7 @@ tree <- function(dataset, dependent_variable, explanatory_variables, threshold, 
       midpt <- dataset[y, b]
       estimate_below <- mean(dataset[1:(y - 1), d])
       estimate_above <- mean(dataset[y:length(dataset[, d]), d])
+
       sse1 <- 0
       for (z1 in dataset[1:(y - 1), d]) {
         sse1 <- sse1 + (z1 - estimate_below) * (z1 - estimate_below)
@@ -80,4 +81,9 @@ tree <- function(dataset, dependent_variable, explanatory_variables, threshold, 
     print(mean(subset(dataset, eval(parse(text = best_var)) > best_rule)[, dependent_variable]))
   }
 }
-tree(Boston, "medv", c("crim"), 300, 1:506)
+included_rows <- c(
+  505, 324, 167, 129, 418, 471,
+  299, 270, 466, 187, 307, 481, 85, 277, 362
+) + 1
+Boston <- Boston[included_rows, ]
+tree(Boston, "medv", c("crim", "zn", "indus"), 300, 1:15)

@@ -15,6 +15,15 @@
 [1] 13.72386
 
 
+[1] "if less than"
+[1] "crim <= 39.62114"
+[1] "estimate is"
+[1] 23.43571
+[1] "if greater than"
+[1] "crim <= 39.62114"
+[1] "estimate is"
+[1] 8.8
+
 [RM < 6.322]
  Left: 
 [RM < 5.954]

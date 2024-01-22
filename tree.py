@@ -10,32 +10,41 @@ boston = boston.loc[included_rows]
 def train_split(data, target, features=None, frac=1.):
     if features is None:
         features = data.columns
-    train = data.loc[:, features].sample(frac=frac)
-    return train.drop(target, axis=1), train[target]
+    train = data.sample(frac=frac)
+    return train.drop(target, axis=1).loc[:, features], train[target]
 
 
 class TerminalNode():
-    def __init__(self, outcomes, score=None, value=None):
+    def __init__(self, outcomes, depth, score=None, value=None):
         self.outcomes = outcomes
+        self.depth = depth
         self.samples = len(outcomes)
         self.score = score
         self.value = value
 
     def __str__(self):
-        # return str(self.outcomes)
-        return f'score={self.score:.3f}, samples={self.samples}, value={self.value:.3f}'
+        return (
+            f'''{self.depth*'  '}score={self.score:.3f}, samples={
+                self.samples}, value={self.value:.3f}'''
+        )
 
 
 class DecisionNode(TerminalNode):
-    def __init__(self, feature, threshold, left, right, outcomes, score, value):
-        super().__init__(outcomes, score, value)
+    def __init__(self, feature, threshold, left, right, outcomes, score, value, depth):
+        super().__init__(outcomes, depth, score, value)
         self.left = left
         self.right = right
         self.feature = feature
         self.threshold = threshold
+        self.depth = depth
 
     def __str__(self):
-        return f'[{self.feature} < {self.threshold:.3f}]\n Left: \n{self.left}\n Right: \n{self.right}'
+        return (
+            f'''{self.depth*'  '}[{self.feature} < {self.threshold:.3f}] score={self.score:.3f}, samples={self.samples}, value={self.value:.3f}
+{self.depth*'  '}{self.left}
+{self.depth*'  '}{self.right}
+'''
+        )
 
 
 class DecisionTreeRegressor():
@@ -61,7 +70,7 @@ class DecisionTreeRegressor():
     def _score(self, data):
         return self._weighted_average_of_mse([data])
 
-    def _get_split(self, data):
+    def _get_split(self, data, depth):
         data = data.copy()
         b_feature = None
         b_threshold = None
@@ -83,21 +92,21 @@ class DecisionTreeRegressor():
                                    data.iloc[row_index][feature])/2
                     b_score = score
                     b_groups = left, right
-        return DecisionNode(b_feature, b_threshold, TerminalNode(b_groups[0]),
-                            TerminalNode(b_groups[1]), data, b_score, self._value(data))
+        return DecisionNode(b_feature, b_threshold, TerminalNode(b_groups[0], depth+1),
+                            TerminalNode(b_groups[1], depth+1), data, b_score, self._value(data), depth)
 
     def _split(self, node):
         left, right = node.left.outcomes, node.right.outcomes
         # process left child
         if len(left) > self.min_samples_leaf:
-            node.left = self._get_split(left)
+            node.left = self._get_split(left, node.depth+1)
             self._split(node.left)
         else:
             node.left.score = self._score(left)
             node.left.value = self._value(left)
         # process right child
         if len(right) > self.min_samples_leaf:
-            node.right = self._get_split(right)
+            node.right = self._get_split(right, node.depth+1)
             self._split(node.right)
         else:
             node.right.score = self._score(right)
@@ -106,13 +115,13 @@ class DecisionTreeRegressor():
     def fit(self, x, y):
         data = pd.concat([x, y], axis=1)
         # print(data)
-        root = self._get_split(data)
+        root = self._get_split(data, 0)
         self._split(root)
         self.root = root
         return root
 
 
-x_train, y_train = train_split(boston, 'Price')
+x_train, y_train = train_split(boston, 'Price', ["CRIM", "ZN", "INDUS"])
 regressor = DecisionTreeRegressor(min_samples_leaf=2)
 regressor.fit(x_train, y_train)
 print(x_train)

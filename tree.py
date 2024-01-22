@@ -15,12 +15,12 @@ def train_split(data, target, features=None, frac=1.):
 
 
 class TerminalNode():
-    def __init__(self, outcomes, depth, score=None, value=None):
-        self.outcomes = outcomes
-        self.depth = depth
-        self.samples = len(outcomes)
-        self.score = score
-        self.value = value
+    def __init__(self, node_data):
+        self.outcomes = node_data['outcomes']
+        self.samples = len(self.outcomes)
+        self.score = node_data.get('score', None)
+        self.value = node_data.get('value', None)
+        self.depth = node_data['depth']
 
     def __str__(self):
         return (
@@ -30,20 +30,19 @@ class TerminalNode():
 
 
 class DecisionNode(TerminalNode):
-    def __init__(self, feature, threshold, left, right, outcomes, score, value, depth):
-        super().__init__(outcomes, depth, score, value)
+    def __init__(self, rule, left, right, node_data):
+        super().__init__(node_data)
+        self.feature = rule['feature']
+        self.threshold = rule['threshold']
         self.left = left
         self.right = right
-        self.feature = feature
-        self.threshold = threshold
-        self.depth = depth
+        self.depth = node_data['depth']
 
     def __str__(self):
         return (
             f'''{self.depth*'  '}{self.depth} [{self.feature} < {self.threshold:.3f}] score={self.score:.3f}, samples={self.samples}, value={self.value:.3f}
-{self.depth*'  '}{self.left}
-{self.depth*'  '}{self.right}
-'''
+{self.left}
+{self.right}'''
         )
 
 
@@ -92,8 +91,13 @@ class DecisionTreeRegressor():
                                    data.iloc[row_index][feature])/2
                     b_score = score
                     b_groups = left, right
-        return DecisionNode(b_feature, b_threshold, TerminalNode(b_groups[0], depth+1),
-                            TerminalNode(b_groups[1], depth+1), data, b_score, self._value(data), depth)
+        rule = {'feature': b_feature, 'threshold': b_threshold}
+        left = {'outcomes': b_groups[0], 'depth': depth+1}
+        right = {'outcomes': b_groups[1], 'depth': depth+1}
+        node_data = {'outcomes': data, 'score': b_score,
+                     'value': self._value(data), 'depth': depth}
+        return DecisionNode(rule, TerminalNode(left),
+                            TerminalNode(right), node_data)
 
     def _split(self, node):
         left, right = node.left.outcomes, node.right.outcomes

@@ -1,12 +1,14 @@
-library(MASS)
-library(tree)
-data(Boston)
+# library(MASS)
+# library(tree)
+# data(Boston)
 set.seed(1)
 # train <- sample(seq_len(nrow(Boston)), nrow(Boston) / 2)
 # tree.boston <- tree(medv ~ ., data = Boston, subset = train)
 # summary(tree.boston)
 # plot(tree.boston)
 # text(tree.boston, pretty = 0)
+
+Boston <- read.csv("boston.csv")
 
 tree <- function(dataset, dependent_variable, explanatory_variables, threshold, train) {
   num <- dim(dataset)[2]
@@ -53,11 +55,21 @@ tree <- function(dataset, dependent_variable, explanatory_variables, threshold, 
     ranked_rules <- dataset[order(dataset[, f]), ]
     best_rule <- append(best_rule, ranked_rules[2, b])
     best_mse <- append(best_mse, ranked_rules[2, f])
+    print(ncol(dataset))
+    # print(ranked_rules)
   }
   mse_for_rules <- data.frame(best_var, best_rule, best_mse)
   mse_for_rules_sorted <- mse_for_rules[order(mse_for_rules[, "best_mse"]), ]
   g <- paste(mse_for_rules_sorted[1, "best_var"], " <= ", sep = "")
   h <- paste(g, mse_for_rules_sorted[1, "best_rule"], sep = "")
+
+
+  # print(dataset)
+  # print(mse_for_rules_sorted)
+  # print(best_var)
+  # print(best_rule)
+  # print(subset(dataset, eval(parse(text = best_var)) < best_rule)[, dependent_variable])
+
   if (length(subset(dataset, eval(parse(text = best_var)) < best_rule)[, dependent_variable]) > threshold) {
     print("if less than")
     print(h)
@@ -85,5 +97,7 @@ included_rows <- c(
   505, 324, 167, 129, 418, 471,
   299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
-Boston <- Boston[included_rows, ]
-tree(Boston, "medv", c("crim", "zn", "indus"), 300, 1:15)
+Boston <- Boston[included_rows, c("CRIM", "ZN", "INDUS", "Price")]
+print(Boston)
+# tree(Boston, "medv", c("crim", "zn", "indus"), 5, 1:15)
+tree(Boston, "Price", c("CRIM", "ZN", "INDUS"), 4, 1:15)

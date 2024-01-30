@@ -162,7 +162,14 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
         names <- c(names, df[row, "name"])
       }
       l <- layout_as_tree(g, root = "0")
-      plot(g, layout = l, vertex.label = names)
+      plot(
+        g,
+        layout = l,
+        vertex.label = names,
+        vertex.shape = "rectangle",
+        vertex.size = 35,
+        vertex.size2 = 30
+      )
     }
   )
 )

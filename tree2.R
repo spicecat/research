@@ -1,6 +1,6 @@
-if (!require("rare")) {
-    install.packages("rare")
-    library("rare")
+if (!require("igraph")) {
+    install.packages("igraph")
+    library("igraph")
 }
 library(igraph)
 

@@ -153,10 +153,10 @@ included_rows <- c(
     505, 324, 167, 129, 418, 471,
     299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
-Boston <- Boston[included_rows, c("CRIM", "ZN", "INDUS", "Price")]
+boston <- Boston[included_rows, c("CRIM", "ZN", "INDUS", "Price")]
 set.seed(1)
-tree_model <- generate_tree(Price ~ ., data = Boston)
-tree.boston <- tree(Price ~ ., data = Boston)
+tree_model <- generate_tree(Price ~ ., data = boston)
+tree.boston <- tree(Price ~ ., data = boston)
 
 # Print the tree model
 summary(tree.boston)

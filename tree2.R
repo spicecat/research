@@ -1,6 +1,11 @@
+if (!require("igraph")) {
+  install.packages("igraph")
+}
 library(igraph)
+library(MASS)
 
-boston <- read.csv("boston.csv")
+# boston <- read.csv("boston.csv")
+boston <- Boston
 
 train_split <- function(dataset, frac = 0.5) {
   sample_indices <- sample(nrow(dataset), frac * nrow(dataset))
@@ -184,9 +189,12 @@ boston <- boston[included_rows, ]
 # Split the data into training and testing sets
 train <- train_split(boston, 1.)
 
+print(train)
+
 # Fit the decision tree regressor to the training data
 regressor <- decision_tree_regressor$new(min_samples_leaf = 2)
-regressor$fit(train, "Price", c("CRIM", "ZN", "INDUS"))
+# regressor$fit(train, "Price", c("CRIM", "ZN", "INDUS"))
+regressor$fit(train, "medv", c("crim", "zn", "indus"))
 
 # Print the training data
 # print(x_train)

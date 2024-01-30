@@ -1,3 +1,7 @@
+if (!require("rare")) {
+    install.packages("rare")
+    library("rare")
+}
 library(igraph)
 
 boston <- read.csv("boston.csv")

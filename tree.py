@@ -1,4 +1,5 @@
 import pandas as pd
+import graphviz
 
 boston = pd.read_csv('boston.csv')
 
@@ -24,6 +25,13 @@ class TerminalNode():
                 self.samples}, value={self.value:.3f}'''
         )
 
+    def str(self):
+        return (
+            f'''score={self.score:.3f}
+samples={self.samples}
+value={self.value:.3f}'''
+        )
+
 
 class DecisionNode(TerminalNode):
     def __init__(self, rule, left, right, node_data):
@@ -39,6 +47,14 @@ class DecisionNode(TerminalNode):
             f'''{self.depth*'  '}{self.depth} [{self.feature} < {self.threshold:.3f}] score={self.score:.3f}, samples={self.samples}, value={self.value:.3f}
 {self.left}
 {self.right}'''
+        )
+
+    def str(self):
+        return (
+            f'''[{self.feature} < {self.threshold:.3f}]
+score={self.score:.3f}
+samples={self.samples}
+value={self.value:.3f}'''
         )
 
 
@@ -120,6 +136,21 @@ class DecisionTreeRegressor():
         self.root = root
         return root
 
+    def render(self):
+        graph = graphviz.Digraph()
+        queue = [self.root]
+        while queue:
+            node = queue.pop(0)
+            if node is None:
+                continue
+            graph.node(str(hash(node)), node.str())
+            if isinstance(node, DecisionNode):
+                queue.append(node.left) # type: ignore
+                queue.append(node.right) # type: ignore
+                graph.edge(str(hash(node)), str(hash(node.left)))
+                graph.edge(str(hash(node)), str(hash(node.right)))
+        graph.render('tree', view=True)
+
 
 included_rows = [505, 324, 167, 129, 418, 471,
                  299, 270, 466, 187, 307, 481,  85, 277, 362]
@@ -130,3 +161,5 @@ regressor = DecisionTreeRegressor(min_samples_leaf=2)
 regressor.fit(x_train, y_train)
 # print(x_train)
 print(regressor.root)
+
+regressor.render()

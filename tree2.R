@@ -153,3 +153,5 @@ regressor$fit(train, "Price", c("CRIM", "ZN", "INDUS"))
 
 # Print the decision tree
 print(regressor$root)
+
+plot(regressor$root)

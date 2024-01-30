@@ -1,1 +1,2 @@
 pandas>=2.1.4,<2.2.0  # https://pandas.pydata.org
+graphviz>=0.20.1,<0.21.0  # https://github.com/xflr6/graphviz

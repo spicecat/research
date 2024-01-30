@@ -4,7 +4,7 @@ import graphviz
 boston = pd.read_csv('boston.csv')
 
 
-def train_split(data, target, features=None, frac=1.):
+def train_split(data, target, features=None, frac=0.5):
     if features is None:
         features = data.columns
     train = data.sample(frac=frac)
@@ -145,8 +145,8 @@ class DecisionTreeRegressor():
                 continue
             graph.node(str(hash(node)), node.str())
             if isinstance(node, DecisionNode):
-                queue.append(node.left) # type: ignore
-                queue.append(node.right) # type: ignore
+                queue.append(node.left)  # type: ignore
+                queue.append(node.right)  # type: ignore
                 graph.edge(str(hash(node)), str(hash(node.left)))
                 graph.edge(str(hash(node)), str(hash(node.right)))
         graph.render('tree', view=True)

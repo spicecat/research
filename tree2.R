@@ -1,6 +1,8 @@
+library(igraph)
+
 boston <- read.csv("boston.csv")
 
-train_split <- function(dataset, frac = 1) {
+train_split <- function(dataset, frac = 0.5) {
   sample_indices <- sample(nrow(dataset), frac * nrow(dataset))
   train <- dataset[sample_indices, ]
   return(train)
@@ -14,10 +16,14 @@ terminal_node <- setRefClass("terminal_node",
     depth = "numeric"
   ),
   methods = list(
-    show = function(...) {
+    show = function() {
       samples <- nrow(outcomes)
       padding <- paste(rep("  ", depth), collapse = "")
       cat(sprintf("%s%d score=%0.3f, samples=%d, value=%0.3f\n", padding, depth, score, samples, value))
+    },
+    str = function() {
+      samples <- nrow(outcomes)
+      return(sprintf("score=%0.3f\nsamples=%d\nvalue=%0.3f", score, samples, value))
     }
   )
 )
@@ -32,12 +38,16 @@ decision_node <- setRefClass("decision_node",
     depth = "numeric"
   ),
   methods = list(
-    show = function(...) {
+    show = function() {
       samples <- nrow(outcomes)
       padding <- paste(rep("  ", depth), collapse = "")
       cat(sprintf("%s%d [%s < %0.3f] score=%0.3f, samples=%d, value=%0.3f\n", padding, depth, feature, threshold, score, samples, value))
       print(left)
       print(right)
+    },
+    str = function() {
+      samples <- nrow(outcomes)
+      return(sprintf("[%s < %0.3f]\nscore=%0.3f\nsamples=%d\nvalue=%0.3f", feature, threshold, score, samples, value))
     }
   )
 )
@@ -130,16 +140,39 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
       root <<- get_split(data, 0)
       split(root)
       return(root)
+    },
+    build_df = function(node, id, parent = NA) {
+      df <- data.frame(id = id, parent = parent, name = node$str())
+      if (is(node, "decision_node")) {
+        df <- rbind(df, build_df(node$left, paste(id, "L"), id))
+        df <- rbind(df, build_df(node$right, paste(id, "R"), id))
+      }
+      return(df)
+    },
+    render = function() {
+      df <- build_df(root, "0")
+      g <- graph.tree(n = 0, children = 2)
+      names <- c()
+      for (row in seq_len(nrow(df))) {
+        # print(df[row, "id"])
+        g <- g + vertices(df[row, "id"])
+        if (!is.na(df[row, "parent"])) {
+          g <- g + edge(df[row, "parent"], df[row, "id"])
+        }
+        names <- c(names, df[row, "name"])
+      }
+      l <- layout_as_tree(g, root = "0")
+      plot(g, layout = l, vertex.label = names)
     }
   )
 )
 
 
-# included_rows <- c(
-#   505, 324, 167, 129, 418, 471,
-#   299, 270, 466, 187, 307, 481, 85, 277, 362
-# ) + 1
-# boston <- boston[included_rows, ]
+included_rows <- c(
+  505, 324, 167, 129, 418, 471,
+  299, 270, 466, 187, 307, 481, 85, 277, 362
+) + 1
+boston <- boston[included_rows, ]
 
 # Split the data into training and testing sets
 train <- train_split(boston, 1.)
@@ -154,4 +187,4 @@ regressor$fit(train, "Price", c("CRIM", "ZN", "INDUS"))
 # Print the decision tree
 print(regressor$root)
 
-plot(regressor$root)
+regressor$render()

@@ -96,16 +96,16 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
   ),
   methods = list(
     weighted_average_of_mse = function(splits) {
-      mean_squared_error <- function(dataset) {
-        target_column <- dataset[, ncol(dataset)]
+      sum_squared_error <- function(dataset) {
+        actual <- dataset[, ncol(dataset)]
         average <- value(dataset)
-        return(sum((target_column - average)^2))
+        return(sum((actual - average)^2))
       }
       n <- sum(sapply(splits, nrow))
       weight <- 0
       for (dataset in splits) {
         size <- nrow(dataset)
-        weight <- weight + (mean_squared_error(dataset) * (size / n))
+        weight <- weight + (sum_squared_error(dataset) * (size / n))
       }
       return(weight)
     },
@@ -169,7 +169,10 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
         node$right$value <- value(right)
       }
     },
-    fit = function(dataset, target, features = c()) {
+    fit = function(dataset, target = NA, features = c()) {
+      if (is.na(target)) {
+        target <- names(dataset)[ncol(dataset)]
+      }
       if (length(features) == 0) {
         features <- names(dataset)[-which(names(dataset) == target)]
       }
@@ -191,7 +194,16 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
       }
       return(node$value)
     },
-    graph_df = function(node, id, parent = NA) {
+    mean_squared_error = function(dataset, target) {
+      if (is.na(target)) {
+        actual <- dataset[, ncol(dataset)]
+      } else {
+        actual <- dataset[, target]
+      }
+      predictions <- apply(dataset, 1, function(row) predict(row))
+      return(mean((actual - predictions)^2))
+    },
+    nodes_df = function(node, id, parent = NA) {
       df <- data.frame(
         id = id,
         parent = parent,
@@ -199,13 +211,13 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
         label = node$get_label()
       )
       if (is(node, "decision_node")) {
-        df <- rbind(df, graph_df(node$left, paste(id, "L"), id))
-        df <- rbind(df, graph_df(node$right, paste(id, "R"), id))
+        df <- rbind(df, nodes_df(node$left, paste(id, "L"), id))
+        df <- rbind(df, nodes_df(node$right, paste(id, "R"), id))
       }
       return(df)
     },
     render = function() {
-      nodes <- graph_df(root, "0")
+      nodes <- nodes_df(root, "0")
       g <- graph.tree(n = 0, children = 2)
       labels <- c()
       for (row in seq_len(nrow(nodes))) {
@@ -226,7 +238,7 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
       )
     },
     summarize = function() {
-      nodes <- graph_df(root, "0")
+      nodes <- nodes_df(root, "0")
       terminal_nodes <- nodes[is.na(nodes$node.feature), ]
       cat("Variables used:\n")
       cat(unique(na.omit(nodes$node.feature)))
@@ -261,17 +273,17 @@ included_rows <- c(
   299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
 included_columns <- c("crim", "zn", "indus", "medv")
-boston <- boston[included_rows, included_columns]
+# boston <- boston[included_rows, included_columns]
+boston <- boston[, included_columns]
 # boston <- boston[included_rows, ]
 
 set.seed(1)
-train <- train_split(boston, 1.)
-
+train <- train_split(boston, 0.2)
 # Fit the decision tree regressor to the training data
 regressor <- decision_tree_regressor$new(min_samples_leaf = 5)
 # regressor$fit(train, "Price", c("CRIM", "ZN", "INDUS"))
-regressor$fit(train, "medv", c("crim", "zn", "indus"))
-# regressor$fit(train, "medv")
+regressor$fit(train)
+regressor$fit(train, "medv")
 
 # Print the decision tree
 print(regressor$root)
@@ -284,6 +296,9 @@ print(regressor$root)
 #   medv = 11.9
 # )
 # print(regressor$predict(test_row[1, ]))
+
+print("MSE")
+print(regressor$mean_squared_error(boston, "medv"))
 
 regressor$summarize()
 

@@ -1,7 +1,7 @@
 library(tree)
 library(MASS)
 
-# data(Boston)
+data(Boston)
 # Boston <- read.csv("boston.csv")
 
 boston <- Boston
@@ -9,14 +9,20 @@ boston <- Boston
 # print(boston)
 
 included_rows <- c(
-    505, 324, 167, 129, 418, 471,
-    299, 270, 466, 187, 307, 481, 85, 277, 362
+  505, 324, 167, 129, 418, 471,
+  299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
-# Boston <- Boston[included_rows, c("CRIM", "ZN", "INDUS", "medv")]
+included_columns <- c("crim", "zn", "indus", "medv")
+boston <- boston[included_rows, included_columns]
 
+print(boston)
 set.seed(1)
 # train <- sample(seq_len(nrow(Boston)), nrow(Boston) / 2)
 tree.boston <- tree(medv ~ ., data = boston)
 print(summary(tree.boston))
-# plot(tree.boston)
-# text(tree.boston, pretty = 0)
+plot(tree.boston)
+text(tree.boston, pretty = 0)
+
+# test-mse
+# k-fold cross validation
+# pruning graph cv error v size

@@ -24,11 +24,30 @@ terminal_node <- setRefClass("terminal_node",
     show = function() {
       samples <- nrow(outcomes)
       padding <- paste(rep("  ", depth), collapse = "")
-      cat(sprintf("%s%d score=%0.3f, samples=%d, value=%0.3f\n", padding, depth, score, samples, value))
+      cat(sprintf(
+        "%s%d score=%0.3f, samples=%d, value=%0.3f\n",
+        padding, depth, score, samples, value
+      ))
     },
-    str = function() {
+    get_label = function() {
       samples <- nrow(outcomes)
-      return(sprintf("score=%0.3f\nsamples=%d\nvalue=%0.3f", score, samples, value))
+      return(sprintf(
+        "score=%0.3f\nsamples=%d\nvalue=%0.3f",
+        score, samples, value
+      ))
+    },
+    as.data.frame = function() {
+      df <- data.frame(
+        # outcomes = outcomes,
+        score = score,
+        samples = nrow(outcomes),
+        value = value,
+        depth = depth,
+        feature = NA,
+        threshold = NA,
+        label = get_label()
+      )
+      return(df)
     }
   )
 )
@@ -46,13 +65,26 @@ decision_node <- setRefClass("decision_node",
     show = function() {
       samples <- nrow(outcomes)
       padding <- paste(rep("  ", depth), collapse = "")
-      cat(sprintf("%s%d [%s < %0.3f] score=%0.3f, samples=%d, value=%0.3f\n", padding, depth, feature, threshold, score, samples, value))
+      cat(sprintf(
+        "%s%d [%s < %0.3f] score=%0.3f, samples=%d, value=%0.3f\n",
+        padding, depth, feature, threshold, score, samples, value
+      ))
       print(left)
       print(right)
     },
-    str = function() {
+    get_label = function() {
       samples <- nrow(outcomes)
-      return(sprintf("[%s < %0.3f]\nscore=%0.3f\nsamples=%d\nvalue=%0.3f", feature, threshold, score, samples, value))
+      return(sprintf(
+        "[%s < %0.3f]\n%s",
+        feature, threshold, callSuper()
+      ))
+    },
+    as.data.frame = function() {
+      df <- callSuper()
+      df$feature <- feature
+      df$threshold <- threshold
+      df$label <- get_label()
+      return(df)
     }
   )
 )
@@ -101,8 +133,7 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
           score <- weighted_average_of_mse(list(left, right))
           if (score < b_score) {
             b_feature <- feature
-            b_threshold <- (data[row_index - 1, feature] +
-              data[row_index, feature]) / 2
+            b_threshold <- (data[row_index - 1, feature] + data[row_index, feature]) / 2
             b_score <- score
             b_groups <- list(left, right)
           }
@@ -138,7 +169,10 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
         node$right$value <- value(right)
       }
     },
-    fit = function(dataset, target, features) {
+    fit = function(dataset, target, features = c()) {
+      if (length(features) == 0) {
+        features <- names(dataset)[-which(names(dataset) == target)]
+      }
       x <- dataset[, features]
       y <- dataset[[target]]
       data <- cbind(x, y)
@@ -157,37 +191,66 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
       }
       return(node$value)
     },
-    build_df = function(node, id, parent = NA) {
-      df <- data.frame(id = id, parent = parent, name = node$str())
+    graph_df = function(node, id, parent = NA) {
+      df <- data.frame(
+        id = id,
+        parent = parent,
+        node = node$as.data.frame(),
+        label = node$get_label()
+      )
       if (is(node, "decision_node")) {
-        df <- rbind(df, build_df(node$left, paste(id, "L"), id))
-        df <- rbind(df, build_df(node$right, paste(id, "R"), id))
+        df <- rbind(df, graph_df(node$left, paste(id, "L"), id))
+        df <- rbind(df, graph_df(node$right, paste(id, "R"), id))
       }
       return(df)
     },
     render = function() {
-      df <- build_df(root, "0")
+      nodes <- graph_df(root, "0")
       g <- graph.tree(n = 0, children = 2)
-      names <- c()
-      for (row in seq_len(nrow(df))) {
-        g <- g + vertices(df[row, "id"])
-        if (!is.na(df[row, "parent"])) {
-          g <- g + edge(df[row, "parent"], df[row, "id"])
+      labels <- c()
+      for (row in seq_len(nrow(nodes))) {
+        g <- g + vertices(nodes[row, "id"])
+        if (!is.na(nodes[row, "parent"])) {
+          g <- g + edge(nodes[row, "parent"], nodes[row, "id"])
         }
-        names <- c(names, df[row, "name"])
+        labels <- c(labels, nodes[row, "node.label"])
       }
       l <- layout_as_tree(g, root = "0")
       plot(
         g,
         layout = l,
-        vertex.label = names,
+        vertex.label = labels,
         vertex.shape = "rectangle",
         vertex.size = 35,
         vertex.size2 = 30
       )
     },
-    summary = function() {
-      df <- build_df(root, "0")
+    summarize = function() {
+      nodes <- graph_df(root, "0")
+      terminal_nodes <- nodes[is.na(nodes$node.feature), ]
+      cat("Variables used:\n")
+      cat(unique(na.omit(nodes$node.feature)))
+      cat("\n")
+      cat(sprintf(
+        "Number of terminal nodes: %d\n",
+        nrow(terminal_nodes)
+      ))
+      error_total <- sum(
+        terminal_nodes$node.score * terminal_nodes$node.samples
+      )
+      samples <- nodes[1, ]$node.samples
+      cat(sprintf(
+        "Residual mean deviance: %0.3f\n",
+        error_total / (samples - nrow(terminal_nodes))
+      ))
+      cat(sprintf(
+        "Samples: %d\n",
+        samples
+      ))
+      cat(sprintf(
+        "Sum of squared residuals: %0.3f\n",
+        error_total
+      ))
     }
   )
 )
@@ -197,23 +260,31 @@ included_rows <- c(
   505, 324, 167, 129, 418, 471,
   299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
-boston <- boston[included_rows, c("crim", "zn", "indus", "medv")]
+included_columns <- c("crim", "zn", "indus", "medv")
+boston <- boston[included_rows, included_columns]
+# boston <- boston[included_rows, ]
 
 set.seed(1)
-# Split the data into training and testing sets
 train <- train_split(boston, 1.)
 
-print(boston)
-
 # Fit the decision tree regressor to the training data
-regressor <- decision_tree_regressor$new(min_samples_leaf = 2)
+regressor <- decision_tree_regressor$new(min_samples_leaf = 5)
 # regressor$fit(train, "Price", c("CRIM", "ZN", "INDUS"))
 regressor$fit(train, "medv", c("crim", "zn", "indus"))
+# regressor$fit(train, "medv")
 
 # Print the decision tree
 print(regressor$root)
 
-print(boston[1, ])
-print(regressor$predict(boston[1, ]))
+# Predict the outcome for the test row
+# test_row <- data.frame(
+#   crim = 0.04741,
+#   zn = 0,
+#   indus = 11.93,
+#   medv = 11.9
+# )
+# print(regressor$predict(test_row[1, ]))
+
+regressor$summarize()
 
 regressor$render()

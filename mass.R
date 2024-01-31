@@ -16,7 +16,7 @@ included_rows <- c(
 
 set.seed(1)
 # train <- sample(seq_len(nrow(Boston)), nrow(Boston) / 2)
-tree.boston <- tree::tree(medv ~ ., data = boston)
+tree.boston <- tree(medv ~ ., data = boston)
 summary(tree.boston)
 plot(tree.boston)
 text(tree.boston, pretty = 0)

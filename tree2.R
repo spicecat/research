@@ -146,6 +146,17 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
       split(root)
       return(root)
     },
+    predict = function(row) {
+      node <- root
+      while (is(node, "decision_node")) {
+        if (row[node$feature] < node$threshold) {
+          node <- node$left
+        } else {
+          node <- node$right
+        }
+      }
+      return(node$value)
+    },
     build_df = function(node, id, parent = NA) {
       df <- data.frame(id = id, parent = parent, name = node$str())
       if (is(node, "decision_node")) {
@@ -159,7 +170,6 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
       g <- graph.tree(n = 0, children = 2)
       names <- c()
       for (row in seq_len(nrow(df))) {
-        # print(df[row, "id"])
         g <- g + vertices(df[row, "id"])
         if (!is.na(df[row, "parent"])) {
           g <- g + edge(df[row, "parent"], df[row, "id"])
@@ -175,6 +185,9 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
         vertex.size = 35,
         vertex.size2 = 30
       )
+    },
+    summary = function() {
+      df <- build_df(root, "0")
     }
   )
 )
@@ -184,22 +197,23 @@ included_rows <- c(
   505, 324, 167, 129, 418, 471,
   299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
-boston <- boston[included_rows, ]
+boston <- boston[included_rows, c("crim", "zn", "indus", "medv")]
 
+set.seed(1)
 # Split the data into training and testing sets
 train <- train_split(boston, 1.)
 
-print(train)
+print(boston)
 
 # Fit the decision tree regressor to the training data
 regressor <- decision_tree_regressor$new(min_samples_leaf = 2)
 # regressor$fit(train, "Price", c("CRIM", "ZN", "INDUS"))
 regressor$fit(train, "medv", c("crim", "zn", "indus"))
 
-# Print the training data
-# print(x_train)
-
 # Print the decision tree
 print(regressor$root)
+
+print(boston[1, ])
+print(regressor$predict(boston[1, ]))
 
 regressor$render()

@@ -13,7 +13,7 @@ included_rows <- c(
   299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
 included_columns <- c("crim", "zn", "indus", "medv")
-boston <- boston[included_rows, included_columns]
+# boston <- boston[included_rows, included_columns]
 
 print(boston)
 set.seed(1)

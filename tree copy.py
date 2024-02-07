@@ -1,5 +1,5 @@
-from queue import PriorityQueue
 import pandas as pd
+from queue import PriorityQueue
 from graphviz import Digraph
 
 boston = pd.read_csv('boston.csv')
@@ -229,6 +229,34 @@ Samples: {self.root.samples}
 Sum of squared residuals: {error_total}
 """)
 
+    # summarize = function() {
+    #   nodes <- nodes_df(root, "0")
+    #   terminal_nodes <- nodes[is.na(nodes$node.feature), ]
+    #   cat("Variables used:\n")
+    #   cat(unique(na.omit(nodes$node.feature)))
+    #   cat("\n")
+    #   cat(sprintf(
+    #     "Number of terminal nodes: %d\n",
+    #     nrow(terminal_nodes)
+    #   ))
+    #   error_total <- sum(
+    #     terminal_nodes$node.score * terminal_nodes$node.samples
+    #   )
+    #   samples <- nodes[1, ]$node.samples
+    #   cat(sprintf(
+    #     "Residual mean deviance: %0.3f\n",
+    #     error_total / (samples - nrow(terminal_nodes))
+    #   ))
+    #   cat(sprintf(
+    #     "Samples: %d\n",
+    #     samples
+    #   ))
+    #   cat(sprintf(
+    #     "Sum of squared residuals: %0.3f\n",
+    #     error_total
+    #   ))
+    # }
+
 
 included_rows = [505, 324, 167, 129, 418, 471,
                  299, 270, 466, 187, 307, 481,  85, 277, 362]
@@ -237,8 +265,9 @@ boston = boston.loc[included_rows]
 x_train, y_train = train_split(boston, 'Price', ["CRIM", "ZN", "INDUS"], 1.)
 
 dataset = pd.concat([x_train, y_train], axis=1)
+# print(a.split)
 
-regressor = DecisionTreeRegressor(min_samples_split=2, max_leaf_nodes=100)
+regressor = DecisionTreeRegressor(min_samples_split=3, max_leaf_nodes=5)
 regressor.fit(x_train, y_train)
 print(regressor.root)
 regressor.summarize()

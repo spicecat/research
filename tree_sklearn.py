@@ -16,10 +16,11 @@ X = data.drop('Price', axis=1)
 y = data['Price']
 
 # Split the data into training and testing sets
-# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 # Create a regression tree regressor
-regressor = DecisionTreeRegressor(min_samples_leaf=2)
+regressor = DecisionTreeRegressor(
+    criterion="squared_error", min_samples_leaf=2)
 
 # Fit the regression tree regressor to the training data
 # regressor.fit(X_train, y_train)

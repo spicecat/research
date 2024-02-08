@@ -1,17 +1,10 @@
+from typing import Optional, Tuple
 from queue import PriorityQueue
 import pandas as pd
 from graphviz import Digraph
+from sklearn.model_selection import train_test_split
 
 boston = pd.read_csv('boston.csv')
-
-
-def train_split(data, target, features=None, frac=0.5):
-    '''Split dataset into random train subset.'''
-
-    if features is None:
-        features = data.columns
-    train = data.sample(frac=frac)
-    return train.drop(target, axis=1).loc[:, features], train[target]
 
 
 class Rule:
@@ -19,7 +12,7 @@ class Rule:
         self.feature = feature
         self.threshold = threshold
 
-    def groups(self, data: pd.DataFrame) -> tuple:
+    def groups(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         '''Split data into two groups according to the rule.'''
 
         return data[data[self.feature] < self.threshold], data[data[self.feature] > self.threshold]
@@ -47,7 +40,7 @@ class TerminalNode:
     def _score(self, data: pd.DataFrame) -> float:
         return self._weighted_average_of_mse((data,))
 
-    def _weighted_average_of_mse(self, splits: tuple[pd.DataFrame, ...]) -> float:
+    def _weighted_average_of_mse(self, splits: Tuple[pd.DataFrame, ...]) -> float:
         def _mean_squared_error(data):
             target_column = data.iloc[:, -1]
             average = self._value(data)
@@ -145,10 +138,10 @@ class DecisionTreeRegressor:
     '''A decision tree regressor.'''
 
     def __init__(self, *, min_samples_split=20, min_samples_leaf=1, max_leaf_nodes=None):
-        self.min_samples_split = min_samples_split
-        self.min_samples_leaf = min_samples_leaf
-        self.max_leaf_nodes = max_leaf_nodes
-        self.root = None
+        self.min_samples_split: int = min_samples_split
+        self.min_samples_leaf: int = min_samples_leaf
+        self.max_leaf_nodes: Optional[int] = max_leaf_nodes
+        self.root: Optional[TerminalNode] = None
 
     def _nodes(self, node=None, nodes=None):
         if node is None:
@@ -172,7 +165,27 @@ class DecisionTreeRegressor:
             self._nodes(node.right, nodes)
         return nodes
 
-    def fit(self, x, y):
+    def predict(self, row: pd.Series) -> float:
+        if self.root is None:
+            return 0
+        if not isinstance(self.root, DecisionNode):
+            return self.root.value
+        node: DecisionNode | TerminalNode = self.root
+        while isinstance(node, DecisionNode):
+            if row[node.feature] < node.threshold:
+                node = node.left
+            else:
+                node = node.right
+        return node.value
+
+    def mean_squared_error(self, x_test: pd.DataFrame, y_test: pd.Series) -> float:
+        # print(test)
+        test = pd.concat([x_test, y_test], axis=1)
+        error_total: float = sum(
+            map(lambda row: (row[1].iloc[-1] - self.predict(row[1]))**2, test.iterrows()))
+        return error_total/len(test)
+
+    def fit(self, x: pd.DataFrame, y: pd.Series) -> 'TerminalNode':
         '''Build a decision tree regressor from the training set (X, y).'''
         data = pd.concat([x, y], axis=1)
         root = TerminalNode(data, 0)
@@ -208,39 +221,54 @@ class DecisionTreeRegressor:
         graph.render('tree', view=True)
 
     def summarize(self):
-        nodes = self._nodes()
-        decision_nodes = [node['node'] for node in nodes if isinstance(
-            node['node'], DecisionNode)]
-        terminal_nodes = [node['node'] for node in nodes if not isinstance(
-            node['node'], DecisionNode)]
-        features = set(map(lambda node: node.feature, decision_nodes))
-
-        error_total = sum(map(
-            lambda terminal_node: terminal_node.score * terminal_node.samples,
-            terminal_nodes
-        ))
-
         if self.root is not None:
-            print(f"""Variables used:
-{features}
-Number of terminal nodes: {len(terminal_nodes)}
-Residual mean deviance: {error_total/(self.root.samples - len(terminal_nodes))}
-Samples: {self.root.samples}
-Sum of squared residuals: {error_total}
-""")
+            nodes = self._nodes()
+            decision_nodes = [node['node'] for node in nodes if isinstance(
+                node['node'], DecisionNode)]
+            terminal_nodes = [node['node'] for node in nodes if not isinstance(
+                node['node'], DecisionNode)]
+            features = set(map(lambda node: node.feature, decision_nodes))
+
+            error_total = sum(map(
+                lambda terminal_node: terminal_node.score * terminal_node.samples,
+                terminal_nodes
+            ))
+
+            print(f'Variables used:\n{features}')
+            print(f'Number of terminal nodes: {len(terminal_nodes)}')
+            if error_total:
+                print(
+                    f'Residual mean deviance: \
+{error_total/(self.root.samples - len(terminal_nodes)):.3f}\
+ = {error_total:.3f} / ({self.root.samples} - {len(terminal_nodes)})'
+                )
 
 
 included_rows = [505, 324, 167, 129, 418, 471,
                  299, 270, 466, 187, 307, 481,  85, 277, 362]
-boston = boston.loc[included_rows]
+# boston = boston.loc[included_rows]
+included_columns = ['CRIM', 'ZN', 'INDUS', 'Price']
+boston = boston.loc[:, included_columns]
 
-x_train, y_train = train_split(boston, 'Price', ["CRIM", "ZN", "INDUS"], 1.)
+dataset = boston
+X = dataset.drop('Price', axis=1)
+y = dataset['Price']
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.8)
 
-dataset = pd.concat([x_train, y_train], axis=1)
+regressor = DecisionTreeRegressor(min_samples_split=2, max_leaf_nodes=5)
 
-regressor = DecisionTreeRegressor(min_samples_split=2, max_leaf_nodes=100)
-regressor.fit(x_train, y_train)
+regressor.fit(X_train, y_train)
 print(regressor.root)
 regressor.summarize()
 
-# regressor.render()
+
+# Predict the outcome for the test row
+# test_row = pd.Series(
+#     [0.04741, 0, 11.93, 11.9],
+#     index=['CRIM', 'ZN', 'INDUS', 'Price']
+# )
+# print(regressor.predict(test_row))
+
+print(regressor.mean_squared_error(X_test, y_test))
+
+regressor.render()

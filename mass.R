@@ -15,10 +15,10 @@ included_rows <- c(
 included_columns <- c("crim", "zn", "indus", "medv")
 # boston <- boston[included_rows, included_columns]
 
-print(boston)
 set.seed(1)
-# train <- sample(seq_len(nrow(Boston)), nrow(Boston) / 2)
-tree.boston <- tree(medv ~ ., data = boston)
+train <- sample(seq_len(nrow(Boston)), nrow(Boston) * 0.5)
+print(train)
+tree.boston <- tree(medv ~ ., data = Boston[train,])
 print(summary(tree.boston))
 plot(tree.boston)
 text(tree.boston, pretty = 0)

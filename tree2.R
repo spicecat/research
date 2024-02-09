@@ -7,14 +7,10 @@ if (!require("caret")) {
 library(igraph)
 library(MASS)
 library(caret)
+library(R6)
+library(collections)
 # boston <- read.csv("boston.csv")
 boston <- Boston
-
-# train_test_split <- function(dataset, frac = 0.5) {
-#   sample_indices <- sample(nrow(dataset), frac * nrow(dataset))
-#   train <- dataset[sample_indices, ]
-#   return(train)
-# }
 
 test_train_split <- function(df, train_size = NULL, test_size = NULL) {
   if (is.null(train_size)) {
@@ -25,177 +21,189 @@ test_train_split <- function(df, train_size = NULL, test_size = NULL) {
   } else if (is.null(test_size)) {
     test_size <- 1 - train_size
   }
-  train_n <- ifelse(train_size < 1, nrow(df) * train_size, train_size)
-  test_n <- ifelse(test_size < 1, nrow(df) * test_size, test_size)
+  train_n <- nrow(df) * train_size
+  test_n <- nrow(df) * test_size
   indices <- sample(seq_len(nrow(df)), size = train_n + test_n)
   train_indices <- indices[1:train_n]
   test_indices <- indices[(train_n + 1):(train_n + test_n + 1)]
   train_set <- df[train_indices, ]
   test_set <- df[test_indices, ]
-  return(list(train = train_set, test = test_set))
+  list(train = train_set, test = test_set)
 }
 
-
-terminal_node <- setRefClass("terminal_node",
-  fields = list(
-    outcomes = "data.frame",
-    score = "numeric",
-    value = "numeric",
-    depth = "numeric"
-  ),
-  methods = list(
-    show = function() {
-      samples <- nrow(outcomes)
-      padding <- paste(rep("  ", depth), collapse = "")
-      cat(sprintf(
-        "%s%d score=%0.3f, samples=%d, value=%0.3f\n",
-        padding, depth, score, samples, value
-      ))
+Rule <- R6Class( # nolint
+  "Rule",
+  public = list(
+    feature = NULL,
+    threshold = NULL,
+    initialize = function(feature, threshold) {
+      self$feature <- feature
+      self$threshold <- threshold
+    },
+    evaluate = function(row) {
+      row[self$feature] < self$threshold
     },
     get_label = function() {
-      samples <- nrow(outcomes)
-      return(sprintf(
-        "score=%0.3f\nsamples=%d\nvalue=%0.3f",
-        score, samples, value
-      ))
+      sprintf("[%s < %0.3f]", self$feature, self$threshold)
     },
-    as.data.frame = function() {
-      df <- data.frame(
-        # outcomes = outcomes,
-        score = score,
-        samples = nrow(outcomes),
-        value = value,
-        depth = depth,
-        feature = NA,
-        threshold = NA,
-        label = get_label()
+    print = function() {
+      print(self$get_label())
+    }
+  )
+)
+
+Node <- R6Class( # nolint
+  "Node",
+  public = list(
+    outcomes = NULL,
+    samples = NULL,
+    value = NULL,
+    score = NULL,
+    depth = NULL,
+    rule = NULL,
+    left = NULL,
+    right = NULL,
+    initialize = function(outcomes, depth) {
+      self$outcomes <- outcomes
+      self$samples <- nrow(self$outcomes)
+      self$value <- private$get_value(outcomes)
+      self$score <- private$get_score(outcomes)
+      self$depth <- depth
+    },
+    get_split = function() {
+      if (is.null(private$next_split)) {
+        dataset <- self$outcomes
+        b_feature <- NULL
+        b_threshold <- NULL
+        b_score <- Inf
+        features <- names(dataset)[-ncol(dataset)]
+        n <- nrow(dataset)
+        for (feature in features) {
+          dataset <- dataset[order(dataset[, feature]), ]
+          for (row_i in 2:n) {
+            if (dataset[row_i - 1, feature] == dataset[row_i, feature]) {
+              next
+            }
+            left <- dataset[1:(row_i - 1), ]
+            right <- dataset[row_i:n, ]
+            score <- private$weighted_average_of_mse(list(left, right))
+            if (score < b_score) {
+              b_feature <- feature
+              b_threshold <- mean(dataset[(row_i - 1):row_i, feature])
+              b_score <- score
+            }
+          }
+        }
+        private$next_split <- Node$new(
+          outcomes = self$outcomes,
+          depth = self$depth
+        )
+        rule <- Rule$new(
+          feature = b_feature,
+          threshold = b_threshold
+        )
+        private$next_split$rule <- rule
+        groups <- split(dataset, apply(dataset, 1, rule$evaluate))
+        private$next_split$left <- Node$new(
+          outcomes = groups[[2]],
+          depth = self$depth + 1
+        )
+        private$next_split$right <- Node$new(
+          outcomes = groups[[1]],
+          depth = self$depth + 1
+        )
+      }
+      private$next_split
+    },
+    get_impurity_reduction = function() {
+      next_split <- self$get_split()
+      left <- next_split$left
+      right <- next_split$right
+      self$score * self$samples - (
+        left$samples * left$score + right$samples * right$score
       )
-      return(df)
-    }
-  )
-)
-
-decision_node <- setRefClass("decision_node",
-  contains = "terminal_node",
-  fields = list(
-    left = "terminal_node",
-    right = "terminal_node",
-    feature = "character",
-    threshold = "numeric",
-    depth = "numeric"
-  ),
-  methods = list(
-    show = function() {
-      samples <- nrow(outcomes)
-      padding <- paste(rep("  ", depth), collapse = "")
-      cat(sprintf(
-        "%s%d [%s < %0.3f] score=%0.3f, samples=%d, value=%0.3f\n",
-        padding, depth, feature, threshold, score, samples, value
-      ))
-      print(left)
-      print(right)
     },
-    get_label = function() {
-      samples <- nrow(outcomes)
-      return(sprintf(
-        "[%s < %0.3f]\n%s",
-        feature, threshold, callSuper()
-      ))
+    split = function() {
+      next_split <- self$get_split()
+      self$rule <- next_split$rule
+      self$left <- next_split$left
+      self$right <- next_split$right
     },
     as.data.frame = function() {
-      df <- callSuper()
-      df$feature <- feature
-      df$threshold <- threshold
-      df$label <- get_label()
-      return(df)
+      data.frame(
+        samples = self$samples,
+        score = self$score,
+        value = self$value,
+        depth = self$depth,
+        feature = ifelse(is.null(self$rule), NA, self$rule$feature),
+        threshold = ifelse(is.null(self$rule), NA, self$rule$threshold)
+      )
+    },
+    get_label = function() {
+      label <- sprintf(
+        "score=%0.3f\nsamples=%d\nvalue=%0.3f",
+        self$score, self$samples, self$value
+      )
+      if (!is.null(self$rule)) {
+        label <- paste0(self$rule$get_label(), "\n", label)
+      }
+      label
+    },
+    print = function() {
+      padding <- paste(rep("  ", self$depth), collapse = "")
+      cat(sprintf("%s%d ", padding, self$depth))
+      if (!is.null(self$rule)) {
+        cat(self$rule$get_label())
+      }
+      cat(sprintf(
+        " score=%0.3f, samples=%d, value=%0.3f\n",
+        self$score, self$samples, self$value
+      ))
+      if (!is.null(self$rule)) {
+        print(self$left)
+        print(self$right)
+      }
     }
-  )
-)
-
-decision_tree_regressor <- setRefClass("decision_tree_regressor",
-  fields = list(
-    root = "decision_node",
-    min_samples_split = "numeric",
-    min_samples_leaf = "numeric",
-    max_leaf_nodes = "numeric"
   ),
-  methods = list(
+  private = list(
+    next_split = NULL,
+    get_value = function(dataset) {
+      mean(dataset[, ncol(dataset)])
+    },
+    get_score = function(dataset) {
+      private$weighted_average_of_mse(list(dataset))
+    },
     weighted_average_of_mse = function(splits) {
       sum_squared_error <- function(dataset) {
         actual <- dataset[, ncol(dataset)]
-        average <- value(dataset)
-        return(sum((actual - average)^2))
+        average <- private$get_value(dataset)
+        sum((actual - average)^2)
       }
       n <- sum(sapply(splits, nrow))
-      weight <- 0
-      for (dataset in splits) {
-        size <- nrow(dataset)
-        weight <- weight + (sum_squared_error(dataset) * (size / n))
-      }
-      return(weight)
-    },
-    value = function(data) {
-      return(mean(data[, ncol(data)]))
-    },
-    score = function(data) {
-      return(weighted_average_of_mse(list(data)))
-    },
-    get_split = function(data, depth) {
-      b_feature <- NULL
-      b_threshold <- NULL
-      b_score <- Inf
-      b_groups <- c(NULL, NULL)
-      features <- names(data)[-ncol(data)]
-      n <- nrow(data)
-      for (feature in features) {
-        data <- data[order(data[, feature]), ]
-        for (row_index in 2:n) {
-          if (data[row_index - 1, feature] == data[row_index, feature]) {
-            next
-          }
-          left <- data[1:(row_index - 1), ]
-          right <- data[row_index:n, ]
-          score <- weighted_average_of_mse(list(left, right))
-          if (score < b_score) {
-            b_feature <- feature
-            b_threshold <- (data[row_index - 1, feature] + data[row_index, feature]) / 2
-            b_score <- score
-            b_groups <- list(left, right)
-          }
-        }
-      }
-      return(decision_node$new(
-        left = terminal_node$new(outcomes = b_groups[[1]], depth = depth + 1),
-        right = terminal_node$new(outcomes = b_groups[[2]], depth = depth + 1),
-        feature = b_feature,
-        threshold = b_threshold,
-        outcomes = data,
-        score = b_score,
-        value = value(data),
-        depth = depth
+      sum(sapply(
+        splits,
+        function(dataset) sum_squared_error(dataset) * (nrow(dataset) / n)
       ))
+    }
+  )
+)
+
+DecisionTreeRegressor <- R6Class( # nolint
+  "decision_tree_regressor",
+  public = list(
+    root = NULL,
+    min_samples_split = NULL,
+    min_samples_leaf = NULL,
+    max_leaf_nodes = NULL,
+    initialize = function(min_samples_split = 2,
+                          min_samples_leaf = 1,
+                          max_leaf_nodes = Inf) {
+      self$min_samples_split <- min_samples_split
+      self$min_samples_leaf <- min_samples_leaf
+      self$max_leaf_nodes <- max_leaf_nodes
     },
-    split = function(node) {
-      left <- node$left$outcomes
-      right <- node$right$outcomes
-      if (nrow(left) >= min_samples_split) {
-        node$left <- get_split(left, node$depth + 1)
-        split(node$left)
-      } else {
-        node$left$score <- score(left)
-        node$left$value <- value(left)
-      }
-      # process right child
-      if (nrow(right) >= min_samples_split) {
-        node$right <- get_split(right, node$depth + 1)
-        split(node$right)
-      } else {
-        node$right$score <- score(right)
-        node$right$value <- value(right)
-      }
-    },
-    fit = function(dataset, target = NA, features = c()) {
-      if (is.na(target)) {
+    fit = function(dataset, target = NULL, features = c()) {
+      if (is.null(target)) {
         target <- names(dataset)[ncol(dataset)]
       }
       if (length(features) == 0) {
@@ -203,30 +211,54 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
       }
       x <- dataset[, features]
       y <- dataset[[target]]
-      data <- cbind(x, y)
-      root <<- get_split(data, 0)
-      split(root)
-      return(root)
+      dataset <- cbind(x, y)
+
+      root <- Node$new(outcomes = dataset, depth = 0)
+      if (root$samples >= self$min_samples_split) {
+        pq <- PriorityQueue()
+        pq$push(root)
+        terminal_nodes <- 1
+        while (pq$size() > 0 && terminal_nodes < self$max_leaf_nodes) {
+          node <- pq$pop()
+          if (node$samples >= self$min_samples_split) {
+            split <- node$get_split()
+            left <- split$left
+            right <- split$right
+            if (all(left$samples, right$samples >= self$min_samples_leaf)) {
+              node$split()
+              if (left$samples >= self$min_samples_split) {
+                pq$push(left, priority = left$get_impurity_reduction())
+              }
+              if (right$samples >= self$min_samples_split) {
+                pq$push(right, priority = right$get_impurity_reduction())
+              }
+              terminal_nodes <- terminal_nodes + 1
+            }
+          }
+        }
+      }
+      self$root <- root
+      self$root
     },
     predict = function(row) {
-      node <- root
-      while (is(node, "decision_node")) {
-        if (row[node$feature] < node$threshold) {
+      node <- self$root
+      while (!is.null(node$rule)) {
+        if (node$rule$evaluate(row)) {
           node <- node$left
         } else {
           node <- node$right
         }
       }
-      return(node$value)
+      node$value
     },
-    mean_squared_error = function(test, target) {
-      if (is.na(target)) {
+    mean_squared_error = function(test, target = NULL) {
+      if (is.null(target)) {
         actual <- test[, ncol(test)]
       } else {
         actual <- test[, target]
       }
-      predictions <- apply(test, 1, function(row) predict(row))
-      return(mean((actual - predictions)^2))
+      predictions <- apply(test, 1, function(row) self$predict(row))
+      mean((actual - predictions)^2)
     },
     nodes_df = function(node, id, parent = NA) {
       df <- data.frame(
@@ -235,23 +267,22 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
         node = node$as.data.frame(),
         label = node$get_label()
       )
-      if (is(node, "decision_node")) {
-        df <- rbind(df, nodes_df(node$left, paste(id, "L"), id))
-        df <- rbind(df, nodes_df(node$right, paste(id, "R"), id))
+      if (!is.null(node$rule)) {
+        df <- rbind(df, self$nodes_df(node$left, paste0(id, "L"), id))
+        df <- rbind(df, self$nodes_df(node$right, paste0(id, "R"), id))
       }
-      return(df)
+      df
     },
     render = function() {
-      nodes <- nodes_df(root, "0")
+      nodes <- self$nodes_df(self$root, "0")
       g <- graph.tree(n = 0, children = 2)
-      labels <- c()
-      for (row in seq_len(nrow(nodes))) {
-        g <- g + vertices(nodes[row, "id"])
-        if (!is.na(nodes[row, "parent"])) {
-          g <- g + edge(nodes[row, "parent"], nodes[row, "id"])
+      g <- g + vertices(nodes[, "id"])
+      labels <- nodes[, "label"]
+      apply(nodes, 1, function(row) {
+        if (!is.na(row["parent"])) {
+          g <<- g + edge(row["parent"], row["id"])
         }
-        labels <- c(labels, nodes[row, "node.label"])
-      }
+      })
       l <- layout_as_tree(g, root = "0")
       plot(
         g,
@@ -261,12 +292,18 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
         vertex.size = 35,
         vertex.size2 = 30
       )
+      tkplot(
+        g,
+        layout = l,
+        vertex.label = labels,
+        vertex.size = 60,
+      )
     },
     summarize = function() {
-      nodes <- nodes_df(root, "0")
+      nodes <- self$nodes_df(self$root, "0")
       terminal_nodes <- nodes[is.na(nodes$node.feature), ]
       cat("Variables used:\n")
-      cat(unique(na.omit(nodes$node.feature)))
+      cat(na.omit(unique(nodes$node.feature)))
       cat("\n")
       cat(sprintf(
         "Number of terminal nodes: %d\n",
@@ -293,56 +330,60 @@ decision_tree_regressor <- setRefClass("decision_tree_regressor",
   )
 )
 
-
-k_fold_mse <- function(dataset, k, min_samples_split, target) {
+k_fold_mse <- function(regressor, dataset, target, k) {
   dataset <- dataset[sample(nrow(dataset)), ]
-  # print(dataset)
-  folds <- cut(seq(1, nrow(dataset)), breaks = k, labels = FALSE)
-  mse_total <- 0
-  for (i in 1:k) {
+  folds <- cut(seq_len(nrow(dataset)), breaks = k, labels = FALSE)
+
+  mse_values <- sapply(1:k, function(i) {
     test_indexes <- which(folds == i, arr.ind = TRUE)
     test <- dataset[test_indexes, ]
     train <- dataset[-test_indexes, ]
-    regressor <- decision_tree_regressor$new(min_samples_split = min_samples_split)
     regressor$fit(train, target)
-    mse_total <- mse_total + regressor$mean_squared_error(test, target)
-  }
-  return(mse_total) / k
+    regressor$mean_squared_error(test, target)
+  })
+  mean(mse_values)
 }
 
-plot_mse <- function(n, dataset, k, target) {
+plot_mse <- function(regressor, dataset, target, k) {
+  #   regressor <- DecisionTreeRegressor$new(
+  #   min_samples_split = 2,
+  #   max_leaf_nodes = 10
+  # )
+  # regressor$fit(train, "medv")
+  n <- 15
   mse_values <- 1:n
   for (i in 1:n) {
-    temp <- k_fold_mse(boston, 10, i, "medv")
-    mse_values[i] <- temp
+    regressor$max_leaf_nodes <- i
+    mse_values[i] <- k_fold_mse(regressor, dataset, target, k)
+    print(mse_values)
   }
   plot(1:n, mse_values)
 }
+
 
 included_rows <- c(
   505, 324, 167, 129, 418, 471,
   299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
 included_columns <- c("crim", "zn", "indus", "medv")
-boston <- boston[included_rows, included_columns]
-# boston <- boston[, included_columns]
+boston <- boston[, included_columns]
 # boston <- boston[included_rows, ]
 
 set.seed(1)
 
-test_train <- test_train_split(boston, test_size = 0.65)
+test_train <- test_train_split(boston, train_size = 0.8)
 train <- test_train$train
 test <- test_train$test
 
 # Fit the decision tree regressor to the training data
-regressor <- decision_tree_regressor$new(min_samples_split = 2)
-# regressor$fit(train, "Price", c("CRIM", "ZN", "INDUS"))
-regressor$fit(train)
+regressor <- DecisionTreeRegressor$new(
+  min_samples_split = 2,
+  max_leaf_nodes = 10
+)
 regressor$fit(train, "medv")
 
-
 # Print the decision tree
-print(regressor$root)
+# print(regressor$root)
 
 # Predict the outcome for the test row
 # test_row <- data.frame(
@@ -353,17 +394,24 @@ print(regressor$root)
 # )
 # print(regressor$predict(test_row[1, ]))
 
-print("MSE")
-test <- boston[-as.numeric(rownames(train)), ]
-print(regressor$mean_squared_error(test, "medv"))
+# print("MSE")
+# print(regressor$mean_squared_error(test, "medv"))
 
-# print("k-fold test")
-# print(k_fold_mse(boston, 10, 5, "medv"))
-
-# print(boston)
-
-# plot_mse(5, boston, 10, "medv")
-
-regressor$summarize()
+# regressor$summarize()
 
 # regressor$render()
+
+print("k-fold test")
+print(k_fold_mse(
+  regressor = regressor,
+  dataset = boston,
+  target = "medv",
+  k = 5
+))
+
+plot_mse(
+  regressor = regressor,
+  dataset = boston,
+  target = "medv",
+  k = 5
+)

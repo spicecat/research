@@ -324,9 +324,9 @@ included_rows <- c(
   299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
 included_columns <- c("crim", "zn", "indus", "medv")
-boston <- boston[included_rows, included_columns]
-# boston <- boston[, included_columns]
-# boston <- boston[included_rows, ]
+# boston <- boston[included_rows, included_columns]
+boston <- boston[, included_columns]
+boston <- boston[included_rows, ]
 
 set.seed(1)
 
@@ -335,7 +335,10 @@ train <- test_train$train
 test <- test_train$test
 
 # Fit the decision tree regressor to the training data
-regressor <- decision_tree_regressor$new(min_samples_split = 2)
+regressor <- decision_tree_regressor$new(
+  min_samples_split = 2,
+  max_leaf_nodes = 5
+)
 # regressor$fit(train, "Price", c("CRIM", "ZN", "INDUS"))
 regressor$fit(train)
 regressor$fit(train, "medv")
@@ -366,4 +369,4 @@ print(regressor$mean_squared_error(test, "medv"))
 
 regressor$summarize()
 
-# regressor$render()
+regressor$render()

@@ -27,9 +27,9 @@ class TerminalNode:
     def __init__(self, outcomes: pd.DataFrame, depth: int):
         self.outcomes = outcomes
         self.samples = len(self.outcomes)
-        self.depth = depth
         self.value = self._value(outcomes)
         self.score = self._score(outcomes)
+        self.depth = depth
         self._split = None
         self._label = None
         self._impurity_reduction = None
@@ -62,16 +62,16 @@ class TerminalNode:
             b_score = float('inf')
             for feature in features:
                 data.sort_values(feature, inplace=True)
-                for row_index in range(1, len(data)):
-                    if data.iloc[row_index-1][feature] == data.iloc[row_index][feature]:
+                for row_i in range(1, len(data)):
+                    if data.iloc[row_i-1][feature] == data.iloc[row_i][feature]:
                         continue
-                    left = data[:row_index]
-                    right = data[row_index:]
+                    left = data[:row_i]
+                    right = data[row_i:]
                     score = self._weighted_average_of_mse((left, right))
                     if score < b_score:
                         b_feature = feature
-                        b_threshold = (data.iloc[row_index-1][feature] +
-                                       data.iloc[row_index][feature])/2
+                        b_threshold = (data.iloc[row_i-1][feature] +
+                                       data.iloc[row_i][feature])/2
                         b_score = score
             rule = Rule(b_feature, b_threshold)
             self._split = DecisionNode(
@@ -83,8 +83,12 @@ class TerminalNode:
 
     def get_impurity_reduction(self):
         if self._impurity_reduction is None:
-            self._impurity_reduction = self.samples * (self.score - self._weighted_average_of_mse(
-                self.get_split().groups(self.outcomes)))
+            split = self.get_split()
+            left = split.left
+            right = split.right
+            self._impurity_reduction = self.samples * self.score - (
+                left.samples*left.score+right.samples+right.score
+            )
         return self._impurity_reduction
 
     def split(self):
@@ -172,10 +176,7 @@ class DecisionTreeRegressor:
             return self.root.value
         node: DecisionNode | TerminalNode = self.root
         while isinstance(node, DecisionNode):
-            if row[node.feature] < node.threshold:
-                node = node.left
-            else:
-                node = node.right
+            node = node.left if row[node.feature] < node.threshold else node.right
         return node.value
 
     def mean_squared_error(self, x_test: pd.DataFrame, y_test: pd.Series) -> float:
@@ -255,7 +256,10 @@ X = dataset.drop('Price', axis=1)
 y = dataset['Price']
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.8)
 
-regressor = DecisionTreeRegressor(min_samples_split=2, max_leaf_nodes=5)
+regressor = DecisionTreeRegressor(
+    min_samples_split=2,
+    max_leaf_nodes=200
+)
 
 regressor.fit(X_train, y_train)
 print(regressor.root)

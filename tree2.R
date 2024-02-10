@@ -329,12 +329,13 @@ k_fold_mse <- function(model, formula, dataset, k, max_leaf_nodes = 5) {
     test <- dataset[fold, ]
     model(formula, train, test, max_leaf_nodes)
   })
+  print(max_leaf_nodes)
   mean(mse_values)
 }
 
 plot_mse <- function(model, formula, dataset, k, max_leaf_nodes) {
   mse_values <- sapply(max_leaf_nodes, function(i) {
-    k_fold_mse(model, formula, dataset, k, i)
+    k_fold_mse(model, formula, dataset, k, max_leaf_nodes = i)
   })
   plot(max_leaf_nodes, mse_values)
 }
@@ -349,9 +350,9 @@ included_columns <- c("crim", "zn", "indus", "medv")
 # boston <- boston[, included_columns]
 # boston <- boston[included_rows, ]
 
-test_train <- test_train_split(boston, train_size = 0.8)
-train <- test_train$train
-test <- test_train$test
+# test_train <- test_train_split(boston, train_size = 0.8)
+# train <- test_train$train
+# test <- test_train$test
 
 # Fit the decision tree regressor to the training data
 # regressor <- DecisionTreeRegressor$new(

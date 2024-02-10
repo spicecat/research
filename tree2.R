@@ -407,5 +407,5 @@ plot_mse(
   model = model,
   dataset = boston,
   k = 5,
-  max_leaf_nodes = seq(20, 200, by = 20)
+  max_leaf_nodes = seq(25, 300, by = 25)
 )

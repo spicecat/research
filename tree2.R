@@ -322,85 +322,89 @@ DecisionTreeRegressor <- R6Class( # nolint
   )
 )
 
-k_fold_mse <- function(regressor, dataset, target, k) {
-  dataset <- dataset[sample(nrow(dataset)), ]
-  folds <- cut(seq_len(nrow(dataset)), breaks = k, labels = FALSE)
-
-  mse_values <- sapply(1:k, function(i) {
-    test_indexes <- which(folds == i, arr.ind = TRUE)
-    test <- dataset[test_indexes, ]
-    train <- dataset[-test_indexes, ]
-    regressor$fit(train, target)
-    # regressor$render()
-    regressor$mean_squared_error(test, target)
+k_fold_mse <- function(model, formula, dataset, k, max_leaf_nodes = 5) {
+  folds <- createFolds(seq_len(nrow(dataset)), k = k)
+  mse_values <- sapply(folds, function(fold) {
+    train <- dataset[-fold, ]
+    test <- dataset[fold, ]
+    model(formula, train, test, max_leaf_nodes)
   })
-  # print(mse_values)
   mean(mse_values)
 }
 
-plot_mse <- function(regressor, dataset, target, k, max_leaf_nodes) {
+plot_mse <- function(model, formula, dataset, k, max_leaf_nodes) {
   mse_values <- sapply(max_leaf_nodes, function(i) {
-    regressor$max_leaf_nodes <- i
-    k_fold_mse(regressor, dataset, target, k)
+    k_fold_mse(model, formula, dataset, k, i)
   })
-  print(mse_values)
   plot(max_leaf_nodes, mse_values)
 }
+
+set.seed(1)
 
 included_rows <- c(
   505, 324, 167, 129, 418, 471,
   299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
 included_columns <- c("crim", "zn", "indus", "medv")
-boston <- boston[, included_columns]
+# boston <- boston[, included_columns]
 # boston <- boston[included_rows, ]
 
-set.seed(1)
-
-# 480 389
 test_train <- test_train_split(boston, train_size = 0.8)
 train <- test_train$train
 test <- test_train$test
 
 # Fit the decision tree regressor to the training data
-regressor <- DecisionTreeRegressor$new(
-  min_samples_split = 2,
-  max_leaf_nodes = 5
-)
+# regressor <- DecisionTreeRegressor$new(
+#   min_samples_split = 2,
+#   max_leaf_nodes = 5000
+# )
 
-regressor$fit(medv ~ crim + zn + indus, train)
+# regressor$fit(
+#   formula = medv ~ .,
+#   dataset = train
+# )
 
 # Print the decision tree
-print(regressor$root)
+# print(regressor$root)
+# regressor$summarize()
+# regressor$render()
+
 
 # Predict the outcome for the test row
-test_row <- c(
-  crim = 0.04741,
-  zn = 0,
-  indus = 11.93,
-  medv = 11.9
-)
-print(regressor$predict(test_row))
+# test_row <- c(
+#   crim = 0.04741,
+#   zn = 0,
+#   indus = 11.93,
+#   medv = 11.9
+# )
+# print(regressor$predict(test_row))
 
 # print("MSE")
-# print(regressor$mean_squared_error(test, "medv"))
+# print(regressor$mean_squared_error(test))
 
-regressor$summarize()
-
-regressor$render()
+model <- function(formula, train, test, max_leaf_nodes) {
+  regressor <- DecisionTreeRegressor$new(
+    max_leaf_nodes = max_leaf_nodes
+  )
+  regressor$fit(
+    formula = formula,
+    dataset = train
+  )
+  regressor$mean_squared_error(test)
+}
 
 # print("k-fold test")
 # print(k_fold_mse(
-#   regressor = regressor,
+#   model = model,
+#   formula = medv ~ .,
 #   dataset = boston,
-#   target = "medv",
 #   k = 5
 # ))
 
-# plot_mse(
-#   regressor = regressor,
-#   dataset = boston,
-#   target = "medv",
-#   k = 5,
-#   max_leaf_nodes = seq(100, 120, by = 10)
-# )
+plot_mse(
+  formula = medv ~ .,
+  model = model,
+  dataset = boston,
+  k = 5,
+  max_leaf_nodes = seq(20, 200, by = 20)
+)

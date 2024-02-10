@@ -22,7 +22,3 @@ tree.boston <- tree(medv ~ ., data = Boston[train,])
 print(summary(tree.boston))
 plot(tree.boston)
 text(tree.boston, pretty = 0)
-
-# test-mse
-# k-fold cross validation
-# pruning graph cv error v size

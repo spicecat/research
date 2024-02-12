@@ -327,12 +327,15 @@ DecisionTreeRegressor <- R6Class( # nolint
 
 k_fold_mse <- function(model, formula, dataset, k, max_leaf_nodes = 5) {
   folds <- createFolds(seq_len(nrow(dataset)), k = k)
+  start_time <- Sys.time()
   mse_values <- sapply(folds, function(fold) {
     train <- dataset[-fold, ]
     test <- dataset[fold, ]
     model(formula, train, test, max_leaf_nodes)
   })
+  time <- Sys.time() - start_time
   print(max_leaf_nodes)
+  print(time)
   mean(mse_values)
 }
 
@@ -341,7 +344,7 @@ plot_mse <- function(model, formula, dataset, k, max_leaf_nodes) {
     k_fold_mse(model, formula, dataset, k, max_leaf_nodes = i)
   })
   plot(max_leaf_nodes, mse_values)
-  return(data.frame(max_leaf_nodes, mse_values))
+  data.frame(max_leaf_nodes, mse_values)
 }
 
 set.seed(1)
@@ -397,9 +400,33 @@ model <- function(formula, train, test, max_leaf_nodes) {
   )
   regressor$mean_squared_error(test)
 }
-model2 <- function(formula, train, test, max_leaf_nodes) {
+
+# print("k-fold test")
+# print(k_fold_mse(
+#   model = model,
+#   formula = medv ~ .,
+#   dataset = boston,
+#   k = 5
+# ))
+
+tree_generate <- function(dataset, split, formula, k, leaf_node_test_seq) {
+  test_train <- test_train_split(dataset, train_size = split)
+  train <- test_train$train
+  test <- test_train$test
+  mse_table <- plot_mse(
+    formula = formula,
+    model = model,
+    dataset = train,
+    k = k,
+    max_leaf_nodes = leaf_node_test_seq
+  )
+  print(mse_table)
+  one_sd <- min(mse_table$mse_values) + sd(mse_table$mse_values)
+  leaf_nodes <- mse_table$max_leaf_nodes[
+    which.min(mse_table$mse_values >= one_sd)
+  ]
   regressor <- DecisionTreeRegressor$new(
-    max_leaf_nodes = max_leaf_nodes
+    max_leaf_nodes = leaf_nodes
   )
   regressor$fit(
     formula = formula,
@@ -409,32 +436,5 @@ model2 <- function(formula, train, test, max_leaf_nodes) {
   print(regressor$root)
   regressor$summarize()
 }
-# print("k-fold test")
-# print(k_fold_mse(
-#   model = model,
-#   formula = medv ~ .,
-#   dataset = boston,
-#   k = 5
-# ))
-tree_generate <- function(dataset, split, formula, k, leaf_node_test_seq) {
-test_train <- test_train_split(dataset, train_size = split)
-train <- test_train$train
-test <- test_train$test
-mse_table <- plot_mse(
-  formula = formula,
-  model = model,
-  dataset = train,
-  k = k,
-  max_leaf_nodes = leaf_node_test_seq
-)
-one_sd <- min(mse_table$mse_values) + sd(mse_table$mse_values)
-max_num_leaf_nodes <- mse_table$max_leaf_nodes[1]
-for (i in 1:length(mse_table$max_leaf_nodes)) {
-  if (mse_table$mse_values[i] < one_sd){
-    max_num_leaf_nodes <- mse_table$max_leaf_nodes[i]
-    break
-  }
-}
-model2(formula = formula, train = train, test = test, max_leaf_nodes = max_num_leaf_nodes)
-}
-tree_generate(boston, 0.8, medv ~ ., 5, seq(1, 40, by = 1))
+
+tree_generate(boston, 0.8, medv ~ ., 5, seq(5, 45, by = 10))

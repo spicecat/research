@@ -17,11 +17,11 @@ X = np.array([[0, 1, 1],
 y = np.array([[1], [1], [0], [0]])
 
 # setting random seed for reproducing
-np.random.seed(1)
+rng = np.random.default_rng(1)
 
 # initialize weights
-w0 = 2 * np.random.random((3, 4)) - 1
-w1 = 2 * np.random.random((4, 1)) - 1
+w0 = 2 * rng.random((3, 4)) - 1
+w1 = 2 * rng.random((4, 1)) - 1
 
 # hyperparameters
 learning_rate = 0.01
@@ -34,7 +34,7 @@ total_iterations = 0
 # training loop
 for epoch in range(epochs):
     # random batch selection
-    indices = np.random.permutation(len(X))
+    indices = rng.permutation(len(X))
     X_shuffled = X[indices]
     y_shuffled = y[indices]
 

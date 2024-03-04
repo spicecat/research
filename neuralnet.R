@@ -18,9 +18,6 @@ X <- matrix(c(
 
 y <- matrix(c(1, 1, 0, 0), nrow = 4)
 
-print(X)
-print(y)
-
 # setting random seed for reproducing
 set.seed(1)
 
@@ -45,8 +42,9 @@ for (epoch in 1:epochs) {
     for (batch_start in seq(1, nrow(X), by = batch_size)) {
         # Select a random batch
         batch_end <- min(nrow(X), batch_start + batch_size - 1)
+
         X_batch <- X_shuffled[batch_start:batch_end, ]
-        y_batch <- y_shuffled[batch_start:batch_end, ]
+        y_batch <- y_shuffled[batch_start:batch_end]
 
         # forward prop
         a0 <- X_batch

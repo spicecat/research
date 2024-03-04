@@ -249,7 +249,8 @@ DecisionTreeRegressor <- R6Class( # nolint
     mean_squared_error = function(test, target = NULL) {
       if (is.null(target)) {
         actual <- test[, ncol(test)]
-      } else {jj 
+      } else {
+        jj
         actual <- test[, target]
       }
       predictions <- apply(test, 1, function(row) self$predict(row))
@@ -344,20 +345,19 @@ plot_mse <- function(model, formula, dataset, k, max_leaf_nodes) {
   for (i in 1:length(mse_values)) {
     if (mse_values[i] == min_mse) {
       color_mse <- append(color_mse, "red")
-    }
-    else {
+    } else {
       color_mse <- append(color_mse, "black")
     }
   }
   node_index <- 0
-  for(i in 1:length(mse_values)) {
-    if(mse_values[i] <= one_sd) {
+  for (i in 1:length(mse_values)) {
+    if (mse_values[i] <= one_sd) {
       node_index <- i
       break
     }
   }
   color_mse[node_index] <- "blue"
-  plot(max_leaf_nodes, mse_values, col=color_mse)
+  plot(max_leaf_nodes, mse_values, col = color_mse)
   data.frame(max_leaf_nodes, mse_values)
 }
 
@@ -450,8 +450,8 @@ tree_generate <- function(dataset, split, formula, k, leaf_node_test_seq) {
   print(regressor$root)
   regressor$render()
   regressor$summarize()
-  for(i in 1:dim(train)[1]){
-    train$tree_predictions[i] <- regressor$predict(train[i,])
+  for (i in seq_len(dim(train))[1]) {
+    train$tree_predictions[i] <- regressor$predict(train[i, ])
   }
   train
 }

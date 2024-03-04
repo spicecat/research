@@ -479,6 +479,7 @@ X <- train
 
 y <- matrix(c(1, 1, 0, 0), nrow = 4)
 
+y <- train$medv
 # setting random seed for reproducing
 set.seed(1)
 

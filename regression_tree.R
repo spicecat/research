@@ -450,6 +450,10 @@ tree_generate <- function(dataset, split, formula, k, leaf_node_test_seq) {
   print(regressor$root)
   regressor$render()
   regressor$summarize()
+  for(i in 1:dim(train)[1]){
+    train$tree_predictions[i] <- regressor$predict(train[i,])
+  }
+  train
 }
 
-tree_generate(boston, 0.8, medv ~ ., 5, seq(1, 10, by = 1))
+train <- tree_generate(boston, 0.8, medv ~ ., 5, seq(1, 5, by = 1))

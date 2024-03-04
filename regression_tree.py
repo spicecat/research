@@ -2,7 +2,9 @@ from typing import Optional, Tuple
 from queue import PriorityQueue
 import pandas as pd
 from graphviz import Digraph
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.base import BaseEstimator
+from sklearn.metrics import mean_squared_error
 
 boston = pd.read_csv('boston.csv')
 
@@ -38,10 +40,10 @@ class TerminalNode:
         return data.iloc[:, -1].mean()
 
     def _score(self, data: pd.DataFrame) -> float:
-        return self._weighted_average_of_mse((data,))
+        return self._weighted_average_of_rss((data,))
 
-    def _weighted_average_of_mse(self, splits: Tuple[pd.DataFrame, ...]) -> float:
-        def _mean_squared_error(data):
+    def _weighted_average_of_rss(self, splits: Tuple[pd.DataFrame, ...]) -> float:
+        def _residual_sum_of_squares(data: pd.DataFrame) -> float:
             target_column = data.iloc[:, -1]
             average = self._value(data)
             return sum((target_column-average) ** 2)
@@ -50,7 +52,7 @@ class TerminalNode:
         weight = 0
         for data in splits:
             size = len(data)
-            weight += _mean_squared_error(data)*(size/n)
+            weight += _residual_sum_of_squares(data)*(size/n)
         return weight
 
     def get_split(self) -> 'DecisionNode':
@@ -67,7 +69,7 @@ class TerminalNode:
                         continue
                     left = data[:row_i]
                     right = data[row_i:]
-                    score = self._weighted_average_of_mse((left, right))
+                    score = self._weighted_average_of_rss((left, right))
                     if score < b_score:
                         b_feature = feature
                         b_threshold = (data.iloc[row_i-1][feature] +
@@ -138,7 +140,7 @@ value={self.value:.3f}'''
         )
 
 
-class DecisionTreeRegressor:
+class DecisionTreeRegressor(BaseEstimator):
     '''A decision tree regressor.'''
 
     def __init__(self, *, min_samples_split=20, min_samples_leaf=1, max_leaf_nodes=None):
@@ -182,8 +184,11 @@ class DecisionTreeRegressor:
     def mean_squared_error(self, x_test: pd.DataFrame, y_test: pd.Series) -> float:
         # print(test)
         test = pd.concat([x_test, y_test], axis=1)
+        print(test)
         error_total: float = sum(
             map(lambda row: (row[1].iloc[-1] - self.predict(row[1]))**2, test.iterrows()))
+        print(list(
+            map(lambda row: (row[1].iloc[-1] - self.predict(row[1]))**2, test.iterrows())))
         return error_total/len(test)
 
     def fit(self, x: pd.DataFrame, y: pd.Series) -> 'TerminalNode':
@@ -244,10 +249,15 @@ class DecisionTreeRegressor:
  = {error_total:.3f} / ({self.root.samples} - {len(terminal_nodes)})'
                 )
 
+# def k_fold_mse(regressor, x: pd.DataFrame, y: pd.Series, k: int):
+#     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.8)
+#     regressor.fit(x_train, y_train)
+#     return regressor.mean_squared_error(x_test, y_test)
+
 
 included_rows = [505, 324, 167, 129, 418, 471,
                  299, 270, 466, 187, 307, 481,  85, 277, 362]
-# boston = boston.loc[included_rows]
+boston = boston.loc[included_rows]
 included_columns = ['CRIM', 'ZN', 'INDUS', 'Price']
 boston = boston.loc[:, included_columns]
 
@@ -258,13 +268,12 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.8)
 
 regressor = DecisionTreeRegressor(
     min_samples_split=2,
-    max_leaf_nodes=200
+    max_leaf_nodes=20
 )
 
 regressor.fit(X_train, y_train)
 print(regressor.root)
 regressor.summarize()
-
 
 # Predict the outcome for the test row
 # test_row = pd.Series(
@@ -276,3 +285,7 @@ regressor.summarize()
 print(regressor.mean_squared_error(X_test, y_test))
 
 regressor.render()
+
+
+# cv = KFold(n_splits=5, shuffle=True, random_state=1)
+# scores = cross_val_score(regressor, X, y, scoring=scoring, cv=cv, n_jobs=-1)

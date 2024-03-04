@@ -249,7 +249,7 @@ DecisionTreeRegressor <- R6Class( # nolint
     mean_squared_error = function(test, target = NULL) {
       if (is.null(target)) {
         actual <- test[, ncol(test)]
-      } else {
+      } else {jj 
         actual <- test[, target]
       }
       predictions <- apply(test, 1, function(row) self$predict(row))

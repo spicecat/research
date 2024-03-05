@@ -77,3 +77,25 @@ print("w0:")
 print(w0)
 print("w1:")
 print(w1)
+
+predict <- function(X) {
+    a1 <- nonlin(X %*% w0)
+    a2 <- nonlin(a1 %*% w1)
+    return(a2)
+}
+
+# test data
+X_test <- matrix(c(
+    0, 1, 0,
+    1, 0, 1,
+    0, 0, 0
+), nrow = 3, byrow = TRUE)
+
+y_test <- matrix(c(1, 0, 0), nrow = 3)
+
+# predictions
+preds <- predict(X_test)
+
+# evaluate accuracy
+acc <- mean(preds == y_test)
+print(paste("Test Accuracy:", acc))

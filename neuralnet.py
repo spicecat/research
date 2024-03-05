@@ -70,3 +70,21 @@ for epoch in range(epochs):
 print("Final weights:")
 print("w0:", w0)
 print("w1:", w1)
+
+
+def predict(X):
+    a1 = nonlin(np.dot(X, w0))
+    a2 = nonlin(np.dot(a1, w1))
+    return a2
+
+
+# test data
+X_test = np.array([[0, 1, 0], [1, 0, 1], [0, 0, 0]])
+y_test = np.array([[1], [0], [0]])
+
+# predictions
+preds = predict(X_test)
+
+# evaluate accuracy
+acc = np.mean(preds == y_test)
+print("Test Accuracy:", acc)

@@ -22,3 +22,6 @@ batch size (64, n/100)
 epochs
 https://colab.research.google.com/drive/1d8dpSOooMQ9DL1l8sjl2Il1Z2dHs3mm4?usp=sharing#scrollTo=506gxrI4Qo_O
 stephen ryan, guofu zhou
+bootstrapping(data, B): B trees; Add B columns to dataset
+random sampling with replacement
+SHAP Value: how y1 and y2 impact y

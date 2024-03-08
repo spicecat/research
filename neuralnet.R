@@ -76,7 +76,7 @@ print("Final weights:")
 print("w0:")
 print(w0)
 print("w1:")
-print(w1)
+print(w1 )
 
 predict <- function(X) {
     a1 <- nonlin(X %*% w0)

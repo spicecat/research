@@ -8,6 +8,7 @@ for (pkg in packages) {
 }
 
 set.seed(1)
+debug <- TRUE
 
 # Load Boston housing dataset
 # boston <- read.csv("boston.csv")
@@ -346,9 +347,11 @@ k_fold_mse <- function(model, formula, dataset, k, max_leaf_nodes = 5) {
     test <- dataset[fold, ]
     model(formula, train, test, max_leaf_nodes)
   })
-  time <- Sys.time() - start_time
-  print(max_leaf_nodes)
-  print(time)
+  if (debug) {
+    time <- Sys.time() - start_time
+    print(max_leaf_nodes)
+    print(time)
+  }
   mean(mse_values)
 }
 
@@ -454,7 +457,6 @@ tree_generate <- function(dataset, split, formula, k, leaf_node_test_seq) {
     k = k,
     max_leaf_nodes = leaf_node_test_seq
   )
-  print(mse_table)
   one_sd <- min(mse_table$mse_values) + sd(mse_table$mse_values)
   leaf_nodes <- mse_table$max_leaf_nodes[
     which.min(mse_table$mse_values >= one_sd)
@@ -466,8 +468,11 @@ tree_generate <- function(dataset, split, formula, k, leaf_node_test_seq) {
     formula = formula,
     dataset = train
   )
-  print(regressor$mean_squared_error(test))
-  print(regressor$root)
+  if (debug) {
+    print(mse_table)
+    print(regressor$mean_squared_error(test))
+    print(regressor$root)
+  }
   regressor$render()
   regressor$summarize()
   for (i in seq_len(dim(train))[1]) {
@@ -478,7 +483,8 @@ tree_generate <- function(dataset, split, formula, k, leaf_node_test_seq) {
 
 train <- tree_generate(boston, 0.8, medv ~ ., 5, seq(1, 5, by = 1))
 
-print(train)
+print(123123)
+# print(train)
 
 nonlin <- function(x, deriv = FALSE) {
   if (deriv == TRUE) {

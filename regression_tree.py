@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.base import BaseEstimator
 from sklearn.metrics import mean_squared_error
 
-boston = pd.read_csv('boston.csv')
+boston = pd.read_csv('data/boston.csv')
 
 
 class Rule:

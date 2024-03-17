@@ -2,7 +2,7 @@ library(tree)
 library(MASS)
 
 data(Boston)
-# Boston <- read.csv("boston.csv")
+# Boston <- read.csv("data/boston.csv")
 
 boston <- Boston
 

@@ -13,6 +13,8 @@ Number of terminal nodes: 5
 Residual mean deviance: 39.662
 Samples: 15
 Sum of squared residuals: 396.620
+mtcars, iris, ToothGrowth, PlantGrowth, USArrests, airquality, AirPassengers
+
 
 n iterations (60000)
 hidden layers (1)

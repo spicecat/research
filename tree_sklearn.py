@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor, plot_tree
 
 # Load the CSV file into a pandas DataFrame
-data = pd.read_csv('boston.csv')
+data = pd.read_csv('data/boston.csv')
 
 included_rows = [505, 324, 167, 129, 418, 471,
                  299, 270, 466, 187, 307, 481,  85, 277, 362]

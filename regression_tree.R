@@ -10,12 +10,22 @@ for (pkg in packages) {
 set.seed(1)
 debug <- TRUE
 
-# Load Boston housing dataset
-# boston <- read.csv("boston.csv")
-boston <- Boston
+# Converts categorical features to numeric values
+factorize <- function(data) {
+  for (col in names(data)) {
+    if (!is.numeric(data[[col]])) {
+      data[[col]] <- as.integer(factor(
+        data[[col]],
+        levels = sort(unique(data[[col]]))
+      ))
+    }
+  }
+  data
+}
+
 
 # Split dataset into train and test sets
-test_train_split <- function(df, train_size = NULL, test_size = NULL) {
+test_train_split <- function(data, train_size = NULL, test_size = NULL) {
   if (is.null(train_size)) {
     if (is.null(test_size)) {
       test_size <- 0.25
@@ -24,13 +34,13 @@ test_train_split <- function(df, train_size = NULL, test_size = NULL) {
   } else if (is.null(test_size)) {
     test_size <- 1 - train_size
   }
-  train_n <- nrow(df) * train_size
-  test_n <- nrow(df) * test_size
-  indices <- sample(seq_len(nrow(df)), size = train_n + test_n)
+  train_n <- nrow(data) * train_size
+  test_n <- nrow(data) * test_size
+  indices <- sample(seq_len(nrow(data)), size = train_n + test_n)
   train_indices <- indices[1:train_n]
   test_indices <- indices[(train_n + 1):(train_n + test_n + 1)]
-  train_set <- df[train_indices, ]
-  test_set <- df[test_indices, ]
+  train_set <- data[train_indices, ]
+  test_set <- data[test_indices, ]
   list(train = train_set, test = test_set)
 }
 
@@ -78,24 +88,24 @@ Node <- R6Class( # nolint
     get_split = function() {
       # Find the best split for the current node
       if (is.null(private$next_split)) {
-        dataset <- self$outcomes
+        df <- self$outcomes
         b_feature <- NULL
         b_threshold <- NULL
         b_score <- Inf
-        features <- names(dataset)[-ncol(dataset)]
-        n <- nrow(dataset)
+        features <- names(df)[-ncol(df)]
+        n <- nrow(df)
         for (feature in features) {
-          dataset <- dataset[order(dataset[, feature]), ]
+          df <- df[order(df[, feature]), ]
           for (row_i in 2:n) {
-            if (dataset[row_i - 1, feature] == dataset[row_i, feature]) {
+            if (df[row_i - 1, feature] == df[row_i, feature]) {
               next
             }
-            left <- dataset[1:(row_i - 1), ]
-            right <- dataset[row_i:n, ]
+            left <- df[1:(row_i - 1), ]
+            right <- df[row_i:n, ]
             score <- private$weighted_average_of_mse(list(left, right))
             if (score < b_score) {
               b_feature <- feature
-              b_threshold <- mean(dataset[(row_i - 1):row_i, feature])
+              b_threshold <- mean(df[(row_i - 1):row_i, feature])
               b_score <- score
             }
           }
@@ -109,7 +119,7 @@ Node <- R6Class( # nolint
           threshold = b_threshold
         )
         private$next_split$rule <- rule
-        groups <- split(dataset, apply(dataset, 1, rule$evaluate))
+        groups <- split(df, apply(df, 1, rule$evaluate))
         private$next_split$left <- Node$new(
           outcomes = groups[[2]],
           depth = self$depth + 1
@@ -178,25 +188,25 @@ Node <- R6Class( # nolint
   ),
   private = list(
     next_split = NULL,
-    get_value = function(dataset) {
+    get_value = function(data) {
       # Calculate the value (mean) of target column of the node dataset
-      mean(dataset[, ncol(dataset)])
+      mean(data[, ncol(data)])
     },
-    get_score = function(dataset) {
+    get_score = function(data) {
       # Calculate the score (MSE) for the dataset
-      private$weighted_average_of_mse(list(dataset))
+      private$weighted_average_of_mse(list(data))
     },
     weighted_average_of_mse = function(splits) {
       # Calculate the weighted average of scores (MSE) for the splits
-      sum_squared_error <- function(dataset) {
-        actual <- dataset[, ncol(dataset)]
-        average <- private$get_value(dataset)
+      sum_squared_error <- function(df) {
+        actual <- df[, ncol(df)]
+        average <- private$get_value(df)
         sum((actual - average)^2)
       }
       n <- sum(sapply(splits, nrow))
       sum(sapply(
         splits,
-        function(dataset) sum_squared_error(dataset) * (nrow(dataset) / n)
+        function(df) sum_squared_error(df) * (nrow(df) / n)
       ))
     }
   )
@@ -217,11 +227,11 @@ DecisionTreeRegressor <- R6Class( # nolint
       self$min_samples_leaf <- min_samples_leaf
       self$max_leaf_nodes <- max_leaf_nodes
     },
-    fit = function(formula, dataset) {
+    fit = function(formula, data) {
       # Fit the decision tree regressor to the dataset
-      dataset <- model.frame(formula, dataset)
-      dataset <- aggregate(formula, dataset, mean)
-      root <- Node$new(outcomes = dataset, depth = 0)
+      df <- model.frame(formula, data)
+      df <- aggregate(formula, df, mean)
+      root <- Node$new(outcomes = df, depth = 0)
       if (root$samples >= self$min_samples_split) {
         pq <- PriorityQueue()
         pq$push(root)
@@ -339,25 +349,27 @@ DecisionTreeRegressor <- R6Class( # nolint
 )
 
 # Get test estimates from trained decision tree regressor at max_leaf_nodes
-regression_model <- function(formula, train, test, max_leaf_nodes) {
+regression_model <- function(formula, train, max_leaf_nodes) {
   regressor <- DecisionTreeRegressor$new(
     max_leaf_nodes = max_leaf_nodes
   )
   regressor$fit(
     formula = formula,
-    dataset = train
+    data = train
   )
-  regressor$mean_squared_error(test)
+  regressor
+  # regressor$mean_squared_error(test)
 }
 
 # Get k-fold cross-validation score for a model
-k_fold_mse <- function(model, formula, dataset, k, max_leaf_nodes = 5) {
-  folds <- caret::createFolds(seq_len(nrow(dataset)), k = k)
+k_fold_mse <- function(model, formula, data, k, max_leaf_nodes = 5) {
+  folds <- caret::createFolds(seq_len(nrow(data)), k = k)
   start_time <- Sys.time()
   mse_values <- sapply(folds, function(fold) {
-    train <- dataset[-fold, ]
-    test <- dataset[fold, ]
-    model(formula, train, test, max_leaf_nodes)
+    train <- data[-fold, ]
+    test <- data[fold, ]
+    regressor <- model(formula, train, max_leaf_nodes)
+    regressor$mean_squared_error(test)
   })
   if (debug) {
     time <- Sys.time() - start_time
@@ -371,9 +383,9 @@ k_fold_mse <- function(model, formula, dataset, k, max_leaf_nodes = 5) {
 }
 
 # Plot k-fold cross-validation scores for a model by max_leaf_nodes
-plot_mse <- function(model, formula, dataset, k, max_leaf_nodes_seq) {
+plot_mse <- function(model, formula, data, k, max_leaf_nodes_seq) {
   mse_values <- sapply(max_leaf_nodes_seq, function(i) {
-    k_fold_mse(model, formula, dataset, k, max_leaf_nodes = i)
+    k_fold_mse(model, formula, data, k, max_leaf_nodes = i)
   })
   min_mse <- min(mse_values)
   one_sd <- min_mse + sd(mse_values)
@@ -388,9 +400,9 @@ plot_mse <- function(model, formula, dataset, k, max_leaf_nodes_seq) {
 }
 
 # Get model with max_leaf_nodes one standard deviation above minimum MSE
-get_optimal_tree <- function(model, formula, dataset, k, max_leaf_nodes_seq) {
+get_optimal_tree <- function(model, formula, data, k, max_leaf_nodes_seq) {
   mse_values <- sapply(max_leaf_nodes_seq, function(i) {
-    k_fold_mse(model, formula, dataset, k, max_leaf_nodes = i)
+    k_fold_mse(model, formula, data, k, max_leaf_nodes = i)
   })
   min_mse <- min(mse_values)
   one_sd <- min_mse + sd(mse_values)
@@ -402,11 +414,17 @@ get_optimal_tree <- function(model, formula, dataset, k, max_leaf_nodes_seq) {
   )
   regressor$fit(
     formula = formula,
-    dataset = dataset
+    data = data
   )
 
   regressor
 }
+
+# Load Boston housing dataset
+# boston <- read.csv("data/boston.csv")
+boston <- Boston
+alcohol <- read.csv("data/student-mat.csv")
+alcohol <- factorize(alcohol)
 
 # Use simplified subset of Boston dataset
 included_rows <- c(
@@ -414,101 +432,111 @@ included_rows <- c(
   299, 270, 466, 187, 307, 481, 85, 277, 362
 ) + 1
 included_columns <- c("crim", "zn", "indus", "medv")
-# boston <- boston[, included_columns]
+boston <- boston[, included_columns]
 # # boston <- boston[included_rows, ]
 
 # Split dataset into train and test sets
-test_train <- test_train_split(boston, train_size = 0.8)
-train <- test_train$train
-test <- test_train$test
+# test_train <- test_train_split(boston, train_size = 0.8)
+# train <- test_train$train
+# test <- test_train$test
 
-# Fit the decision tree regressor to the training data
-regressor <- DecisionTreeRegressor$new(
-  min_samples_split = 2,
-  max_leaf_nodes = 5000
-)
-regressor$fit(
-  formula = medv ~ .,
-  dataset = train
-)
+# # Fit the decision tree regressor to the training data
+# regressor <- DecisionTreeRegressor$new(
+#   min_samples_split = 2,
+#   max_leaf_nodes = 50
+# )
+# regressor$fit(
+#   formula = medv ~ .,
+#   data = train
+# )
 
-# Print the decision tree
-print(regressor$root)
-regressor$summarize()
-regressor$render()
+# # Print the decision tree
+# print(regressor$root)
+# regressor$summarize()
+# regressor$render()
 
 
-# Predict the outcome for the test row
-test_row <- c(
-  crim = 0.04741,
-  zn = 0,
-  indus = 11.93,
-  medv = 11.9
-)
-print(regressor$predict(test_row))
+# # Predict the outcome for the test row
+# test_row <- c(
+#   crim = 0.04741,
+#   zn = 0,
+#   indus = 11.93,
+#   medv = 11.9
+# )
+# print(regressor$predict(test_row))
 
-# print("MSE")
-print(regressor$mean_squared_error(test))
+# # print("MSE")
+# print(regressor$mean_squared_error(test))
 
-# Test k-fold cross validation score
-print("k-fold test")
-print(k_fold_mse(
-  model = regression_model,
-  formula = medv ~ .,
-  dataset = boston,
-  k = 5
-))
+# # Test k-fold cross validation score
+# print("k-fold test")
+# print(k_fold_mse(
+#   model = regression_model,
+#   formula = medv ~ .,
+#   data = boston,
+#   k = 5
+# ))
 
 # Plot k-fold cross validation scores
 # max_leaf_nodes_seq <- seq(2, 400, by = 2)
-max_leaf_nodes_seq <- seq(2, 10, by = 2)
-plot_mse(
+# max_leaf_nodes_seq <- seq(2, 10, by = 2)
+# plot <- plot_mse(
+#   model = regression_model,
+#   formula = medv ~ .,
+#   data = boston,
+#   k = 5,
+#   max_leaf_nodes_seq = max_leaf_nodes_seq
+# )
+# print(plot)
+max_leaf_nodes_seq <- seq(2, 350, by = 2)
+plot <- plot_mse(
   model = regression_model,
-  formula = medv ~ .,
-  dataset = boston,
+  formula = G3 ~ .,
+  data = alcohol,
   k = 5,
   max_leaf_nodes_seq = max_leaf_nodes_seq
 )
+print(plot)
 
-# Generate an optimal decision tree regressor
-append_predictions <- function(dataset, split, formula, k, max_leaf_nodes_seq) {
-  test_train <- test_train_split(dataset, train_size = split)
-  train <- test_train$train
-  test <- test_train$test
-  mse_table <- plot_mse(
-    formula = formula,
-    model = regression_model,
-    dataset = train,
-    k = k,
-    max_leaf_nodes = max_leaf_nodes_seq
-  )
-  one_sd <- min(mse_table$mse_values) + sd(mse_table$mse_values)
-  leaf_nodes <- mse_table$max_leaf_nodes[
-    which.min(mse_table$mse_values >= one_sd)
-  ]
-  regressor <- DecisionTreeRegressor$new(
-    max_leaf_nodes = leaf_nodes
-  )
-  regressor$fit(
-    formula = formula,
-    dataset = train
-  )
-  if (debug) {
-    print(mse_table)
-    print(regressor$mean_squared_error(test))
-    print(regressor$root)
-    regressor$render()
-    regressor$summarize()
-  }
-  train$tree_predictions <- apply(train, 1, regressor$predict)
-  train
-}
+# # Generate an optimal decision tree regressor
+# append_predictions <- function(data, split, formula, k, max_leaf_nodes_seq) {
+#   test_train <- test_train_split(data, train_size = split)
+#   train <- test_train$train
+#   test <- test_train$test
+#   mse_table <- plot_mse(
+#     formula = formula,
+#     model = regression_model,
+#     data = train,
+#     k = k,
+#     max_leaf_nodes = max_leaf_nodes_seq
+#   )
+#   one_sd <- min(mse_table$mse_values) + sd(mse_table$mse_values)
+#   leaf_nodes <- mse_table$max_leaf_nodes[
+#     which.min(mse_table$mse_values >= one_sd)
+#   ]
+#   regressor <- DecisionTreeRegressor$new(
+#     max_leaf_nodes = leaf_nodes
+#   )
+#   regressor$fit(
+#     formula = formula,
+#     data = train
+#   )
+#   if (debug) {
+#     print(mse_table)
+#     print(regressor$mean_squared_error(test))
+#     print(regressor$root)
+#     regressor$render()
+#     regressor$summarize()
+#   }
+#   train$tree_predictions <- apply(train, 1, regressor$predict)
+#   train
+# }
 
-# bootstrap_columns <- function(dataset, n, split, formula, k, max_leaf_nodes_seq) {
+# bootstrap_columns <- function(data, n, split, formula, k, max_leaf_nodes_seq) {
 #   # For each bootstrap sample
 #   for (i in 1:n) {
 #     # Generate a bootstrap sample
-#     bootstrap_sample <- dataset[sample(nrow(dataset), replace = TRUE), ]
+#     bootstrap_sample <- data[sample(nrow(data), replace = TRUE), ]
 
 #     # Fit the decision tree regressor to the bootstrap sample
 #     bootstrap_model <- append_predictions(
@@ -520,17 +548,17 @@ append_predictions <- function(dataset, split, formula, k, max_leaf_nodes_seq) {
 #     )
 
 #     # Add the predictions as a new column to the dataset
-#     dataset[[paste0("tree_predictions_", i)]] <- bootstrap_model$tree_predictions
+#     data[[paste0("tree_predictions_", i)]] <- bootstrap_model$tree_predictions
 #   }
 
 #   # Return the dataset with the new columns
-#   return(dataset)
+#   data
 # }
 
 
-train <- append_predictions(boston, 0.8, medv ~ ., 5, seq(2, 10, by = 2))
+# train <- append_predictions(boston, 0.8, medv ~ ., 5, seq(2, 10, by = 2))
 
-print(train)
+# print(train)
 
 
 

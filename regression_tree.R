@@ -338,6 +338,18 @@ DecisionTreeRegressor <- R6Class( # nolint
   )
 )
 
+# Get test estimates from trained decision tree regressor at max_leaf_nodes
+regression_model <- function(formula, train, test, max_leaf_nodes) {
+  regressor <- DecisionTreeRegressor$new(
+    max_leaf_nodes = max_leaf_nodes
+  )
+  regressor$fit(
+    formula = formula,
+    dataset = train
+  )
+  regressor$mean_squared_error(test)
+}
+
 # Get k-fold cross-validation score for a model
 k_fold_mse <- function(model, formula, dataset, k, max_leaf_nodes = 5) {
   folds <- caret::createFolds(seq_len(nrow(dataset)), k = k)
@@ -349,37 +361,51 @@ k_fold_mse <- function(model, formula, dataset, k, max_leaf_nodes = 5) {
   })
   if (debug) {
     time <- Sys.time() - start_time
-    print(max_leaf_nodes)
+    cat(sprintf(
+      "Max leaf nodes: %d\n",
+      max_leaf_nodes
+    ))
     print(time)
   }
   mean(mse_values)
 }
 
 # Plot k-fold cross-validation scores for a model by max_leaf_nodes
-plot_mse <- function(model, formula, dataset, k, max_leaf_nodes) {
-  mse_values <- sapply(max_leaf_nodes, function(i) {
+plot_mse <- function(model, formula, dataset, k, max_leaf_nodes_seq) {
+  mse_values <- sapply(max_leaf_nodes_seq, function(i) {
     k_fold_mse(model, formula, dataset, k, max_leaf_nodes = i)
   })
   min_mse <- min(mse_values)
   one_sd <- min_mse + sd(mse_values)
-  color_mse <- c()
-  for (i in seq_along(mse_values)) {
-    if (mse_values[i] == min_mse) {
-      color_mse <- append(color_mse, "red")
-    } else {
-      color_mse <- append(color_mse, "black")
-    }
-  }
-  node_index <- 0
-  for (i in seq_along(mse_values)) {
-    if (mse_values[i] <= one_sd) {
-      node_index <- i
-      break
-    }
-  }
-  color_mse[node_index] <- "blue"
-  plot(max_leaf_nodes, mse_values, col = color_mse)
-  data.frame(max_leaf_nodes, mse_values)
+
+  optimal_index <- which.max(mse_values <= one_sd)
+  color_mse <- ifelse(mse_values == min_mse, "red", "black")
+
+  color_mse[optimal_index] <- "blue"
+
+  plot(max_leaf_nodes_seq, mse_values, col = color_mse)
+  data.frame(max_leaf_nodes_seq, mse_values)
+}
+
+# Get model with max_leaf_nodes one standard deviation above minimum MSE
+get_optimal_tree <- function(model, formula, dataset, k, max_leaf_nodes_seq) {
+  mse_values <- sapply(max_leaf_nodes_seq, function(i) {
+    k_fold_mse(model, formula, dataset, k, max_leaf_nodes = i)
+  })
+  min_mse <- min(mse_values)
+  one_sd <- min_mse + sd(mse_values)
+  optimal_index <- which.max(mse_values <= one_sd)
+  optimal_leaf_nodes <- max_leaf_nodes_seq[optimal_index]
+
+  regressor <- DecisionTreeRegressor$new(
+    max_leaf_nodes = optimal_leaf_nodes
+  )
+  regressor$fit(
+    formula = formula,
+    dataset = dataset
+  )
+
+  regressor
 }
 
 # Use simplified subset of Boston dataset
@@ -389,73 +415,72 @@ included_rows <- c(
 ) + 1
 included_columns <- c("crim", "zn", "indus", "medv")
 # boston <- boston[, included_columns]
-# boston <- boston[included_rows, ]
+# # boston <- boston[included_rows, ]
 
 # Split dataset into train and test sets
-# test_train <- test_train_split(boston, train_size = 0.8)
-# train <- test_train$train
-# test <- test_train$test
+test_train <- test_train_split(boston, train_size = 0.8)
+train <- test_train$train
+test <- test_train$test
 
 # Fit the decision tree regressor to the training data
-# regressor <- DecisionTreeRegressor$new(
-#   min_samples_split = 2,
-#   max_leaf_nodes = 5000
-# )
-# regressor$fit(
-#   formula = medv ~ .,
-#   dataset = train
-# )
+regressor <- DecisionTreeRegressor$new(
+  min_samples_split = 2,
+  max_leaf_nodes = 5000
+)
+regressor$fit(
+  formula = medv ~ .,
+  dataset = train
+)
 
 # Print the decision tree
-# print(regressor$root)
-# regressor$summarize()
-# regressor$render()
+print(regressor$root)
+regressor$summarize()
+regressor$render()
 
 
 # Predict the outcome for the test row
-# test_row <- c(
-#   crim = 0.04741,
-#   zn = 0,
-#   indus = 11.93,
-#   medv = 11.9
-# )
-# print(regressor$predict(test_row))
+test_row <- c(
+  crim = 0.04741,
+  zn = 0,
+  indus = 11.93,
+  medv = 11.9
+)
+print(regressor$predict(test_row))
 
 # print("MSE")
-# print(regressor$mean_squared_error(test))
-
-# Get test estimates from trained decision tree regressor at max_leaf_nodes
-model <- function(formula, train, test, max_leaf_nodes) {
-  regressor <- DecisionTreeRegressor$new(
-    max_leaf_nodes = max_leaf_nodes
-  )
-  regressor$fit(
-    formula = formula,
-    dataset = train
-  )
-  regressor$mean_squared_error(test)
-}
+print(regressor$mean_squared_error(test))
 
 # Test k-fold cross validation score
-# print("k-fold test")
-# print(k_fold_mse(
-#   model = model,
-#   formula = medv ~ .,
-#   dataset = boston,
-#   k = 5
-# ))
+print("k-fold test")
+print(k_fold_mse(
+  model = regression_model,
+  formula = medv ~ .,
+  dataset = boston,
+  k = 5
+))
+
+# Plot k-fold cross validation scores
+# max_leaf_nodes_seq <- seq(2, 400, by = 2)
+max_leaf_nodes_seq <- seq(2, 10, by = 2)
+plot_mse(
+  model = regression_model,
+  formula = medv ~ .,
+  dataset = boston,
+  k = 5,
+  max_leaf_nodes_seq = max_leaf_nodes_seq
+)
 
 # Generate an optimal decision tree regressor
-tree_generate <- function(dataset, split, formula, k, leaf_node_test_seq) {
+append_predictions <- function(dataset, split, formula, k, max_leaf_nodes_seq) {
   test_train <- test_train_split(dataset, train_size = split)
   train <- test_train$train
   test <- test_train$test
   mse_table <- plot_mse(
     formula = formula,
-    model = model,
+    model = regression_model,
     dataset = train,
     k = k,
-    max_leaf_nodes = leaf_node_test_seq
+    max_leaf_nodes = max_leaf_nodes_seq
   )
   one_sd <- min(mse_table$mse_values) + sd(mse_table$mse_values)
   leaf_nodes <- mse_table$max_leaf_nodes[
@@ -472,97 +497,127 @@ tree_generate <- function(dataset, split, formula, k, leaf_node_test_seq) {
     print(mse_table)
     print(regressor$mean_squared_error(test))
     print(regressor$root)
+    regressor$render()
+    regressor$summarize()
   }
-  regressor$render()
-  regressor$summarize()
-  for (i in seq_len(dim(train))[1]) {
-    train$tree_predictions[i] <- regressor$predict(train[i, ])
-  }
+  train$tree_predictions <- apply(train, 1, regressor$predict)
   train
 }
 
-train <- tree_generate(boston, 0.8, medv ~ ., 5, seq(1, 5, by = 1))
+# bootstrap_columns <- function(dataset, n, split, formula, k, max_leaf_nodes_seq) {
+#   # For each bootstrap sample
+#   for (i in 1:n) {
+#     # Generate a bootstrap sample
+#     bootstrap_sample <- dataset[sample(nrow(dataset), replace = TRUE), ]
 
-print(123123)
-# print(train)
+#     # Fit the decision tree regressor to the bootstrap sample
+#     bootstrap_model <- append_predictions(
+#       bootstrap_sample,
+#       split = split,
+#       formula = formula,
+#       k = k,
+#       leaf_node_test_seq = max_leaf_nodes_seq
+#     )
 
-nonlin <- function(x, deriv = FALSE) {
-  if (deriv == TRUE) {
-    y <- 1 / (1 + exp(-x))
-    return(y * (1 - y))
-  }
-  return(1 / (1 + exp(-x)))
-}
+#     # Add the predictions as a new column to the dataset
+#     dataset[[paste0("tree_predictions_", i)]] <- bootstrap_model$tree_predictions
+#   }
 
-# input data/output labels
-X <- matrix(c(
-  0, 1, 1,
-  1, 1, 0,
-  1, 0, 0,
-  1, 0, 1
-), nrow = 4, byrow = TRUE)
+#   # Return the dataset with the new columns
+#   return(dataset)
+# }
 
-X <- train
 
-y <- matrix(c(1, 1, 0, 0), nrow = 4)
+train <- append_predictions(boston, 0.8, medv ~ ., 5, seq(2, 10, by = 2))
 
-y <- train$medv
-# setting random seed for reproducing
-set.seed(1)
+print(train)
 
-# initialize weights
-w0 <- 2 * matrix(runif(12), nrow = 3) - 1
-w1 <- 2 * matrix(runif(4), nrow = 4) - 1
-# hyperparameters
-learning_rate <- 0.01
-epochs <- 10
-batch_size <- 100
-iterations_per_epoch <- 10000
 
-total_iterations <- 0
 
-# training loop
-for (epoch in 1:epochs) {
-  # random batch selection
-  indices <- sample(nrow(X))
-  X_shuffled <- X[indices, ]
-  y_shuffled <- y[indices, ]
 
-  for (batch_start in seq(1, nrow(X), by = batch_size)) {
-    # Select a random batch
-    batch_end <- min(nrow(X), batch_start + batch_size - 1)
 
-    X_batch <- X_shuffled[batch_start:batch_end, ]
-    y_batch <- y_shuffled[batch_start:batch_end]
 
-    # forward prop
-    a0 <- X_batch
-    a1 <- nonlin(a0 %*% w0)
-    a2 <- nonlin(a1 %*% w1)
 
-    # backprop
-    a2_error <- (1 / 2) * (y_batch - a2)^2
-    a2_delta <- a2_error * nonlin(a2, deriv = TRUE)
-    a1_error <- a2_delta %*% t(w1)
-    a1_delta <- a1_error * nonlin(a1, deriv = TRUE)
 
-    # update weights
-    w1 <- w1 + t(a1) %*% a2_delta * learning_rate
-    w0 <- w0 + t(a0) %*% a1_delta * learning_rate
 
-    total_iterations <- total_iterations + 1
-    if (total_iterations == iterations_per_epoch) {
-      break # exit the loop after reaching the desired iterations
-    }
-  }
 
-  # error val after each epoch
-  print(paste("Epoch", epoch, ", Error:", mean(abs(a2_error))))
-}
+# nonlin <- function(x, deriv = FALSE) {
+#   if (deriv == TRUE) {
+#     y <- 1 / (1 + exp(-x))
+#     return(y * (1 - y))
+#   }
+#   1 / (1 + exp(-x))
+# }
 
-# final weights
-print("Final weights:")
-print("w0:")
-print(w0)
-print("w1:")
-print(w1)
+# # input data/output labels
+# X <- matrix(c(
+#   0, 1, 1,
+#   1, 1, 0,
+#   1, 0, 0,
+#   1, 0, 1
+# ), nrow = 4, byrow = TRUE)
+
+# X <- train
+
+# y <- matrix(c(1, 1, 0, 0), nrow = 4)
+
+# y <- train$medv
+# # setting random seed for reproducing
+# set.seed(1)
+
+# # initialize weights
+# w0 <- 2 * matrix(runif(12), nrow = 3) - 1
+# w1 <- 2 * matrix(runif(4), nrow = 4) - 1
+# # hyperparameters
+# learning_rate <- 0.01
+# epochs <- 10
+# batch_size <- 100
+# iterations_per_epoch <- 10000
+
+# total_iterations <- 0
+
+# # training loop
+# for (epoch in 1:epochs) {
+#   # random batch selection
+#   indices <- sample(nrow(X))
+#   X_shuffled <- X[indices, ]
+#   y_shuffled <- y[indices, ]
+
+#   for (batch_start in seq(1, nrow(X), by = batch_size)) {
+#     # Select a random batch
+#     batch_end <- min(nrow(X), batch_start + batch_size - 1)
+
+#     X_batch <- X_shuffled[batch_start:batch_end, ]
+#     y_batch <- y_shuffled[batch_start:batch_end]
+
+#     # forward prop
+#     a0 <- X_batch
+#     a1 <- nonlin(a0 %*% w0)
+#     a2 <- nonlin(a1 %*% w1)
+
+#     # backprop
+#     a2_error <- (1 / 2) * (y_batch - a2)^2
+#     a2_delta <- a2_error * nonlin(a2, deriv = TRUE)
+#     a1_error <- a2_delta %*% t(w1)
+#     a1_delta <- a1_error * nonlin(a1, deriv = TRUE)
+
+#     # update weights
+#     w1 <- w1 + t(a1) %*% a2_delta * learning_rate
+#     w0 <- w0 + t(a0) %*% a1_delta * learning_rate
+
+#     total_iterations <- total_iterations + 1
+#     if (total_iterations == iterations_per_epoch) {
+#       break # exit the loop after reaching the desired iterations
+#     }
+#   }
+
+#   # error val after each epoch
+#   print(paste("Epoch", epoch, ", Error:", mean(abs(a2_error))))
+# }
+
+# # final weights
+# print("Final weights:")
+# print("w0:")
+# print(w0)
+# print("w1:")
+# print(w1)

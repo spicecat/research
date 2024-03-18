@@ -227,17 +227,12 @@ DecisionTreeRegressor <- R6Class( # nolint
       self$min_samples_leaf <- min_samples_leaf
       self$max_leaf_nodes <- max_leaf_nodes
     },
-    fit = function(formula, data) {
-      # Fit the decision tree regressor to the dataset
-      df <- model.frame(formula, data)
-      df <- aggregate(formula, df, mean)
-      root <- Node$new(outcomes = df, depth = 0)
-      if (root$samples >= self$min_samples_split) {
-        pq <- PriorityQueue()
-        pq$push(root)
-        terminal_nodes <- 1
-        while (pq$size() > 0 && terminal_nodes < self$max_leaf_nodes) {
-          node <- pq$pop()
+    add_nodes = function(n = 1) {
+      # Add nodes to the decision tree
+      for (i in 1:n) {
+        if (private$pq$size() > 0 &&
+          private$terminal_nodes < self$max_leaf_nodes) {
+          node <- private$pq$pop()
           if (node$samples >= self$min_samples_split) {
             split <- node$get_split()
             left <- split$left
@@ -245,15 +240,38 @@ DecisionTreeRegressor <- R6Class( # nolint
             if (all(left$samples, right$samples >= self$min_samples_leaf)) {
               node$split()
               if (left$samples >= self$min_samples_split) {
-                pq$push(left, priority = left$get_impurity_reduction())
+                private$pq$push(
+                  left,
+                  priority = left$get_impurity_reduction()
+                )
               }
               if (right$samples >= self$min_samples_split) {
-                pq$push(right, priority = right$get_impurity_reduction())
+                private$pq$push(
+                  right,
+                  priority = right$get_impurity_reduction()
+                )
               }
-              terminal_nodes <- terminal_nodes + 1
+              private$terminal_nodes <- private$terminal_nodes + 1
             }
+          } else {
+            add_node()
           }
+        } else {
+          break
         }
+      }
+    },
+    add_node = function() {
+
+    },
+    fit = function(formula, data) {
+      # Fit the decision tree regressor to the dataset
+      df <- model.frame(formula, data)
+      df <- aggregate(formula, df, mean)
+      root <- Node$new(outcomes = df, depth = 0)
+      if (root$samples >= self$min_samples_split) {
+        private$pq$push(root)
+        self$add_nodes(self$max_leaf_nodes)
       }
       self$root <- root
       self$root
@@ -307,6 +325,9 @@ DecisionTreeRegressor <- R6Class( # nolint
         }
       })
       l <- layout_as_tree(g, root = "0")
+
+      timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+      png(paste0("output/graph_", timestamp, ".png"))
       plot(
         g,
         layout = l,
@@ -315,6 +336,7 @@ DecisionTreeRegressor <- R6Class( # nolint
         vertex.size = 35,
         vertex.size2 = 30
       )
+      dev.off()
     },
     summarize = function() {
       # Print summary statistics of the decision tree
@@ -345,6 +367,10 @@ DecisionTreeRegressor <- R6Class( # nolint
         error_total
       ))
     }
+  ),
+  private = list(
+    pq = PriorityQueue(),
+    terminal_nodes = 1
   )
 )
 
@@ -382,6 +408,28 @@ k_fold_mse <- function(model, formula, data, k, max_leaf_nodes = 5) {
   mean(mse_values)
 }
 
+plot_mse_fast <- function(model, formula, data, k, max_leaf_nodes_seq) {
+  folds <- caret::createFolds(seq_len(nrow(data)), k = k)
+  sapply(folds, function(fold) {
+    train <- data[-fold, ]
+    test <- data[fold, ]
+    #   mse_values <- sapply(max_leaf_nodes_seq, function(i) {
+    #   k_fold_mse(model, formula, data, k, max_leaf_nodes = i)
+    # })
+    # leaf_nodes <- max_leaf_nodes_seq[1]
+    leaf_nodes <- 0
+    regressor <- model(formula, train, 0)
+    for (max_leaf_nodes in max_leaf_nodes_seq) {
+      while (leaf_nodes < value) {
+
+      }
+    }
+
+
+    regressor$mean_squared_error(test)
+  })
+}
+
 # Plot k-fold cross-validation scores for a model by max_leaf_nodes
 plot_mse <- function(model, formula, data, k, max_leaf_nodes_seq) {
   mse_values <- sapply(max_leaf_nodes_seq, function(i) {
@@ -395,7 +443,12 @@ plot_mse <- function(model, formula, data, k, max_leaf_nodes_seq) {
 
   color_mse[optimal_index] <- "blue"
 
+  timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+  png(paste0("output/plot_", timestamp, ".png"))
   plot(max_leaf_nodes_seq, mse_values, col = color_mse)
+  title("k_fold_mse vs max_leaf_nodes")
+  dev.off()
+  print(123123)
   data.frame(max_leaf_nodes_seq, mse_values)
 }
 
@@ -436,37 +489,37 @@ boston <- boston[, included_columns]
 # # boston <- boston[included_rows, ]
 
 # Split dataset into train and test sets
-# test_train <- test_train_split(boston, train_size = 0.8)
-# train <- test_train$train
-# test <- test_train$test
+test_train <- test_train_split(boston, train_size = 0.8)
+train <- test_train$train
+test <- test_train$test
 
 # # Fit the decision tree regressor to the training data
-# regressor <- DecisionTreeRegressor$new(
-#   min_samples_split = 2,
-#   max_leaf_nodes = 50
-# )
-# regressor$fit(
-#   formula = medv ~ .,
-#   data = train
-# )
+regressor <- DecisionTreeRegressor$new(
+  min_samples_split = 2,
+  max_leaf_nodes = 50
+)
+regressor$fit(
+  formula = medv ~ .,
+  data = train
+)
 
 # # Print the decision tree
-# print(regressor$root)
-# regressor$summarize()
-# regressor$render()
+print(regressor$root)
+regressor$summarize()
+regressor$render()
 
 
 # # Predict the outcome for the test row
-# test_row <- c(
-#   crim = 0.04741,
-#   zn = 0,
-#   indus = 11.93,
-#   medv = 11.9
-# )
-# print(regressor$predict(test_row))
+test_row <- c(
+  crim = 0.04741,
+  zn = 0,
+  indus = 11.93,
+  medv = 11.9
+)
+print(regressor$predict(test_row))
 
 # # print("MSE")
-# print(regressor$mean_squared_error(test))
+print(regressor$mean_squared_error(test))
 
 # # Test k-fold cross validation score
 # print("k-fold test")
@@ -488,15 +541,16 @@ boston <- boston[, included_columns]
 #   max_leaf_nodes_seq = max_leaf_nodes_seq
 # )
 # print(plot)
-max_leaf_nodes_seq <- seq(2, 350, by = 2)
-plot <- plot_mse(
-  model = regression_model,
-  formula = G3 ~ .,
-  data = alcohol,
-  k = 5,
-  max_leaf_nodes_seq = max_leaf_nodes_seq
-)
-print(plot)
+print(12312)
+# max_leaf_nodes_seq <- seq(1, 5, by = 1)
+# plot <- plot_mse(
+#   model = regression_model,
+#   formula = G3 ~ .,
+#   data = alcohol,
+#   k = 5,
+#   max_leaf_nodes_seq = max_leaf_nodes_seq
+# )
+# print(plot)
 
 # # Generate an optimal decision tree regressor
 # append_predictions <- function(data, split, formula, k, max_leaf_nodes_seq) {

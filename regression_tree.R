@@ -38,7 +38,7 @@ test_train_split <- function(data, train_size = NULL, test_size = NULL) {
   test_n <- nrow(data) * test_size
   indices <- sample(seq_len(nrow(data)), size = train_n + test_n)
   train_indices <- indices[1:train_n]
-  test_indices <- indices[(train_n + 1):(train_n + test_n + 1)]
+  test_indices <- indices[(train_n + 1):(train_n + test_n)]
   train_set <- data[train_indices, ]
   test_set <- data[test_indices, ]
   list(train = train_set, test = test_set)
@@ -229,15 +229,23 @@ DecisionTreeRegressor <- R6Class( # nolint
     },
     add_nodes = function(n = 1) {
       # Add nodes to the decision tree
+      start <- private$terminal_nodes
       for (i in 1:n) {
-        if (private$pq$size() > 0 &&
-          private$terminal_nodes < self$max_leaf_nodes) {
+        # private$add_node()
+        print(222)
+        # node <- private$pq$pop()
+        # node$split()
+        # print(self$root)
+        # print(private$pq$size())
+        if (private$pq$size() > 0) {
           node <- private$pq$pop()
+          print(333)
+          print(self$root)
           if (node$samples >= self$min_samples_split) {
             split <- node$get_split()
             left <- split$left
             right <- split$right
-            if (all(left$samples, right$samples >= self$min_samples_leaf)) {
+            if (all(c(left$samples, right$samples) >= self$min_samples_leaf)) {
               node$split()
               if (left$samples >= self$min_samples_split) {
                 private$pq$push(
@@ -254,26 +262,27 @@ DecisionTreeRegressor <- R6Class( # nolint
               private$terminal_nodes <- private$terminal_nodes + 1
             }
           } else {
-            add_node()
+            # private$add_node()
           }
-        } else {
-          break
         }
       }
-    },
-    add_node = function() {
-
+      self$root
     },
     fit = function(formula, data) {
       # Fit the decision tree regressor to the dataset
       df <- model.frame(formula, data)
       df <- aggregate(formula, df, mean)
-      root <- Node$new(outcomes = df, depth = 0)
-      if (root$samples >= self$min_samples_split) {
-        private$pq$push(root)
-        self$add_nodes(self$max_leaf_nodes)
+      self$root <- Node$new(outcomes = df, depth = 0)
+      print(1111)
+      print(self$root)
+      if (self$root$samples >= self$min_samples_split) {
+        private$pq$push(self$root)
+        # node <- private$pq$pop()
+        # node$split()
+        # print(self$root)
+        private$terminal_nodes <- 1
+        self$add_nodes(self$max_leaf_nodes - 1)
       }
-      self$root <- root
       self$root
     },
     predict = function(row) {
@@ -293,7 +302,6 @@ DecisionTreeRegressor <- R6Class( # nolint
       if (is.null(target)) {
         actual <- test[, ncol(test)]
       } else {
-        jj
         actual <- test[, target]
       }
       predictions <- apply(test, 1, function(row) self$predict(row))
@@ -370,11 +378,39 @@ DecisionTreeRegressor <- R6Class( # nolint
   ),
   private = list(
     pq = PriorityQueue(),
-    terminal_nodes = 1
+    terminal_nodes = 0,
+    add_node = function() {
+      if (private$pq$size() > 0) {
+        node <- private$pq$pop()
+        if (node$samples >= self$min_samples_split) {
+          split <- node$get_split()
+          left <- split$left
+          right <- split$right
+          if (all(c(left$samples, right$samples) >= self$min_samples_leaf)) {
+            node$split()
+            if (left$samples >= self$min_samples_split) {
+              private$pq$push(
+                left,
+                priority = left$get_impurity_reduction()
+              )
+            }
+            if (right$samples >= self$min_samples_split) {
+              private$pq$push(
+                right,
+                priority = right$get_impurity_reduction()
+              )
+            }
+            private$terminal_nodes <- private$terminal_nodes + 1
+          }
+        } else {
+          private$add_node()
+        }
+      }
+    }
   )
 )
 
-# Get test estimates from trained decision tree regressor at max_leaf_nodes
+# Get regression model from trained decision tree regressor at max_leaf_nodes
 regression_model <- function(formula, train, max_leaf_nodes) {
   regressor <- DecisionTreeRegressor$new(
     max_leaf_nodes = max_leaf_nodes
@@ -384,7 +420,6 @@ regression_model <- function(formula, train, max_leaf_nodes) {
     data = train
   )
   regressor
-  # regressor$mean_squared_error(test)
 }
 
 # Get k-fold cross-validation score for a model
@@ -395,6 +430,10 @@ k_fold_mse <- function(model, formula, data, k, max_leaf_nodes = 5) {
     train <- data[-fold, ]
     test <- data[fold, ]
     regressor <- model(formula, train, max_leaf_nodes)
+    # print(123123)
+    # print(max_leaf_nodes)
+    # print(regressor$root)
+    # regressor$summarize()
     regressor$mean_squared_error(test)
   })
   if (debug) {
@@ -419,7 +458,9 @@ plot_mse_fast <- function(model, formula, data, k, max_leaf_nodes_seq) {
     # leaf_nodes <- max_leaf_nodes_seq[1]
     leaf_nodes <- 0
     regressor <- model(formula, train, 0)
-    for (max_leaf_nodes in max_leaf_nodes_seq) {
+    for (new_nodes in diff(max_leaf_nodes_seq)) {
+      regressor$add_nodes(new_nodes)
+      leaf_nodes <- leaf_nodes + new_nodes
       while (leaf_nodes < value) {
 
       }
@@ -448,7 +489,6 @@ plot_mse <- function(model, formula, data, k, max_leaf_nodes_seq) {
   plot(max_leaf_nodes_seq, mse_values, col = color_mse)
   title("k_fold_mse vs max_leaf_nodes")
   dev.off()
-  print(123123)
   data.frame(max_leaf_nodes_seq, mse_values)
 }
 
@@ -479,69 +519,69 @@ boston <- Boston
 alcohol <- read.csv("data/student-mat.csv")
 alcohol <- factorize(alcohol)
 
-# Use simplified subset of Boston dataset
-included_rows <- c(
-  505, 324, 167, 129, 418, 471,
-  299, 270, 466, 187, 307, 481, 85, 277, 362
-) + 1
-included_columns <- c("crim", "zn", "indus", "medv")
-boston <- boston[, included_columns]
+# # Use simplified subset of Boston dataset
+# included_rows <- c(
+#   505, 324, 167, 129, 418, 471,
+#   299, 270, 466, 187, 307, 481, 85, 277, 362
+# ) + 1
+# included_columns <- c("crim", "zn", "indus", "medv")
+# boston <- boston[, included_columns]
 # # boston <- boston[included_rows, ]
 
-# Split dataset into train and test sets
-test_train <- test_train_split(boston, train_size = 0.8)
-train <- test_train$train
-test <- test_train$test
+# # Split dataset into train and test sets
+# test_train <- test_train_split(boston, train_size = 0.8)
+# train <- test_train$train
+# test <- test_train$test
 
 # # Fit the decision tree regressor to the training data
-regressor <- DecisionTreeRegressor$new(
-  min_samples_split = 2,
-  max_leaf_nodes = 50
-)
-regressor$fit(
-  formula = medv ~ .,
-  data = train
-)
+# regressor <- DecisionTreeRegressor$new(
+#   min_samples_split = 2,
+#   max_leaf_nodes = 5
+# )
+# regressor$fit(
+#   formula = medv ~ .,
+#   data = train
+# )
 
 # # Print the decision tree
-print(regressor$root)
-regressor$summarize()
-regressor$render()
-
+# print(regressor$root)
+# regressor$summarize()
+# regressor$render()
 
 # # Predict the outcome for the test row
-test_row <- c(
-  crim = 0.04741,
-  zn = 0,
-  indus = 11.93,
-  medv = 11.9
-)
-print(regressor$predict(test_row))
-
-# # print("MSE")
-print(regressor$mean_squared_error(test))
-
-# # Test k-fold cross validation score
-# print("k-fold test")
-# print(k_fold_mse(
-#   model = regression_model,
-#   formula = medv ~ .,
-#   data = boston,
-#   k = 5
-# ))
-
-# Plot k-fold cross validation scores
-# max_leaf_nodes_seq <- seq(2, 400, by = 2)
-# max_leaf_nodes_seq <- seq(2, 10, by = 2)
-# plot <- plot_mse(
-#   model = regression_model,
-#   formula = medv ~ .,
-#   data = boston,
-#   k = 5,
-#   max_leaf_nodes_seq = max_leaf_nodes_seq
+# test_row <- c(
+#   crim = 0.04741,
+#   zn = 0,
+#   indus = 11.93,
+#   medv = 11.9
 # )
-# print(plot)
-print(12312)
+# print("Test Estimate for")
+# print(test_row)
+# print(regressor$predict(test_row))
+
+# print("MSE")
+# print(regressor$mean_squared_error(test))
+
+# Test k-fold cross validation score
+print("k-fold test")
+print(k_fold_mse(
+  model = regression_model,
+  formula = medv ~ .,
+  data = boston,
+  k = 5
+))
+asdf
+# Plot k-fold cross validation scores
+max_leaf_nodes_seq <- seq(1, 5, by = 1)
+plot <- plot_mse(
+  model = regression_model,
+  formula = medv ~ .,
+  data = boston,
+  k = 5,
+  max_leaf_nodes_seq = max_leaf_nodes_seq
+)
+print(plot)
+
 # max_leaf_nodes_seq <- seq(1, 5, by = 1)
 # plot <- plot_mse(
 #   model = regression_model,

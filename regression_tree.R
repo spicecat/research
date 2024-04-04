@@ -570,7 +570,7 @@ print(k_fold_mse(
   data = boston,
   k = 5
 ))
-asdf
+
 # Plot k-fold cross validation scores
 max_leaf_nodes_seq <- seq(1, 5, by = 1)
 plot <- plot_mse(

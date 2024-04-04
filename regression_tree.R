@@ -214,7 +214,7 @@ Node <- R6Class( # nolint
 
 # Class for the decision tree regressor
 DecisionTreeRegressor <- R6Class( # nolint
-  "decision_tree_regressor",
+  "DecisionTreeRegressor",
   public = list(
     root = NULL,
     min_samples_split = NULL,
@@ -513,7 +513,7 @@ get_optimal_tree <- function(model, formula, data, k, max_leaf_nodes_seq) {
   regressor
 }
 
-# Load Boston housing dataset
+# Load datasets
 # boston <- read.csv("data/boston.csv")
 boston <- Boston
 alcohol <- read.csv("data/student-mat.csv")

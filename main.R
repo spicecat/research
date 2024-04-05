@@ -1,22 +1,19 @@
 # LOAD NECESSARY LIBRARIES
-packages <- c("MASS", "boot", "dplyr", "rpart", "rpart.plot", "neuralnet")
+packages <- c(
+  "MASS", "boot", "dplyr", "shapr", "rpart", "rpart.plot", "xgboost"
+)
 installed_packages <- packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
   install.packages(packages[!installed_packages])
 }
 lapply(packages, library, character.only = TRUE)
 
-
 set.seed(123)
 
-data <- Boston
-data$chas <- as.factor(data$chas)
+included_columns <- c("lstat", "rm", "dis", "indus", "medv")
+data <- Boston[, included_columns]
+# data$chas <- as.factor(data$chas)
 data <- data %>% mutate_if(is.factor, as.numeric)
-
-# Create a training and test set
-test_indices <- sample(seq_len(nrow(data)), nrow(data) * 0.2)
-test_data <- data[test_indices, ]
-train_data <- data[-test_indices, ]
 
 predictions <- function(formula, data, indices) {
   bootstrap_sample <- data[indices, ]
@@ -45,26 +42,69 @@ reps <- boot(
 # print(reps)
 # plot(reps)
 
-data_boot <- cbind(data, t(reps$t))
+data_boot <- cbind(t(reps$t), data)
 # Rename the columns
 colnames(data_boot)[
-  (ncol(data) + 1):ncol(data_boot)
+  seq_len(nrow(reps$t))
 ] <- paste0("p", seq_len(nrow(reps$t)))
 # print(data_boot)
+data <- data_boot
 
-n <- neuralnet(
-  medv ~ .,
-  data = data_boot,
-  hidden = c(12, 7),
-  linear.output = FALSE,
-  lifesign = "full",
-  rep = 1
+# Create a training and test set
+test_indices <- sample(seq_len(nrow(data)), nrow(data) * 0.2)
+y_var <- "medv"
+x_var <- setdiff(names(data), y_var)
+
+
+x_train <- as.matrix(data[-test_indices, x_var])
+y_train <- data[-test_indices, y_var]
+x_test <- as.matrix(data[test_indices, x_var])
+
+# Convert the data to xgb.DMatrix format
+dtrain <- xgb.DMatrix(data = x_train, label = y_train)
+
+# https://xgboost.readthedocs.io/en/stable/parameter.html
+# Set up the parameters for the xgboost model
+params <- list(
+  objective = "reg:squarederror",
+  eta = 0.3
 )
 
-plot(n,
-  col.hidden = "darkgreen",
-  col.hidden.synapse = "darkgreen",
-  show.weights = FALSE,
-  information = FALSE,
-  fill = "lightblue"
+# Train the xgboost model
+model <- xgb.train(
+  params = params,
+  data = dtrain,
+  nrounds = 20,
+  watchlist = list(train = dtrain)
 )
+# model <- xgboost(
+#   data = x_train,
+#   label = y_train,
+#   nround = 20,
+#   verbose = FALSE
+# )
+
+# Prepare the data for explanation
+explainer <- shapr(
+  x_train,
+  model,
+  n_combinations = 10000
+)
+
+# Specifying the phi_0, i.e. the expected prediction without any features
+p <- mean(y_train)
+
+# Computing the actual Shapley values with kernelSHAP accounting for feature dependence using
+# the empirical (conditional) distribution approach with bandwidth parameter sigma = 0.1 (default)
+explanation <- explain(
+  x_test,
+  approach = "empirical",
+  explainer = explainer,
+  prediction_zero = p
+)
+
+# Printing the Shapley values for the test data.
+print(explanation$dt)
+
+# Plot the resulting explanations for observations 1 and 6
+plot(explanation, plot_phi0 = FALSE, index_x_test = test_indices)

@@ -3,16 +3,16 @@ packages <- c(
   "MASS", "boot", "dplyr", "shapr", "rpart", "rpart.plot", "xgboost"
 )
 installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
+install.packages(packages[!installed_packages])
 lapply(packages, library, character.only = TRUE)
 
 set.seed(123)
 
-included_columns <- c("lstat", "rm", "dis", "indus", "medv")
+# included_columns <- c("lstat", "rm", "dis", "indus", "medv")
+included_columns <- c("indus", "chas", "rm", "age", "tax", "medv")
 data <- Boston[, included_columns]
-# data$chas <- as.factor(data$chas)
+# data <- Boston
+data$chas <- as.factor(data$chas)
 data <- data %>% mutate_if(is.factor, as.numeric)
 
 predictions <- function(formula, data, indices) {
@@ -48,63 +48,63 @@ colnames(data_boot)[
   seq_len(nrow(reps$t))
 ] <- paste0("p", seq_len(nrow(reps$t)))
 # print(data_boot)
-data <- data_boot
+data_boot
 
-# Create a training and test set
-test_indices <- sample(seq_len(nrow(data)), nrow(data) * 0.2)
-y_var <- "medv"
-x_var <- setdiff(names(data), y_var)
+plot_shap <- function(data, y_vars, x_vars, test_size = 0.2) {
+  # Create a training and test set
+  test_indices <- sample(seq_len(nrow(data_boot)), nrow(data) * test_size)
+  x_train <- as.matrix(data_boot[-test_indices, x_vars])
+  y_train <- data_boot[-test_indices, y_vars]
+  x_test <- as.matrix(data_boot[test_indices, x_vars])
 
+  # Convert the data to xgb.DMatrix format
+  dtrain <- xgb.DMatrix(data = x_train, label = y_train)
 
-x_train <- as.matrix(data[-test_indices, x_var])
-y_train <- data[-test_indices, y_var]
-x_test <- as.matrix(data[test_indices, x_var])
+  # https://xgboost.readthedocs.io/en/stable/parameter.html
+  # Set up the parameters for the xgboost model
+  params <- list(
+    objective = "reg:squarederror",
+    eta = 0.3
+  )
 
-# Convert the data to xgb.DMatrix format
-dtrain <- xgb.DMatrix(data = x_train, label = y_train)
+  # Train the xgboost model
+  model <- xgb.train(
+    params = params,
+    data = dtrain,
+    nrounds = 20,
+    watchlist = list(train = dtrain)
+  )
+  # model <- xgboost(
+  #   data = x_train,
+  #   label = y_train,
+  #   nround = 20,
+  #   verbose = FALSE
+  # )
 
-# https://xgboost.readthedocs.io/en/stable/parameter.html
-# Set up the parameters for the xgboost model
-params <- list(
-  objective = "reg:squarederror",
-  eta = 0.3
-)
+  # Prepare the data for explanation
+  explainer <- shapr(
+    x_train,
+    model,
+    n_combinations = 10000
+  )
 
-# Train the xgboost model
-model <- xgb.train(
-  params = params,
-  data = dtrain,
-  nrounds = 20,
-  watchlist = list(train = dtrain)
-)
-# model <- xgboost(
-#   data = x_train,
-#   label = y_train,
-#   nround = 20,
-#   verbose = FALSE
-# )
+  # Specifying the phi_0, i.e. the expected prediction without any features
+  p <- mean(y_train)
 
-# Prepare the data for explanation
-explainer <- shapr(
-  x_train,
-  model,
-  n_combinations = 10000
-)
+  # Computing the actual Shapley values with kernelSHAP accounting for feature dependence using
+  # the empirical (conditional) distribution approach with bandwidth parameter sigma = 0.1 (default)
+  explanation <- explain(
+    x_test,
+    approach = "empirical",
+    explainer = explainer,
+    prediction_zero = p
+  )
+  # Printing the Shapley values for the test data.
+  # print(explanation$dt)
 
-# Specifying the phi_0, i.e. the expected prediction without any features
-p <- mean(y_train)
+  # Plot the resulting explanations for observations
+  plot(explanation, plot_phi0 = FALSE, index_x_test = test_indices)
+}
 
-# Computing the actual Shapley values with kernelSHAP accounting for feature dependence using
-# the empirical (conditional) distribution approach with bandwidth parameter sigma = 0.1 (default)
-explanation <- explain(
-  x_test,
-  approach = "empirical",
-  explainer = explainer,
-  prediction_zero = p
-)
-
-# Printing the Shapley values for the test data.
-print(explanation$dt)
-
-# Plot the resulting explanations for observations 1 and 6
-plot(explanation, plot_phi0 = FALSE, index_x_test = test_indices)
+plot_shap(data_boot, "medv", setdiff(names(data_boot), "medv"))
+plot_shap(data, "medv", setdiff(names(data), "medv"))

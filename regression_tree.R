@@ -448,7 +448,6 @@ plot_mse <- function(model, formula, data, k, max_leaf_nodes_seq) {
   plot(max_leaf_nodes_seq, mse_values, col = color_mse)
   title("k_fold_mse vs max_leaf_nodes")
   dev.off()
-  print(123123)
   data.frame(max_leaf_nodes_seq, mse_values)
 }
 

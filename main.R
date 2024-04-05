@@ -1,6 +1,6 @@
 # LOAD NECESSARY LIBRARIES
 packages <- c(
-  "MASS", "boot", "dplyr", "shapr", "rpart", "rpart.plot", "xgboost"
+  "MASS", "SHAPforxgboost", "boot", "dplyr", "rpart", "rpart.plot", "xgboost"
 )
 installed_packages <- packages %in% rownames(installed.packages())
 install.packages(packages[!installed_packages])
@@ -58,7 +58,7 @@ plot_shap <- function(data, y_vars, x_vars, test_size = 0.2) {
   x_test <- as.matrix(data_boot[test_indices, x_vars])
 
   # Convert the data to xgb.DMatrix format
-  dtrain <- xgb.DMatrix(data = x_train, label = y_train)
+  dtrain <- xgb.DMatrix(data = x_train, label = y_train) # nolint: object_usage_linter.
 
   # https://xgboost.readthedocs.io/en/stable/parameter.html
   # Set up the parameters for the xgboost model
@@ -68,43 +68,27 @@ plot_shap <- function(data, y_vars, x_vars, test_size = 0.2) {
   )
 
   # Train the xgboost model
-  model <- xgb.train(
+  model <- xgb.train( # nolint: object_usage_linter.
     params = params,
     data = dtrain,
     nrounds = 20,
     watchlist = list(train = dtrain)
   )
-  # model <- xgboost(
-  #   data = x_train,
-  #   label = y_train,
-  #   nround = 20,
-  #   verbose = FALSE
-  # )
 
-  # Prepare the data for explanation
-  explainer <- shapr(
-    x_train,
-    model,
-    n_combinations = 10000
-  )
-
-  # Specifying the phi_0, i.e. the expected prediction without any features
-  p <- mean(y_train)
-
-  # Computing the actual Shapley values with kernelSHAP accounting for feature dependence using
-  # the empirical (conditional) distribution approach with bandwidth parameter sigma = 0.1 (default)
-  explanation <- explain(
-    x_test,
-    approach = "empirical",
-    explainer = explainer,
-    prediction_zero = p
-  )
-  # Printing the Shapley values for the test data.
-  # print(explanation$dt)
-
-  # Plot the resulting explanations for observations
-  plot(explanation, plot_phi0 = FALSE, index_x_test = test_indices)
+  shap <- shap.prep(model, X_train = x_train)
+  shap.plot.summary(shap)
+  shap
 }
 
-plot_shap(data_boot, "medv", setdiff(names(data_boot), "medv"))
-plot_shap(data, "medv", setdiff(names(data), "medv"))
+shap_boot <- plot_shap(data_boot, "medv", setdiff(names(data_boot), "medv"))
+shap <- plot_shap(data, "medv", setdiff(names(data), "medv"))
+
+timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+png(paste0("output/shap_boot_", timestamp, ".png"))
+shap.plot.summary(shap_boot)
+dev.off()
+
+timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+png(paste0("output/shap", timestamp, ".png"))
+shap.plot.summary(shap)
+dev.off()

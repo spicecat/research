@@ -8,13 +8,13 @@ lapply(packages, library, character.only = TRUE)
 
 set.seed(123)
 
-# included_columns <- c("lstat", "rm", "dis", "indus", "medv")
 included_columns <- c("indus", "chas", "rm", "age", "tax", "medv")
 data <- Boston[, included_columns]
 # data <- Boston
 data$chas <- as.factor(data$chas)
 data <- data %>% mutate_if(is.factor, as.numeric)
 
+replicate_i <- 0
 predictions <- function(formula, data, indices) {
   bootstrap_sample <- data[indices, ]
   # build the initial tree
@@ -27,6 +27,19 @@ predictions <- function(formula, data, indices) {
   best <- tree$cptable[which.min(tree$cptable[, "xerror"]), "CP"]
   # produce a pruned tree based on the best cp value
   pruned_tree <- prune(tree, cp = best) # nolint: object_usage_linter.
+
+  timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+  pdf(paste0("output/tree", replicate_i, "_", timestamp, ".pdf"))
+  # plot the pruned tree
+  prp(pruned_tree,
+    faclen = 0, # use full names for factor labels
+    extra = 1, # display number of obs. for each terminal node
+    roundint = FALSE, # don't round to integers in output
+    digits = 5
+  ) # display 5 decimal places in output
+  dev.off()
+  replicate_i <<- replicate_i + 1
+
   # Generate predictions on the test subset
   test_predictions <- predict(pruned_tree, newdata = data)
   test_predictions
@@ -35,20 +48,21 @@ predictions <- function(formula, data, indices) {
 reps <- boot(
   data,
   statistic = predictions,
-  R = 5,
+  R = 5L,
   formula = medv ~ .
 )
 
 # print(reps)
 # plot(reps)
 
-data_boot <- cbind(t(reps$t), data)
+boot_only <- t(reps$t)
 # Rename the columns
-colnames(data_boot)[
-  seq_len(nrow(reps$t))
-] <- paste0("p", seq_len(nrow(reps$t)))
+colnames(boot_only) <- paste0("p", seq_len(ncol(boot_only)))
+boot_only <- cbind(data$medv, boot_only)
+colnames(boot_only)[1] <- "medv"
+
+data_boot <- cbind(boot_only, data)
 # print(data_boot)
-data_boot
 
 plot_shap <- function(data, y_vars, x_vars, test_size = 0.2) {
   # Create a training and test set
@@ -80,15 +94,33 @@ plot_shap <- function(data, y_vars, x_vars, test_size = 0.2) {
   shap
 }
 
-shap_boot <- plot_shap(data_boot, "medv", setdiff(names(data_boot), "medv"))
-shap <- plot_shap(data, "medv", setdiff(names(data), "medv"))
+shap_boot_only <- plot_shap(
+  boot_only,
+  "medv",
+  setdiff(colnames(boot_only), "medv")
+)
+shap_data_boot <- plot_shap(
+  data_boot,
+  "medv",
+  setdiff(colnames(data_boot), "medv")
+)
+shap_data <- plot_shap(
+  data,
+  "medv",
+  setdiff(colnames(data), "medv")
+)
 
 timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
-png(paste0("output/shap_boot_", timestamp, ".png"))
-shap.plot.summary(shap_boot)
+pdf(paste0("output/boot_only_", timestamp, ".pdf"))
+shap.plot.summary(shap_boot_only)
 dev.off()
 
 timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
-png(paste0("output/shap", timestamp, ".png"))
-shap.plot.summary(shap)
+pdf(paste0("output/shap_boot_", timestamp, ".pdf"))
+shap.plot.summary(shap_data_boot)
+dev.off()
+
+timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+pdf(paste0("output/shap", timestamp, ".pdf"))
+shap.plot.summary(shap_data)
 dev.off()

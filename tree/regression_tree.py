@@ -1,10 +1,6 @@
+from sklearn.utils import resample
 import numpy as np
-from sklearn.datasets import load_diabetes
 from sklearn.model_selection import KFold
-
-# Load the diabetes dataset
-diabetes = load_diabetes()
-X, y = diabetes.data, diabetes.target  # type: ignore
 
 
 def mse(y_true, y_pred):
@@ -94,7 +90,7 @@ class Node:
         }
 
 
-def split(X, y, depth, max_depth):
+def split(X, y, depth=0, max_depth=float('inf')):
     """
     Recursively builds a regression tree.
     """
@@ -176,7 +172,7 @@ def prune_tree(tree, X, y, alpha):
     return tree
 
 
-def k_fold_cv(X, y, k, max_depth):
+def k_fold_cv(X, y, k=5, max_depth=float('inf')):
     """
     Performs k-fold cross-validation to find the optimal pruned regression tree.
     """
@@ -190,7 +186,7 @@ def k_fold_cv(X, y, k, max_depth):
             X_train, y_train = X[train_idx], y[train_idx]
             X_test, y_test = X[test_idx], y[test_idx]
 
-            tree = split(X_train, y_train, 0, max_depth)
+            tree = split(X_train, y_train, max_depth=max_depth)
             pruned_tree = prune_tree(tree, X_train, y_train, alpha)
 
             test_mse = mse(y_test, np.array(
@@ -205,11 +201,46 @@ def k_fold_cv(X, y, k, max_depth):
     return best_alpha
 
 
-# Example usage
-X_train, y_train = X, y
-max_depth = 5
-best_alpha = k_fold_cv(X_train, y_train, 5, max_depth)
-tree = split(X_train, y_train, 0, max_depth)
-pruned_tree = prune_tree(tree, X_train, y_train, best_alpha)
+def bootstrap_predictions(X, y, R=5, k=5, max_depth=float('inf')):
+    """
+    Adds R columns to X, each one filled with predictions from a pruned tree
+    that was trained on a different bootstrap sample of the data.
+    """
+    # Initialize an array to hold the new columns
+    new_columns = np.zeros((X.shape[0], R))
 
-print(pruned_tree)
+    for i in range(R):
+        # Generate a bootstrap sample
+        X_sample, y_sample = resample(X, y)
+
+        # Train a tree on the bootstrap sample and prune it
+        best_alpha = k_fold_cv(X_sample, y_sample, k, max_depth)
+        tree = split(X_sample, y_sample, max_depth=max_depth)
+        pruned_tree = prune_tree(tree, X_sample, y_sample, best_alpha)
+        # print(pruned_tree.summary(X_sample, y_sample))
+
+        # Fill the i-th new column with predictions from the pruned tree
+        new_columns[:, i] = np.array([predict(x, pruned_tree) for x in X])
+
+    return new_columns
+
+
+if __name__ == "__main__":
+    # Example Usage
+    # Load the diabetes dataset
+    from sklearn.datasets import load_diabetes
+    diabetes = load_diabetes()
+    X, y = diabetes.data, diabetes.target  # type: ignore
+
+    X_train, y_train = X, y
+
+    # Test pruning
+    # best_alpha = k_fold_cv(X_train, y_train)
+    # tree = split(X_train, y_train)
+    # pruned_tree = prune_tree(tree, X_train, y_train, best_alpha)
+    # print(pruned_tree)
+
+    # Test bootstrap
+    reps = bootstrap_predictions(X_train, y_train)
+    X_extended = np.concatenate((X_train, reps), axis=1)
+    print(X_extended)

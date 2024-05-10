@@ -25,6 +25,7 @@ predictions <- function(formula, data, indices) {
   )
   # identify best cp value to use
   best <- tree$cptable[which.min(tree$cptable[, "xerror"]), "CP"]
+  print(tree$cptable)
   # produce a pruned tree based on the best cp value
   pruned_tree <- prune(tree, cp = best) # nolint: object_usage_linter.
 

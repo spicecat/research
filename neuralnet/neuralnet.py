@@ -1,106 +1,61 @@
-import numpy as np
-import tensorflow as tf
-import random
-
-# Set the random seeds
-SEED = 0
-random.seed(SEED)
-np.random.seed(SEED)
-tf.random.set_seed(SEED)
-
-# helper function- sigmoid
+import keras
 
 
-def nonlin(x, deriv=False):
-    if deriv:
-        return x * (1 - x)
-    return tf.nn.sigmoid(x)
+def scale_data(X, y):
+    # Standardize the features
+    X_scaler = StandardScaler()
+    y_scaler = StandardScaler()
+    return (X_scaler.fit_transform(X),
+            y_scaler.fit_transform(y.reshape(-1, 1)),
+            X_scaler,
+            y_scaler)
 
 
-# parameters
-input_size = 3
-hidden_size1 = 4
-hidden_size2 = 3
-hidden_size3 = 2
-output_size = 1
+def compile_model(input_shape):
+    model = keras.Sequential([
+        keras.layers.Dense(units=64, activation='sigmoid',
+                           input_shape=input_shape),
+        keras.layers.Dense(units=64, activation='sigmoid'),
+        keras.layers.Dense(units=1)
+    ])
 
-# TensorFlow model setup
+    model.compile(optimizer='adam', loss='mae')
 
-
-class MyNeuralNetwork(tf.keras.Model):
-    def __init__(self):
-        super(MyNeuralNetwork, self).__init__()
-        # initialize layers
-        self.dense1 = tf.keras.layers.Dense(hidden_size1, use_bias=False)
-        self.batch_norm1 = tf.keras.layers.BatchNormalization()
-        self.dense2 = tf.keras.layers.Dense(hidden_size2, use_bias=False)
-        self.batch_norm2 = tf.keras.layers.BatchNormalization()
-        self.dense3 = tf.keras.layers.Dense(hidden_size3, use_bias=False)
-        self.batch_norm3 = tf.keras.layers.BatchNormalization()
-        self.dense4 = tf.keras.layers.Dense(output_size)
-
-    def call(self, inputs):
-        x = self.dense1(inputs)
-        x = self.batch_norm1(x)
-        x = nonlin(x)
-        x = self.dense2(x)
-        x = self.batch_norm2(x)
-        x = nonlin(x)
-        x = self.dense3(x)
-        x = self.batch_norm3(x)
-        x = nonlin(x)
-        x = self.dense4(x)
-        return nonlin(x)
+    return model
 
 
-# training setup
-model = MyNeuralNetwork()
-optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
-loss_fn = tf.keras.losses.MeanSquaredError()
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    from sklearn.datasets import load_diabetes
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.utils import Bunch
 
-# input data/output labels
-X = np.array([[0, 1, 1],
-              [1, 1, 0],
-              [1, 0, 0],
-              [1, 0, 1]], dtype=np.float32)
+    # Load the diabetes dataset
+    diabetes: Bunch = load_diabetes()  # type: ignore
+    X, y = diabetes.data, diabetes.target
 
-y = np.array([[1], [1], [0], [0]], dtype=np.float32)
+    # Standardize the features
+    X, y, X_scaler, y_scaler = scale_data(X, y)
 
-# training loop (i just kept batch size small for now)
-epochs = 10
-batch_size = 2
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=42)
+    input_shape = [X_train.shape[1]]
 
-dataset = tf.data.Dataset.from_tensor_slices((X, y))
-dataset = dataset.shuffle(buffer_size=4).batch(batch_size)
+    model = compile_model(input_shape)
+    model.summary()
 
-for epoch in range(epochs):
-    for step, (x_batch, y_batch) in enumerate(dataset):
-        with tf.GradientTape() as tape:
-            predictions = model(x_batch, training=True)
-            loss = loss_fn(y_batch, predictions)
-        gradients = tape.gradient(loss, model.trainable_variables)
-        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-    print(f"Epoch {epoch + 1}, Loss: {loss.numpy()}")
+    losses = model.fit(X_train, y_train,
+                       validation_data=(X_test, y_test),
+                       batch_size=256,
+                       epochs=15,)
 
-# final weights
-for layer in model.layers:
-    if hasattr(layer, 'kernel'):
-        print(f"Weights of {layer.name}: {layer.kernel.numpy()}")
+    y_pred = model.predict(X)
+    print(y_scaler.inverse_transform(y_pred))
+    print(y_scaler.inverse_transform(y))
 
-# test data and predictions
-X_test = np.array([[0, 1, 0], [1, 0, 1], [0, 0, 0]], dtype=np.float32)
-preds = model(X_test)
-print("Test Predictions:", preds.numpy())
-
-# testing accuracy by converting probabilities to binary
-
-# test data
-X_test = np.array([[0, 1, 0], [1, 0, 1], [0, 0, 0]], dtype=np.float32)
-y_test = np.array([[1], [0], [0]], dtype=np.float32)  # True labels
-
-preds = model(X_test)
-
-preds_binary = (preds.numpy() > 0.5).astype(int)
-
-accuracy = np.mean(preds_binary == y_test)
-print("Test Accuracy:", accuracy)
+    loss_df = pd.DataFrame(losses.history)
+    loss_df.loc[:, ['loss', 'val_loss']].plot()
+    plt.show()
+    plt.savefig('output/loss.png')

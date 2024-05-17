@@ -229,18 +229,25 @@ if __name__ == "__main__":
     # Example Usage
     # Load the diabetes dataset
     from sklearn.datasets import load_diabetes
-    diabetes = load_diabetes()
-    X, y = diabetes.data, diabetes.target  # type: ignore
-
+    from sklearn.utils import Bunch
+    diabetes: Bunch = load_diabetes()  # type: ignore
+    X, y = diabetes.data, diabetes.target
     X_train, y_train = X, y
+    print(diabetes.feature_names)
 
     # Test pruning
-    # best_alpha = k_fold_cv(X_train, y_train)
-    # tree = split(X_train, y_train)
-    # pruned_tree = prune_tree(tree, X_train, y_train, best_alpha)
-    # print(pruned_tree)
+    tree = split(X_train, y_train)
+    print("Tree:", tree)
+    print(tree.summary(X_train, y_train))
+    best_alpha = k_fold_cv(X_train, y_train)
+    print("Best Alpha:", best_alpha)
+    pruned_tree = prune_tree(tree, X_train, y_train, best_alpha)
+    print("Pruned Tree:", pruned_tree)
+    print(pruned_tree.summary(X_train, y_train))
 
     # Test bootstrap
     reps = bootstrap_predictions(X_train, y_train)
+    print("Reps:", reps.shape, reps)
     X_extended = np.concatenate((X_train, reps), axis=1)
     print(X_extended)
+    print("Extended Shape:", X_extended.shape)

@@ -14,7 +14,6 @@ Residual mean deviance: 39.662
 Samples: 15
 Sum of squared residuals: 396.620
 
-
 n iterations (60000)
 hidden layers (1)
 nodes in hidden layers (2)
@@ -29,59 +28,3 @@ SHAP Value: how y1 and y2 impact y
 batch normalization
 https://www.datacamp.com/tutorial/neural-network-models-r
 https://rviews.rstudio.com/2020/07/20/shallow-neural-net-from-scratch-using-r-part-1/
-
- [2 < 0.01]
-  1 [8 < 0.00]
-    2 [5 < 0.10]
-      3 [6 < 0.02]
-        4 [8 < -0.04]
-          5 value=82.19
-          5 value=119.73
-        4 [9 < 0.04]
-          5 value=83.85
-          5 value=158.00
-      3 [0 < 0.07]
-        4 value=253.00
-        4 value=230.00
-    2 [2 < -0.02]
-      3 [4 < -0.05]
-        4 [3 < 0.04]
-          5 value=173.00
-          5 value=252.00
-        4 [9 < 0.04]
-          5 value=115.79
-          5 value=173.50
-      3 [7 < 0.11]
-        4 [9 < 0.10]
-          5 value=168.20
-          5 value=271.50
-        4 [0 < -0.03]
-          5 value=292.00
-          5 value=239.75
-  1 [8 < -0.00]
-    2 [0 < -0.07]
-      3 [0 < -0.09]
-        4 value=302.00
-        4 value=246.00
-      3 [3 < 0.01]
-        4 [2 < 0.06]
-          5 value=142.38
-          5 value=91.80
-        4 [2 < 0.05]
-          5 value=157.36
-          5 value=225.00
-    2 [3 < 0.06]
-      3 [2 < 0.07]
-        4 [5 < 0.09]
-          5 value=205.35
-          5 value=116.50
-        4 [5 < 0.02]
-          5 value=304.60
-          5 value=228.67
-      3 [2 < 0.10]
-        4 [9 < 0.02]
-          5 value=236.88
-          5 value=268.78
-        4 [8 < 0.04]
-          5 value=321.67
-          5 value=269.67

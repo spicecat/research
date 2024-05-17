@@ -36,5 +36,5 @@ y_pred = model.predict(X)
 
 loss_df = pd.DataFrame(losses.history)
 loss_df.loc[:, ['loss', 'val_loss']].plot()
-plt.show()
 plt.savefig('output/loss.png')
+plt.show()

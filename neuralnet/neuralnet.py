@@ -1,4 +1,5 @@
 import keras
+from sklearn.preprocessing import StandardScaler
 
 
 def scale_data(X, y):
@@ -29,7 +30,6 @@ if __name__ == "__main__":
     import pandas as pd
     from sklearn.datasets import load_diabetes
     from sklearn.model_selection import train_test_split
-    from sklearn.preprocessing import StandardScaler
     from sklearn.utils import Bunch
 
     # Load the diabetes dataset

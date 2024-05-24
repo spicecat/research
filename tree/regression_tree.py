@@ -217,7 +217,7 @@ def bootstrap_predictions(X, y, R=5, k=5, max_depth=float('inf')):
         best_alpha = k_fold_cv(X_sample, y_sample, k, max_depth)
         tree = split(X_sample, y_sample, max_depth=max_depth)
         pruned_tree = prune_tree(tree, X_sample, y_sample, best_alpha)
-        # print(pruned_tree.summary(X_sample, y_sample))
+        print("sample:", i, pruned_tree.summary(X_sample, y_sample))
 
         # Fill the i-th new column with predictions from the pruned tree
         new_columns[:, i] = np.array([predict(x, pruned_tree) for x in X])

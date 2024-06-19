@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.datasets import fetch_california_housing
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.preprocessing import StandardScaler
 
 
 class SoftDecisionTreeNode:
@@ -85,15 +86,19 @@ if __name__ == "__main__":
     X = housing.data  # type: ignore
     y = housing.target  # type: ignore
 
+    # Standardize the dataset
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
     # Split the dataset
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42)
+        X_scaled, y, test_size=0.2, random_state=42)
 
     # Training the model
     input_dim = X_train.shape[1]
     hidden_dim = 10
     output_dim = 1
-    epochs = 100
+    epochs = 2000
     learning_rate = 0.01
 
     model = MLPWithSoftDecisionTree(input_dim, hidden_dim, output_dim)
@@ -104,6 +109,7 @@ if __name__ == "__main__":
     r2 = r2_score(y_test, predictions)
     mae = mean_absolute_error(y_test, predictions)
 
+    print(f'Predictions: {predictions[:5].flatten()}')
     print(f'R² Score: {r2}')
     print(f'Mean Absolute Error: {mae}')
 

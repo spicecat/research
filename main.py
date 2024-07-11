@@ -1,5 +1,5 @@
 from tree.regression_tree import bootstrap_predictions
-from neuralnet.neuralnet import scale_data, compile_model
+from old.neuralnet import scale_data, compile_model
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

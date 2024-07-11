@@ -40,6 +40,17 @@ class Node:
                 lines.append(self.right.__str__(depth + 1))
             return "\n".join(lines)
 
+    def predict(self, X):
+        """
+        Predicts the target values for the given input data using the regression tree.
+        """
+        if self.value is not None or self.left is None or self.right is None:
+            return self.value
+        if X[self.feature] < self.threshold:
+            return self.left.predict(X)
+        else:
+            return self.right.predict(X)
+
     def summary(self, X, y):
         """
         Provides a summary of the regression tree.
@@ -200,6 +211,24 @@ def k_fold_cv(X, y, k=5, max_depth=float('inf')):
 
     return best_alpha
 
+def bootstrap_trees(X, y, R=5, k=5, max_depth=float('inf')):
+    """
+    Builds R regression trees using bootstrap samples of the data.
+    """
+    trees = []
+
+    for i in range(R):
+        # Generate a bootstrap sample
+        X_sample, y_sample = resample(X, y) # type: ignore
+
+        # Train a tree on the bootstrap sample and prune it
+        best_alpha = k_fold_cv(X_sample, y_sample, k, max_depth)
+        tree = split(X_sample, y_sample, max_depth=max_depth)
+        pruned_tree = prune_tree(tree, X_sample, y_sample, best_alpha)
+        trees.append(pruned_tree)
+        print("sample:", i, pruned_tree.summary(X_sample, y_sample))
+
+    return trees
 
 def bootstrap_predictions(X, y, R=5, k=5, max_depth=float('inf')):
     """
@@ -208,19 +237,10 @@ def bootstrap_predictions(X, y, R=5, k=5, max_depth=float('inf')):
     """
     # Initialize an array to hold the new columns
     new_columns = np.zeros((X.shape[0], R))
-
+    
+    trees = bootstrap_trees(X, y, R, k, max_depth)
     for i in range(R):
-        # Generate a bootstrap sample
-        X_sample, y_sample = resample(X, y)
-
-        # Train a tree on the bootstrap sample and prune it
-        best_alpha = k_fold_cv(X_sample, y_sample, k, max_depth)
-        tree = split(X_sample, y_sample, max_depth=max_depth)
-        pruned_tree = prune_tree(tree, X_sample, y_sample, best_alpha)
-        print("sample:", i, pruned_tree.summary(X_sample, y_sample))
-
-        # Fill the i-th new column with predictions from the pruned tree
-        new_columns[:, i] = np.array([predict(x, pruned_tree) for x in X])
+        new_columns[:, i] = np.array([predict(x, trees[i]) for x in X])
 
     return new_columns
 

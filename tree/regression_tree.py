@@ -40,16 +40,19 @@ class Node:
                 lines.append(self.right.__str__(depth + 1))
             return "\n".join(lines)
 
+    def _predict(self, x):
+        if self.value is not None or self.left is None or self.right is None:
+            return self.value
+        if x[self.feature] < self.threshold:
+            return self.left._predict(x)
+        else:
+            return self.right._predict(x)
+
     def predict(self, X):
         """
         Predicts the target values for the given input data using the regression tree.
         """
-        if self.value is not None or self.left is None or self.right is None:
-            return self.value
-        if X[self.feature] < self.threshold:
-            return self.left.predict(X)
-        else:
-            return self.right.predict(X)
+        return np.array(list(map(self._predict, X)))
 
     def summary(self, X, y):
         """
@@ -211,6 +214,7 @@ def k_fold_cv(X, y, k=5, max_depth=float('inf')):
 
     return best_alpha
 
+
 def bootstrap_trees(X, y, R=5, k=5, max_depth=float('inf')):
     """
     Builds R regression trees using bootstrap samples of the data.
@@ -219,7 +223,7 @@ def bootstrap_trees(X, y, R=5, k=5, max_depth=float('inf')):
 
     for i in range(R):
         # Generate a bootstrap sample
-        X_sample, y_sample = resample(X, y) # type: ignore
+        X_sample, y_sample = resample(X, y)  # type: ignore
 
         # Train a tree on the bootstrap sample and prune it
         best_alpha = k_fold_cv(X_sample, y_sample, k, max_depth)
@@ -230,6 +234,7 @@ def bootstrap_trees(X, y, R=5, k=5, max_depth=float('inf')):
 
     return trees
 
+
 def bootstrap_predictions(X, y, R=5, k=5, max_depth=float('inf')):
     """
     Adds R columns to X, each one filled with predictions from a pruned tree
@@ -237,7 +242,7 @@ def bootstrap_predictions(X, y, R=5, k=5, max_depth=float('inf')):
     """
     # Initialize an array to hold the new columns
     new_columns = np.zeros((X.shape[0], R))
-    
+
     trees = bootstrap_trees(X, y, R, k, max_depth)
     for i in range(R):
         new_columns[:, i] = np.array([predict(x, trees[i]) for x in X])

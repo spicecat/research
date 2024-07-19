@@ -10,3 +10,4 @@ dependencies:
   - shap
   - tensorflow
   - xgboost
+  - ipykernel

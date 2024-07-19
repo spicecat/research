@@ -123,7 +123,7 @@ class FONN1:
     
 # FONN2: Custom MLP with trees in hidden layer
 class FONN2:
-    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_hidden):
+    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_hidden, X_train, y_train):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
@@ -138,18 +138,19 @@ class FONN2:
         self.bias2 = np.zeros(output_dim)
 
         # Initialize decision trees for the hidden layer
-        self.trees_hidden = [DecisionTreeRegressor(max_depth=5, random_state=i) for i in range(num_trees_hidden)]
+        # self.trees_hidden = [DecisionTreeRegressor(max_depth=5, random_state=i) for i in range(num_trees_hidden)]
+        self.trees_hidden = bootstrap_trees(X_train, y_train, R=num_trees_hidden, max_depth=5)
 
     def forward(self, X, y_batch=None):
         # Compute hidden layer activations
         self.z1 = np.dot(X, self.weights1) + self.bias1
         self.a1 = np.tanh(self.z1)  # Tanh activation
-        if y_batch is not None:
-            # Generate tree outputs for the hidden layer using batch labels
-            hidden_tree_outputs = np.column_stack([tree.fit(self.a1, y_batch).predict(self.a1) for tree in self.trees_hidden])
-        else:
+        # if y_batch is not None:
+        #     # Generate tree outputs for the hidden layer using batch labels
+        #     hidden_tree_outputs = np.column_stack([tree.fit(self.a1, y_batch).predict(self.a1) for tree in self.trees_hidden])
+        # else:
             # If y_batch is None, use the trees without fitting
-            hidden_tree_outputs = np.column_stack([tree.predict(self.a1) for tree in self.trees_hidden])
+        hidden_tree_outputs = np.column_stack([tree.predict(self.a1) for tree in self.trees_hidden])
 
         self.combined_hidden = np.hstack((self.a1, hidden_tree_outputs))
 

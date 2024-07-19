@@ -5,6 +5,107 @@ import matplotlib.pyplot as plt
 from graphviz import Digraph
 from sklearn.tree import export_text, plot_tree
 
+
+class MLP:
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+
+        # Initialize weights and biases for the hidden layer
+        self.weights_hidden = np.random.randn(input_dim, hidden_dim) * 0.01
+        self.bias_hidden = np.zeros(hidden_dim)
+
+        # Initialize weights and biases for the output layer
+        self.weights_output = np.random.randn(hidden_dim, output_dim) * 0.01
+        self.bias_output = np.zeros(output_dim)
+
+    def forward(self, X):
+        # Compute hidden layer activations
+        self.z_hidden = np.dot(X, self.weights_hidden) + self.bias_hidden
+        self.a_hidden = np.tanh(self.z_hidden)  # Tanh activation
+
+        # Compute output layer activations
+        self.z_output = np.dot(
+            self.a_hidden, self.weights_output) + self.bias_output
+        return self.z_output  # Linear output
+
+    def backward(self, X, y, output, learning_rate):
+        # Compute the error between the output and the true labels
+        output_error = output - y.reshape(-1, 1)
+
+        # Compute gradients for the weights and biases of the output layer
+        d_weights_output = np.dot(self.a_hidden.T, output_error) / X.shape[0]
+        d_bias_output = np.mean(output_error, axis=0)
+
+        # Compute hidden layer error and gradients
+        hidden_error = np.dot(output_error, self.weights_output.T) * \
+            (1 - self.a_hidden ** 2)  # Tanh derivative
+        d_weights_hidden = np.dot(X.T, hidden_error) / X.shape[0]
+        d_bias_hidden = np.mean(hidden_error, axis=0)
+
+        # Gradient clipping to prevent exploding gradients
+        max_grad_norm = 1.0
+        d_weights_output = np.clip(
+            d_weights_output, -max_grad_norm, max_grad_norm)
+        d_bias_output = np.clip(d_bias_output, -max_grad_norm, max_grad_norm)
+        d_weights_hidden = np.clip(
+            d_weights_hidden, -max_grad_norm, max_grad_norm)
+        d_bias_hidden = np.clip(d_bias_hidden, -max_grad_norm, max_grad_norm)
+
+        # Update weights and biases using gradient descent
+        self.weights_output -= learning_rate * d_weights_output
+        self.bias_output -= learning_rate * d_bias_output
+        self.weights_hidden -= learning_rate * d_weights_hidden
+        self.bias_hidden -= learning_rate * d_bias_hidden
+
+    def train(self, X, y, epochs, learning_rate):
+        for epoch in range(epochs):
+            output = self.forward(X)
+            self.backward(X, y, output, learning_rate)
+            loss = np.mean((output - y.reshape(-1, 1)) ** 2)
+            if epoch % 100 == 0:
+                print(f'Epoch {epoch}, Loss: {loss}')
+
+    def visualize(self):
+        dot = Digraph()
+
+        # Add input layer nodes
+        for i in range(self.input_dim):
+            dot.node(f'X{i}', f'X{i}')
+
+        # Add hidden layer nodes
+        for i in range(self.hidden_dim):
+            dot.node(f'H{i}', f'H{i}')
+
+        # Add output layer nodes
+        dot.node('Y', 'Output')
+
+        # Add edges from input to hidden layer
+        for i in range(self.input_dim):
+            for j in range(self.hidden_dim):
+                dot.edge(f'X{i}', f'H{j}')
+
+        # Add edges from hidden layer to output
+        for i in range(self.hidden_dim):
+            dot.edge(f'H{i}', 'Y')
+
+        return dot
+
+    def get_tree_importances(self):
+        importances = []
+        for i, tree in enumerate(self.trees_input):
+            importances.append(tree.feature_importances_)
+            print(f"Tree {i} feature importances:\n{tree.feature_importances_}")
+            tree_rules = export_text(tree)
+            print(f"Tree {i} structure:\n{tree_rules}")
+            plt.figure(figsize=(20, 10))
+            plot_tree(tree, filled=True)
+            plt.title(f"Tree {i} Visualization")
+            plt.show()
+        return importances
+
+
 # FONN1: Custom MLP with trees in the input layer
 
 
@@ -261,9 +362,11 @@ class FONN2:
 
     def tree_predict(self, X):
         # Predict using the trees in the hidden layer
-        hidden_activations = np.tanh(np.dot(X, self.weights1) + self.bias1)
+        # hidden_activations = np.tanh(np.dot(X, self.weights1) + self.bias1)
+        # tree_predictions = np.column_stack(
+        #     [tree.predict(hidden_activations) for tree in self.trees_hidden])
         tree_predictions = np.column_stack(
-            [tree.predict(hidden_activations) for tree in self.trees_hidden])
+            [tree.predict(X) for tree in self.trees_hidden])
 
         # Compute feature importance weights for each tree
         tree_importances = [

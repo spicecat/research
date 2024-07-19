@@ -145,10 +145,12 @@ class FONN1:
         self.weights_output = np.random.randn(hidden_dim, output_dim) * 0.01
         self.bias_output = np.zeros(output_dim)
 
-    def forward(self, combined_input):
+    def forward(self, X):
+        X = np.hstack((X, self.input_tree_outputs))
+        
         # Compute hidden layer activations
         self.z_hidden = np.dot(
-            combined_input, self.weights_hidden) + self.bias_hidden
+            X, self.weights_hidden) + self.bias_hidden
         self.a_hidden = np.tanh(self.z_hidden)  # Tanh activation
 
         # Compute output layer activations
@@ -190,13 +192,12 @@ class FONN1:
         for tree in self.trees_input:
             tree.fit(X, y)
 
-        input_tree_outputs = np.column_stack(
+        self.input_tree_outputs = np.column_stack(
             [tree.predict(X) for tree in self.trees_input])
-        combined_input = np.hstack((X, input_tree_outputs))
 
         for epoch in range(epochs):
-            output = self.forward(combined_input)
-            self.backward(combined_input, y, output, learning_rate)
+            output = self.forward(X)
+            self.backward(X, y, output, learning_rate)
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
             if epoch % 100 == 0:
                 print(f'Epoch {epoch}, Loss: {loss}')
@@ -410,10 +411,12 @@ class TREENN1:
         self.weights_output = np.random.randn(hidden_dim, output_dim) * 0.01
         self.bias_output = np.zeros(output_dim)
 
-    def forward(self, combined_input):
+    def forward(self, X):
+        X = np.hstack((X, self.input_tree_output))
+        
         # Compute hidden layer activations
         self.z_hidden = np.dot(
-            combined_input, self.weights_hidden) + self.bias_hidden
+            X, self.weights_hidden) + self.bias_hidden
         self.a_hidden = np.tanh(self.z_hidden)  # Tanh activation
 
         # Compute output layer activations
@@ -453,12 +456,11 @@ class TREENN1:
     def train(self, X, y, epochs, learning_rate):
         # Generate tree output for the input layer
         self.tree_input.fit(X, y)
-        input_tree_output = self.tree_input.predict(X).reshape(-1, 1)
-        combined_input = np.hstack((X, input_tree_output))
+        self.input_tree_output = self.tree_input.predict(X).reshape(-1, 1)
 
         for epoch in range(epochs):
-            output = self.forward(combined_input)
-            self.backward(combined_input, y, output, learning_rate)
+            output = self.forward(X)
+            self.backward(X, y, output, learning_rate)
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
             if epoch % 100 == 0:
                 print(f'Epoch {epoch}, Loss: {loss}')

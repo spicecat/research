@@ -72,6 +72,9 @@ class MLP:
     def predict(self, X):
         return self._forward(X)
 
+    def get_weights(self):
+        return self.weights_output
+
     def visualize(self):
         dot = Digraph()
 
@@ -98,52 +101,93 @@ class MLP:
         return dot
 
 
+class Ensemble:
+    def __init__(self, num_trees):
+        self.num_trees = num_trees
+        self.trees = [DecisionTreeRegressor(
+            max_depth=5, random_state=i) for i in range(num_trees)]
+
+    def __iter__(self):
+        return iter(self.trees)
+
+    def fit(self, X, y):
+        for tree in self.trees:
+            tree.fit(X, y)
+
+    def get_tree_importances(self):
+        importances = []
+        for i, tree in enumerate(self):
+            importances.append(tree.feature_importances_)
+            print(f"Tree {i} feature importances:\n{tree.feature_importances_}")
+            tree_rules = export_text(tree)
+            print(f"Tree {i} structure:\n{tree_rules}")
+            plt.figure(figsize=(20, 10))
+            plot_tree(tree, filled=True)
+            plt.title(f"Tree {i} Visualization")
+            plt.show()
+        return importances
+
+    def predict(self, X):
+        # Predict using the trees in the hidden layer
+        # hidden_activations = np.tanh(np.dot(X, self.weights1) + self.bias1)
+        # tree_predictions = np.column_stack(
+        #     [tree.predict(hidden_activations) for tree in self.trees_hidden])
+
+        # Predict using the trees
+        tree_predictions = np.column_stack(
+            [tree.predict(X) for tree in self])
+
+        # Compute feature importance weights for each tree
+        tree_importances = [
+            tree.feature_importances_ for tree in self]
+        # Normalize the importances to sum to 1 for each tree
+        tree_weights = np.array([importances / np.sum(importances) if np.sum(
+            importances) > 0 else np.ones_like(importances) for importances in tree_importances])
+        # Average the normalized importances to get the final weights for each tree
+        final_weights = np.mean(tree_weights, axis=1)
+
+        # Compute the weighted average of the tree predictions
+        weighted_tree_predictions = np.average(
+            tree_predictions, axis=1, weights=final_weights)
+        return weighted_tree_predictions
+        # return np.mean([tree.predict(X) for tree in self.trees], axis=0)
+
+
 # FONN1: Custom MLP with trees in the input layer
 
 
-class FONN1(MLP):
+class FONN1(MLP, Ensemble):
     def __init__(self, input_dim, hidden_dim, output_dim, num_trees_input, **kwargs):
-        super().__init__(input_dim + num_trees_input, hidden_dim, output_dim, **kwargs)
-        self.num_trees_input = num_trees_input
-
-        # Initialize decision trees for the input layer
-        self.trees_input = [DecisionTreeRegressor(
-            max_depth=5, random_state=i) for i in range(num_trees_input)]
+        MLP.__init__(self, input_dim + num_trees_input,
+                     hidden_dim, output_dim, **kwargs)
+        self.trees = Ensemble(num_trees_input)
 
     def _forward(self, X):
         # Generate tree outputs for the input layer
         input_tree_outputs = np.column_stack(
-            [tree.predict(X) for tree in self.trees_input])
+            [tree.predict(X) for tree in self.trees])
         combined_input = np.hstack((X, input_tree_outputs))
 
         return super()._forward(combined_input)
 
     def _backward(self, X, y, output):
         combined_input = np.hstack(
-            (X, np.column_stack([tree.predict(X) for tree in self.trees_input])))
-
+            (X, np.column_stack([tree.predict(X) for tree in self.trees])))
         super()._backward(combined_input, y, output)
 
     def fit(self, X, y):
-        # Generate tree outputs for the input layer
-        for tree in self.trees_input:
-            tree.fit(X, y)
-
-        super().fit(X, y)
+        self.trees.fit(X, y)
+        MLP.fit(self, X, y)
 
 # FONN2: Custom MLP with trees in hidden layer
 
 
-class FONN2(MLP):
+class FONN2(MLP, Ensemble):
     def __init__(self, input_dim, hidden_dim, output_dim, num_trees_hidden, **kwargs):
-        super().__init__(input_dim, hidden_dim, output_dim, **kwargs)
-        self.num_trees_hidden = num_trees_hidden
+        MLP.__init__(self, input_dim, hidden_dim, output_dim, **kwargs)
+        self.trees = Ensemble(num_trees_hidden)
         self.weights_output = np.random.randn(
             hidden_dim + num_trees_hidden, output_dim)
-
-        # Initialize decision trees for the hidden layer
-        self.trees_hidden = [DecisionTreeRegressor(
-            max_depth=5, random_state=i) for i in range(num_trees_hidden)]
 
     def _forward(self, X):
         # Compute hidden layer activations
@@ -152,7 +196,7 @@ class FONN2(MLP):
 
         # Generate tree outputs for the hidden layer
         hidden_tree_outputs = np.column_stack(
-            [tree.predict(X) for tree in self.trees_hidden])
+            [tree.predict(X) for tree in self.trees])
         self.combined_hidden = np.hstack((self.a_hidden, hidden_tree_outputs))
 
         # Compute output layer activations
@@ -190,49 +234,8 @@ class FONN2(MLP):
         self.bias_hidden -= self.learning_rate * d_bias_hidden
 
     def fit(self, X, y):
-        # Generate tree outputs for the hidden layer
-        for tree in self.trees_hidden:
-            tree.fit(X, y)
-
-        super().fit(X, y)
-
-    def get_weights(self):
-        return self.weights_output
-
-    def get_tree_importances(self):
-        importances = []
-        for i, tree in enumerate(self.trees_hidden):
-            importances.append(tree.feature_importances_)
-            print(f"Tree {i} feature importances:\n{tree.feature_importances_}")
-            tree_rules = export_text(tree)
-            print(f"Tree {i} structure:\n{tree_rules}")
-            plt.figure(figsize=(20, 10))
-            plot_tree(tree, filled=True)
-            plt.title(f"Tree {i} Visualization")
-            plt.show()
-        return importances
-
-    def tree_predict(self, X):
-        # Predict using the trees in the hidden layer
-        # hidden_activations = np.tanh(np.dot(X, self.weights1) + self.bias1)
-        # tree_predictions = np.column_stack(
-        #     [tree.predict(hidden_activations) for tree in self.trees_hidden])
-        tree_predictions = np.column_stack(
-            [tree.predict(X) for tree in self.trees_hidden])
-
-        # Compute feature importance weights for each tree
-        tree_importances = [
-            tree.feature_importances_ for tree in self.trees_hidden]
-        # Normalize the importances to sum to 1 for each tree
-        tree_weights = np.array([importances / np.sum(importances) if np.sum(
-            importances) > 0 else np.ones_like(importances) for importances in tree_importances])
-        # Average the normalized importances to get the final weights for each tree
-        final_weights = np.mean(tree_weights, axis=1)
-
-        # Compute the weighted average of the tree predictions
-        weighted_tree_predictions = np.average(
-            tree_predictions, axis=1, weights=final_weights)
-        return weighted_tree_predictions
+        self.trees.fit(X, y)
+        MLP.fit(self, X, y)
 
 # TREENN1: Custom MLP with 1 tree in the input layer
 

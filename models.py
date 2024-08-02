@@ -66,8 +66,9 @@ class MLP:
             output = self._forward(X)
             self._backward(X, y, output)
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
-            if epoch % 100 == 0:
-                print(f'Epoch {epoch}, Loss: {loss}')
+            if epoch % 200 == 0:
+                print(
+                    f'Epoch {epoch}, Loss: {loss}')
 
     def predict(self, X):
         return self._forward(X)
@@ -167,12 +168,12 @@ class FONN1(MLP, Ensemble):
         input_tree_outputs = np.column_stack(
             [tree.predict(X) for tree in self.trees])
         combined_input = np.hstack((X, input_tree_outputs))
-
         return super()._forward(combined_input)
 
     def _backward(self, X, y, output):
-        combined_input = np.hstack(
-            (X, np.column_stack([tree.predict(X) for tree in self.trees])))
+        input_tree_outputs = np.column_stack(
+            [tree.predict(X) for tree in self.trees])
+        combined_input = np.hstack((X, input_tree_outputs))
         super()._backward(combined_input, y, output)
 
     def fit(self, X, y):

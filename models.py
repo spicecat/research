@@ -66,9 +66,9 @@ class MLP:
             output = self._forward(X)
             self._backward(X, y, output)
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
-            if epoch % 200 == 0:
-                print(
-                    f'Epoch {epoch}, Loss: {loss}')
+            # if epoch % 200 == 0:
+            #     print(
+            #         f'Epoch {epoch}, Loss: {loss}')
 
     def predict(self, X):
         return self._forward(X)

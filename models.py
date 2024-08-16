@@ -1,16 +1,20 @@
 import numpy as np
+from sklearn.base import BaseEstimator
+from sklearn.metrics import r2_score
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.utils import gen_batches, shuffle
 
 import matplotlib.pyplot as plt
 from graphviz import Digraph
 from sklearn.tree import export_text, plot_tree
 
 
-class MLP:
-    def __init__(self, input_dim, hidden_dim, output_dim, *, learning_rate=0.01, epochs=1000):
+class MLP(BaseEstimator):
+    def __init__(self, input_dim, hidden_dim, output_dim, *, batch_size=200, learning_rate=0.01, epochs=1000):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
+        self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.epochs = epochs
 
@@ -34,7 +38,7 @@ class MLP:
 
     def _backward(self, X, y, output):
         # Compute the error between the output and the true labels
-        output_error = output - y.reshape(-1, 1)
+        output_error = output - y
 
         # Compute gradients for the weights and biases of the output layer
         d_weights_output = np.dot(self.a_hidden.T, output_error)
@@ -61,17 +65,25 @@ class MLP:
         self.weights_hidden -= self.learning_rate * d_weights_hidden
         self.bias_hidden -= self.learning_rate * d_bias_hidden
 
-    def fit(self, X, y):
+    def fit(self, X: np.ndarray, y: np.ndarray):
+        y = y.reshape(-1, 1)
         for epoch in range(self.epochs):
-            output = self._forward(X)
-            self._backward(X, y, output)
-            loss = np.mean((output - y.reshape(-1, 1)) ** 2)
+            X, y = shuffle(X, y)  # type: ignore
+            batches = gen_batches(len(y), self.batch_size)
+            for batch in batches:
+                output = self._forward(X[batch])
+                self._backward(X[batch], y[batch], output)
             # if epoch % 200 == 0:
-            #     print(
-            #         f'Epoch {epoch}, Loss: {loss}')
+            #     loss = np.mean((y - self._forward(X)) ** 2)
+            #     print(f'Epoch {epoch}, Loss: {loss}')
+        self.is_fitted_ = True
+        return self
 
     def predict(self, X):
         return self._forward(X)
+
+    def score(self, X, y):
+        return r2_score(y, self.predict(X))
 
     def get_weights(self):
         return self.weights_output
@@ -102,7 +114,7 @@ class MLP:
         return dot
 
 
-class Ensemble:
+class Ensemble(BaseEstimator):
     def __init__(self, num_trees):
         self.num_trees = num_trees
         self.trees = [DecisionTreeRegressor(
@@ -114,6 +126,7 @@ class Ensemble:
     def fit(self, X, y):
         for tree in self.trees:
             tree.fit(X, y)
+        self.is_fitted_ = True
 
     def get_tree_importances(self):
         importances = []
@@ -153,6 +166,8 @@ class Ensemble:
         return weighted_tree_predictions
         # return np.mean([tree.predict(X) for tree in self.trees], axis=0)
 
+    def score(self, X, y):
+        return r2_score(y, self.predict(X))
 
 # FONN1: Custom MLP with trees in the input layer
 
@@ -179,6 +194,13 @@ class FONN1(MLP, Ensemble):
     def fit(self, X, y):
         self.trees.fit(X, y)
         MLP.fit(self, X, y)
+
+    def get_params(self, deep):
+        params = super().get_params(deep)
+        params.update({
+            'num_trees_input': self.trees.num_trees
+        })
+        return
 
 # FONN2: Custom MLP with trees in hidden layer
 
@@ -207,7 +229,7 @@ class FONN2(MLP, Ensemble):
 
     def _backward(self, X, y, output):
         # Compute the error between the output and the true labels
-        output_error = output - y.reshape(-1, 1)
+        output_error = output - y
 
         # Compute gradients for the weights and biases of the output layer
         d_weights_output = np.dot(self.combined_hidden.T, output_error)
@@ -237,6 +259,13 @@ class FONN2(MLP, Ensemble):
     def fit(self, X, y):
         self.trees.fit(X, y)
         MLP.fit(self, X, y)
+
+    def get_params(self, deep):
+        params = super().get_params(deep)
+        params.update({
+            'num_trees_hidden': self.trees.num_trees
+        })
+        return params
 
 # TREENN1: Custom MLP with 1 tree in the input layer
 

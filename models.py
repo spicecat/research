@@ -173,9 +173,13 @@ class Ensemble(BaseEstimator):
 
 
 class FONN1(MLP, Ensemble):
-    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_input, **kwargs):
+    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_input, *, batch_size=200, learning_rate=0.01, epochs=1000):
         MLP.__init__(self, input_dim + num_trees_input,
-                     hidden_dim, output_dim, **kwargs)
+                     hidden_dim, output_dim, batch_size=batch_size, learning_rate=learning_rate, epochs=epochs)
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+        self.num_trees_input = num_trees_input
         self.trees = Ensemble(num_trees_input)
 
     def _forward(self, X):
@@ -200,14 +204,19 @@ class FONN1(MLP, Ensemble):
         params.update({
             'num_trees_input': self.trees.num_trees
         })
-        return
+        return params
 
 # FONN2: Custom MLP with trees in hidden layer
 
 
 class FONN2(MLP, Ensemble):
-    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_hidden, **kwargs):
-        MLP.__init__(self, input_dim, hidden_dim, output_dim, **kwargs)
+    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_hidden, *, batch_size=200, learning_rate=0.01, epochs=1000):
+        MLP.__init__(self, input_dim, hidden_dim, output_dim, batch_size=batch_size,
+                     learning_rate=learning_rate, epochs=epochs)
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+        self.num_trees_hidden = num_trees_hidden
         self.trees = Ensemble(num_trees_hidden)
         self.weights_output = np.random.randn(
             hidden_dim + num_trees_hidden, output_dim)

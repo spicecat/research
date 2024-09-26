@@ -1,16 +1,17 @@
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.neural_network import MLPRegressor
 from typing import Literal
 
 import matplotlib.pyplot as plt
 
 
-class MLP(MLPRegressor):
+class Ensemble(RandomForestRegressor):
     pass
 
 
-class Ensemble(RandomForestRegressor):
+class MLP(MLPRegressor):
     pass
 
 
@@ -116,7 +117,7 @@ class FONN1(MLP):
         self.ensemble = Ensemble(num_trees)
 
     def _concat_tree(self, X):
-        return np.hstack((X, np.column_stack([e.predict(X) for e in self.ensemble.estimators_])))
+        return np.hstack((np.column_stack([e.predict(X) for e in self.ensemble.estimators_]), X))
 
     def fit(self, X: np.ndarray, y):
         self.ensemble.fit(X, y)
@@ -387,21 +388,25 @@ if __name__ == '__main__':
     y = scaler_y.fit_transform(y).ravel()
 
     param_grid = {
-        'max_iter': [10000],
+        'max_iter': [1000],
         'learning_rate': ['constant'],
         'learning_rate_init': [1e-2],
-        'tol': [1e-4],
-        'early_stopping': [True]
+        'tol': [1e-60],
+        'early_stopping': [False]
     }
 
-    mlp = MLP(10, max_iter=1000, early_stopping=True)
+    # mlp = MLP(10, max_iter=10000, early_stopping=False)
+    # fonn1 = FONN1(5, (10,), max_iter=10000, early_stopping=False)
+    mlp = best_estimator(MLP(10), param_grid, X, y)
     fonn1 = best_estimator(FONN1(5, (10,)), param_grid, X, y)
-    fonn2 = FONN2(5, (15,), max_iter=1000, early_stopping=True)
-    treenn1 = TREENN1((10,), max_iter=1000, early_stopping=True)
-    treenn2 = TREENN2((10,), max_iter=1000, early_stopping=True)
+    # fonn2 = FONN2(5, (15,), max_iter=1000, early_stopping=True)
+    # treenn1 = TREENN1((10,), max_iter=1000, early_stopping=True)
+    # treenn2 = TREENN2((10,), max_iter=1000, early_stopping=True)
 
-    print(evaluate_model(mlp, X, y))
-    print(evaluate_model(fonn1, X, y))
+    mlp_results = evaluate_model(mlp, X, y, n=10)
+    fonn1_results = evaluate_model(fonn1, X, y, n=10)
+    print(mlp_results.mean())
+    print(fonn1_results.mean())
 
     plot_loss(mlp, 'MLP')
     plot_loss(fonn1, 'FONN1')

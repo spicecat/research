@@ -2,14 +2,10 @@ name: research
 channels:
   - defaults
 dependencies:
-  - keras
   - pandas
   - matplotlib
   - numpy
   - scikit-learn
-  - shap
-  - tensorflow
-  - xgboost
   - ipykernel
   - pygraphviz
   - openpyxl

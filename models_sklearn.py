@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.neural_network import MLPRegressor
 from typing import Literal
@@ -9,13 +8,10 @@ import matplotlib.pyplot as plt
 
 class Ensemble(RandomForestRegressor):
     pass
-    # def score(self, X, y):
-    #     return -mean_squared_error(y, self.predict(X))
+
 
 class MLP(MLPRegressor):
     pass
-    # def score(self, X, y):
-    #     return -mean_squared_error(y, self.predict(X))
 
 
 class Tree(Ensemble):
@@ -261,9 +257,6 @@ class FONN2(MLP):
         self.ensemble.fit(X, y)
         return super().fit(X, y)
 
-    def score(self, X, y):
-        return -mean_squared_error(y, self.predict(X))
-
 
 class TREENN2(FONN2):
     def __init__(self,
@@ -322,41 +315,6 @@ class TREENN2(FONN2):
         )
 
 
-def evaluate_model(model, X, y, n=1):
-    import pandas as pd
-    from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
-    from sklearn.model_selection import train_test_split
-    import time
-
-    data = []
-
-    for random_state in range(n):
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=random_state)
-
-        start_time = time.time()
-        model.fit(X_train, y_train)
-        end_time = time.time()
-        train_time = end_time - start_time
-
-        start_time = time.time()
-        predictions = model.predict(X_test)
-        end_time = time.time()
-        comp_time = end_time - start_time
-
-        r2 = r2_score(y_test, predictions)
-        mae = mean_absolute_error(y_test, predictions)
-        mse = mean_squared_error(y_test, predictions)
-        n_iter = model.n_iter_
-
-        data.append([r2, mae, mse, train_time, comp_time, n_iter])
-
-    df = pd.DataFrame(
-        data, columns=['r2', 'mae', 'mse', 'train_time', 'comp_time', 'n_iter'])
-
-    return df
-
-
 def plot_loss(model, title='Loss Curve'):
     plt.figure(figsize=(10, 6))
     plt.plot(model.loss_curve_)
@@ -370,7 +328,7 @@ def plot_loss(model, title='Loss Curve'):
 if __name__ == '__main__':
     import pandas as pd
     from sklearn.experimental import enable_halving_search_cv
-    from sklearn.model_selection import GridSearchCV, train_test_split
+    from sklearn.model_selection import GridSearchCV
     from sklearn.preprocessing import StandardScaler
 
     def best_estimator(model, param_grid, X, y):
@@ -392,31 +350,3 @@ if __name__ == '__main__':
     X = scaler_X.fit_transform(X)
     scaler_y = StandardScaler()
     y = scaler_y.fit_transform(y).ravel()
-
-    param_grid = {
-        'max_iter': [1000],
-        'learning_rate': ['constant'],
-        'learning_rate_init': [1e-2],
-        'tol': [1e-60],
-        'early_stopping': [False]
-    }
-
-    # mlp = MLP(10, max_iter=10000, early_stopping=False)
-    # fonn1 = FONN1(5, (10,), max_iter=10000, early_stopping=False)
-    mlp = best_estimator(MLP(10), param_grid, X, y)
-    fonn1 = best_estimator(FONN1(5, (10,)), param_grid, X, y)
-    # fonn2 = FONN2(5, (15,), max_iter=1000, early_stopping=True)
-    # treenn1 = TREENN1((10,), max_iter=1000, early_stopping=True)
-    # treenn2 = TREENN2((10,), max_iter=1000, early_stopping=True)
-
-    mlp_results = evaluate_model(mlp, X, y, n=10)
-    fonn1_results = evaluate_model(fonn1, X, y, n=10)
-    print(mlp_results.mean())
-    print(fonn1_results.mean())
-
-    plot_loss(mlp, 'MLP')
-    plot_loss(fonn1, 'FONN1')
-    # plot_loss(fonn2, 'FONN2')
-    # plot_loss(treenn1, 'TREENN1')
-    # plot_loss(treenn2, 'TREENN2')
-# tune, rank

@@ -1,18 +1,21 @@
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.neural_network import MLPRegressor
 from typing import Literal
-
 import matplotlib.pyplot as plt
 
 
 class Ensemble(RandomForestRegressor):
     pass
-
+    # def score(self, X, y):
+    #     return -mean_squared_error(y, self.predict(X))
 
 class MLP(MLPRegressor):
     pass
+    # def score(self, X, y):
+    #     return -mean_squared_error(y, self.predict(X))
 
 
 class Tree(Ensemble):
@@ -257,6 +260,9 @@ class FONN2(MLP):
     def fit(self, X, y):
         self.ensemble.fit(X, y)
         return super().fit(X, y)
+
+    def score(self, X, y):
+        return -mean_squared_error(y, self.predict(X))
 
 
 class TREENN2(FONN2):

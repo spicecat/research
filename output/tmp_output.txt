@@ -18,3 +18,9 @@ I: tree output append to input
 II tree output append to last hidden layer
 ETFONN
 
+y 11
+x 28,36,44-54
+-3,4,5,6,9,10,12,15,16,20
+
+5,6,9,11,12,15,16,17,26,34,42,43,44,45,46,47,48,49,50,51,52
+9 check yield 12 rm band

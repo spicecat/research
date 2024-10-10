@@ -26,6 +26,8 @@ class MLP(BaseEstimator):
         self.weights_output = np.random.randn(hidden_dim, output_dim)
         self.bias_output = np.zeros(output_dim)
 
+        self.loss_curve_ = []
+
     def _forward(self, X):
         # Compute hidden layer activations
         self.z_hidden = np.dot(X, self.weights_hidden) + self.bias_hidden
@@ -73,6 +75,12 @@ class MLP(BaseEstimator):
             for batch in batches:
                 output = self._forward(X[batch])
                 self._backward(X[batch], y[batch], output)
+
+            # Calculate the loss (mean squared error) after each epoch
+            output_full = self._forward(X)
+            loss = np.mean((y - output_full) ** 2)
+            self.loss_curve_.append(loss)
+
             # if epoch % 200 == 0:
             #     loss = np.mean((y - self._forward(X)) ** 2)
             #     print(f'Epoch {epoch}, Loss: {loss}')

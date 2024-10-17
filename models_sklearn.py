@@ -3,7 +3,6 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.neural_network import MLPRegressor
 from typing import Literal
-import matplotlib.pyplot as plt
 
 
 class Ensemble(RandomForestRegressor):
@@ -316,25 +315,29 @@ class TREENN2(FONN2):
 
 
 def plot_loss(model, title='Loss Curve'):
-    plt.figure(figsize=(10, 6))
-    plt.plot(model.loss_curve_)
-    plt.xlabel('Iteration')
-    plt.ylabel('Loss')
-    plt.title(title)
-    plt.grid()
-    plt.show()
+    import matplotlib.pyplot as plt
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+    ax1.plot(model.loss_curve_)
+    ax1.set_xlabel('Iterations')
+    ax1.set_ylabel('Loss')
+    ax1.set_title(title)
+    ax1.grid(True)
+
+    ax2.plot(model.loss_curve_)
+    ax2.set_yscale('log')
+    ax2.set_xlabel('Iterations')
+    ax2.set_ylabel('Loss')
+    ax2.set_title(title)
+    ax2.grid(True)
+
+    fig.tight_layout()
+    fig.show()
 
 
 if __name__ == '__main__':
-    import pandas as pd
-    from sklearn.experimental import enable_halving_search_cv
-    from sklearn.model_selection import GridSearchCV
-    from sklearn.preprocessing import StandardScaler
 
-    def best_estimator(model, param_grid, X, y):
-        search = GridSearchCV(model, param_grid)
-        search.fit(X, y)
-        return search.best_estimator_
+    import pandas as pd
+    from sklearn.preprocessing import StandardScaler
 
     import numpy as np
     np.random.seed(42)
@@ -346,7 +349,29 @@ if __name__ == '__main__':
     X = np.hstack([raw_df.values[::2, :-1], raw_df.values[1::2, :2]])
     y = raw_df.values[1::2, 2].reshape(-1, 1)
 
+    X = X.astype(np.float64)
+    y = y.astype(np.float64)
+
     scaler_X = StandardScaler()
     X = scaler_X.fit_transform(X)
     scaler_y = StandardScaler()
     y = scaler_y.fit_transform(y).ravel()
+
+    models = {}
+
+    hn = 5
+    ti = 5
+    th = 5
+
+    models[f'MLP {hn}'] = MLP(hn)
+    models[f'FONN1 {ti} {hn}'] = FONN1(ti, ti+hn)
+    models[f'FONN2 {th} {hn}'] = FONN2(ti, ti+hn)
+    models[f'TREENN1 {hn}'] = TREENN1(hn+1)
+    models[f'TREENN2 {hn}'] = TREENN2(hn+1)
+
+    for name, model in models.items():
+        print(f'Training {name}...')
+        model.fit(X, y)
+        plot_loss(model, title=f'{name} Loss Curve')
+
+    a = input()

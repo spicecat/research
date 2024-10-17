@@ -6,16 +6,6 @@ import matplotlib.pyplot as plt
 from graphviz import Digraph
 from sklearn.tree import export_text, plot_tree
 
-<<<<<<< HEAD:models.py
-# Custom MLP
-# class MLP:
-#     def __init__(self, input_dim, hidden_dim, output_dim):
-#         self.input_dim = input_dim
-#         self.hidden_dim = hidden_dim
-#         self.output_dim = output_dim
-
-# FONN1: Custom MLP with trees in input layer
-=======
 # Custom MLP with 10 trees in hidden layer - ETFONN
 class ETFONN:
     def __init__(self, input_dim, hidden_dim, output_dim, num_trees_hidden):
@@ -153,7 +143,6 @@ class ETFONN:
         return weighted_tree_predictions
     
 # FONN1: Custom MLP with Trees in the input layer
->>>>>>> parent of 3b4b47a (add train time and comp time):ANN-DT Research/models.py
 class FONN1:
     def __init__(self, input_dim, hidden_dim, output_dim, num_trees_input):
         self.input_dim = input_dim
@@ -278,17 +267,9 @@ class FONN1:
             plt.title(f"Tree {i} Visualization")
             plt.show()
         return importances
-<<<<<<< HEAD:models.py
-
-# FONN2: Custom MLP with trees in hidden layer
-
-
-class FONN2:
-=======
     
 # Custom MLP with 10 trees in hidden layer
 class MLPWithDecisionTrees:
->>>>>>> parent of 3b4b47a (add train time and comp time):ANN-DT Research/models.py
     def __init__(self, input_dim, hidden_dim, output_dim, num_trees_hidden):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
@@ -429,13 +410,7 @@ class MLPWithDecisionTrees:
             tree_predictions, axis=1, weights=final_weights)
         return weighted_tree_predictions
 
-<<<<<<< HEAD:models.py
-# TREENN1: Custom MLP with 1 tree in input layer
-
-
-=======
 # TREENN1: Custom MLP with a single Tree in the input layer
->>>>>>> parent of 3b4b47a (add train time and comp time):ANN-DT Research/models.py
 class TREENN1:
     def __init__(self, input_dim, hidden_dim, output_dim):
         self.input_dim = input_dim
@@ -551,13 +526,7 @@ class TREENN1:
         plt.show()
         return importances
 
-<<<<<<< HEAD:models.py
-# TREENN2: Custom MLP with 1 tree in hidden layer
-
-
-=======
 # Custom MLP with 1 tree in hidden layer (TREENN2)
->>>>>>> parent of 3b4b47a (add train time and comp time):ANN-DT Research/models.py
 class TREENN2:
     def __init__(self, input_dim, hidden_dim, output_dim):
         self.input_dim = input_dim

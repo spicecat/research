@@ -18,6 +18,9 @@ class MLP(BaseEstimator):
         self.learning_rate = learning_rate
         self.epochs = epochs
 
+        self.coefs_ = []
+        self.intercepts_ = []
+
         # Initialize weights and biases for the hidden layer
         self.weights_hidden = np.random.randn(input_dim, hidden_dim)
         self.bias_hidden = np.zeros(hidden_dim)
@@ -43,13 +46,13 @@ class MLP(BaseEstimator):
         output_error = output - y
 
         # Compute gradients for the weights and biases of the output layer
-        d_weights_output = np.dot(self.a_hidden.T, output_error)
+        d_weights_output = np.dot(self.a_hidden.T, output_error) / X.shape[0]
         d_bias_output = np.mean(output_error, axis=0)
 
         # Compute hidden layer error and gradients
         hidden_error = np.dot(output_error, self.weights_output.T) * \
             (1 - self.a_hidden ** 2)  # Tanh derivative
-        d_weights_hidden = np.dot(X.T, hidden_error)
+        d_weights_hidden = np.dot(X.T, hidden_error) / X.shape[0]
         d_bias_hidden = np.mean(hidden_error, axis=0)
 
         # Gradient clipping to prevent exploding gradients
@@ -76,9 +79,7 @@ class MLP(BaseEstimator):
                 output = self._forward(X[batch])
                 self._backward(X[batch], y[batch], output)
 
-            # Calculate the loss (mean squared error) after each epoch
-            output_full = self._forward(X)
-            loss = np.mean((y - output_full) ** 2)
+            loss = np.mean((y - self._forward(X)) ** 2)
             self.loss_curve_.append(loss)
 
             # if epoch % 200 == 0:

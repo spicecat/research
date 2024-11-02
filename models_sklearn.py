@@ -9,7 +9,7 @@ class Ensemble(RandomForestRegressor):
     pass
 
 
-class MLP(MLPRegressor):
+class MLP_sk(MLPRegressor):
     pass
 
 
@@ -56,7 +56,7 @@ class Tree(Ensemble):
         )
 
 
-class FONN1(MLP):
+class FONN1_sk(MLP_sk):
     def __init__(self,
                  num_trees=10,
                  hidden_layer_sizes=(100,),
@@ -125,7 +125,7 @@ class FONN1(MLP):
         return super().predict(self._concat_tree(X))
 
 
-class TREENN1(FONN1):
+class TREENN1_sk(FONN1_sk):
     def __init__(self,
                  hidden_layer_sizes=(100,),
                  activation: Literal['relu', 'identity',
@@ -182,7 +182,7 @@ class TREENN1(FONN1):
         )
 
 
-class FONN2(MLP):
+class FONN2_sk(MLP_sk):
     def __init__(self,
                  num_trees=10,
                  hidden_layer_sizes=(100,),
@@ -257,7 +257,7 @@ class FONN2(MLP):
         return super().fit(X, y)
 
 
-class TREENN2(FONN2):
+class TREENN2_sk(FONN2_sk):
     def __init__(self,
                  hidden_layer_sizes=(100,),
                  activation: Literal['relu', 'identity',
@@ -363,11 +363,11 @@ if __name__ == '__main__':
     ti = 5
     th = 5
 
-    models[f'MLP {hn}'] = MLP(hn)
-    models[f'FONN1 {ti} {hn}'] = FONN1(ti, ti+hn)
-    models[f'FONN2 {th} {hn}'] = FONN2(ti, ti+hn)
-    models[f'TREENN1 {hn}'] = TREENN1(hn+1)
-    models[f'TREENN2 {hn}'] = TREENN2(hn+1)
+    models[f'MLP {hn}'] = MLP_sk(hn)
+    models[f'FONN1 {ti} {hn}'] = FONN1_sk(ti, ti+hn)
+    models[f'FONN2 {th} {hn}'] = FONN2_sk(ti, ti+hn)
+    models[f'TREENN1 {hn}'] = TREENN1_sk(hn+1)
+    models[f'TREENN2 {hn}'] = TREENN2_sk(hn+1)
 
     for name, model in models.items():
         print(f'Training {name}...')

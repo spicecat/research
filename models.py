@@ -1,11 +1,12 @@
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.metrics import r2_score
+from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.utils import gen_batches, shuffle
 
 import matplotlib.pyplot as plt
-from graphviz import Digraph
+# from graphviz import Digraph
 from sklearn.tree import export_text, plot_tree
 
 ACTIVATIONS = {
@@ -165,30 +166,30 @@ class MLP(BaseEstimator):
     def score(self, X, y):
         return r2_score(y, self.predict(X))
 
-    def visualize(self):
-        dot = Digraph()
+    # def visualize(self):
+    #     dot = Digraph()
 
-        # Add input layer nodes
-        for i in range(self.input_dim):
-            dot.node(f'X{i}', f'X{i}')
+    #     # Add input layer nodes
+    #     for i in range(self.input_dim):
+    #         dot.node(f'X{i}', f'X{i}')
 
-        # Add hidden layer nodes
-        for i in range(self.hidden_dim):
-            dot.node(f'H{i}', f'H{i}')
+    #     # Add hidden layer nodes
+    #     for i in range(self.hidden_dim):
+    #         dot.node(f'H{i}', f'H{i}')
 
-        # Add output layer nodes
-        dot.node('Y', 'Output')
+    #     # Add output layer nodes
+    #     dot.node('Y', 'Output')
 
-        # Add edges from input to hidden layer
-        for i in range(self.input_dim):
-            for j in range(self.hidden_dim):
-                dot.edge(f'X{i}', f'H{j}')
+    #     # Add edges from input to hidden layer
+    #     for i in range(self.input_dim):
+    #         for j in range(self.hidden_dim):
+    #             dot.edge(f'X{i}', f'H{j}')
 
-        # Add edges from hidden layer to output
-        for i in range(self.hidden_dim):
-            dot.edge(f'H{i}', 'Y')
+    #     # Add edges from hidden layer to output
+    #     for i in range(self.hidden_dim):
+    #         dot.edge(f'H{i}', 'Y')
 
-        return dot
+    #     return dot
 
 # FONN1: Custom MLP with trees in the input layer
 
@@ -297,8 +298,10 @@ class FONN2(MLP, Ensemble):
         # Compute hidden layer activations
         for i in range(self.n_layers_-1):
             if i+1 == self.n_layers_-1:
-                hidden_tree_outputs = np.column_stack([tree.predict(X) for tree in self.trees])
-                activations[i][:, -self.num_trees_hidden:] = hidden_tree_outputs
+                hidden_tree_outputs = np.column_stack(
+                    [tree.predict(X) for tree in self.trees])
+                activations[i][:, -
+                               self.num_trees_hidden:] = hidden_tree_outputs
             activations[i+1] = np.dot(activations[i], self.coefs_[i])
             activations[i+1] += self.intercepts_[i]
             if i+1 != self.n_layers_-1:
@@ -331,51 +334,6 @@ class FONN2(MLP, Ensemble):
             # Update weights and biases using gradient descent
             self.coefs_[i] -= self.learning_rate * self.coef_grads[i]
             self.intercepts_[i] -= self.learning_rate * self.intercept_grads[i]
-
-    # def _forward(self, X):
-    #     # Compute hidden layer activations
-    #     self.z_hidden = np.dot(X, self.weights_hidden) + self.bias_hidden
-    #     self.a_hidden = np.tanh(self.z_hidden)  # Tanh activation
-
-    #     # Generate tree outputs for the hidden layer
-    #     hidden_tree_outputs = np.column_stack(
-    #         [tree.predict(X) for tree in self.trees])
-    #     self.combined_hidden = np.hstack((self.a_hidden, hidden_tree_outputs))
-
-    #     # Compute output layer activations
-    #     self.z_output = np.dot(self.combined_hidden,
-    #                            self.weights_output) + self.bias_output
-    #     return self.z_output  # Linear output
-
-    # def _backward(self, X, y, output):
-    #     # Compute the error between the output and the true labels
-    #     output_error = output - y
-
-    #     # Compute gradients for the weights and biases of the output layer
-    #     d_weights_output = np.dot(
-    #         self.combined_hidden.T, output_error) / X.shape[0]
-    #     d_bias_output = np.mean(output_error, axis=0)
-
-    #     # Compute hidden layer error and gradients
-    #     hidden_error = np.dot(
-    #         output_error, self.weights_output[:self.hidden_dim].T) * (1 - self.a_hidden ** 2)  # Tanh derivative
-    #     d_weights_hidden = np.dot(X.T, hidden_error) / X.shape[0]
-    #     d_bias_hidden = np.mean(hidden_error, axis=0)
-
-    #     # Gradient clipping to prevent exploding gradients
-    #     max_grad_norm = 1.0
-    #     d_weights_output = np.clip(
-    #         d_weights_output, -max_grad_norm, max_grad_norm)
-    #     d_bias_output = np.clip(d_bias_output, -max_grad_norm, max_grad_norm)
-    #     d_weights_hidden = np.clip(
-    #         d_weights_hidden, -max_grad_norm, max_grad_norm)
-    #     d_bias_hidden = np.clip(d_bias_hidden, -max_grad_norm, max_grad_norm)
-
-    #     # Update weights and biases using gradient descent
-    #     self.weights_output -= self.learning_rate * d_weights_output
-    #     self.bias_output -= self.learning_rate * d_bias_output
-    #     self.weights_hidden -= self.learning_rate * d_weights_hidden
-    #     self.bias_hidden -= self.learning_rate * d_bias_hidden
 
     def fit(self, X, y):
         self.trees.fit(X, y)

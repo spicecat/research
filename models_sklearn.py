@@ -1,12 +1,16 @@
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.neural_network import MLPRegressor
 from typing import Literal
 
 
 class Ensemble(RandomForestRegressor):
-    pass
+    def predict(self, X, stack=False):
+        if stack:
+            return np.column_stack([e.predict(X) for e in self.estimators_])
+        return super().predict(X)
 
 
 class MLP_sk(MLPRegressor):
@@ -115,7 +119,7 @@ class FONN1_sk(MLP_sk):
         self.ensemble = Ensemble(num_trees)
 
     def _concat_tree(self, X):
-        return np.hstack((np.column_stack([e.predict(X) for e in self.ensemble.estimators_]), X))
+        return np.hstack((self.ensemble.predict(X, stack=True), X))
 
     def fit(self, X: np.ndarray, y):
         self.ensemble.fit(X, y)
@@ -241,8 +245,7 @@ class FONN2_sk(MLP_sk):
         self.ensemble = Ensemble(num_trees)
 
     def _concat_tree(self, activations):
-        tree_outputs = np.column_stack(
-            [e.predict(activations[0]) for e in self.ensemble.estimators_])
+        tree_outputs = self.ensemble.predict(activations[0], stack=True)
         activations[-2] = np.hstack((tree_outputs,
                                     activations[-2][:, self.num_trees:]))
         return activations

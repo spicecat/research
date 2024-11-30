@@ -44,7 +44,7 @@ class FONN1:
             self.a_hidden, self.weights_output) + self.bias_output
         return self.z_output  # Linear output
 
-    def backward(self, X, y, output, learning_rate):
+    def backward(self, X, y, output, learning_rate_init):
         # Compute the error between the output and the true labels
         output_error = output - y.reshape(-1, 1)
 
@@ -71,22 +71,22 @@ class FONN1:
         d_bias_hidden = np.clip(d_bias_hidden, -max_grad_norm, max_grad_norm)
 
         # Update weights and biases using gradient descent
-        self.weights_output -= learning_rate * d_weights_output
-        self.bias_output -= learning_rate * d_bias_output
-        self.weights_hidden -= learning_rate * d_weights_hidden
-        self.bias_hidden -= learning_rate * d_bias_hidden
+        self.weights_output -= learning_rate_init * d_weights_output
+        self.bias_output -= learning_rate_init * d_bias_output
+        self.weights_hidden -= learning_rate_init * d_weights_hidden
+        self.bias_hidden -= learning_rate_init * d_bias_hidden
 
-    def train(self, X, y, epochs, learning_rate):
+    def train(self, X, y, max_iter, learning_rate_init):
         # Generate tree outputs for the input layer
         for tree in self.trees_input:
             tree.fit(X, y)
 
-        for epoch in range(epochs):
+        for iter in range(max_iter):
             output = self.forward(X)
-            self.backward(X, y, output, learning_rate)
+            self.backward(X, y, output, learning_rate_init)
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
-            if epoch % 100 == 0:
-                print(f'Epoch {epoch}, Loss: {loss}')
+            if iter % 100 == 0:
+                print(f'Epoch {iter}, Loss: {loss}')
 
     def visualize(self):
         dot = Digraph()
@@ -172,7 +172,7 @@ class FONN2:
         self.z2 = np.dot(self.combined_hidden, self.weights2) + self.bias2
         return self.z2  # Linear output
 
-    def backward(self, X, y, output, learning_rate):
+    def backward(self, X, y, output, learning_rate_init):
         # Compute the error between the output and the true labels
         output_error = output - y.reshape(-1, 1)
 
@@ -195,22 +195,22 @@ class FONN2:
         d_bias1 = np.clip(d_bias1, -max_grad_norm, max_grad_norm)
 
         # Update weights and biases using gradient descent
-        self.weights2 -= learning_rate * d_weights2
-        self.bias2 -= learning_rate * d_bias2
-        self.weights1 -= learning_rate * d_weights1
-        self.bias1 -= learning_rate * d_bias1
+        self.weights2 -= learning_rate_init * d_weights2
+        self.bias2 -= learning_rate_init * d_bias2
+        self.weights1 -= learning_rate_init * d_weights1
+        self.bias1 -= learning_rate_init * d_bias1
 
-    def train(self, X, y, epochs, learning_rate):
+    def train(self, X, y, max_iter, learning_rate_init):
         # Generate tree outputs for the hidden layer
         for tree in self.trees_hidden:
             tree.fit(X, y)
 
-        for epoch in range(epochs):
+        for iter in range(max_iter):
             output = self.forward(X)
-            self.backward(X, y, output, learning_rate)
+            self.backward(X, y, output, learning_rate_init)
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
-            if epoch % 100 == 0:
-                print(f'Epoch {epoch}, Loss: {loss}')
+            if iter % 100 == 0:
+                print(f'Epoch {iter}, Loss: {loss}')
 
     def get_weights(self):
         return self.weights2

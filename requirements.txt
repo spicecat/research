@@ -6,3 +6,5 @@ optuna-integration>=4.0.0,<4.1.0  # null
 optuna>=4.0.0,<4.1.0  # null
 pandas>=2.2.2,<2.3.0  # https://pandas.pydata.org
 scikit-learn>=1.4.2,<1.5.0  # https://github.com/scikit-learn/scikit-learn
+graphviz>=0.20.3,<0.21.0  # https://github.com/xflr6/graphviz
+pydot>=3.0.2,<3.1.0  # null

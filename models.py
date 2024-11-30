@@ -70,14 +70,14 @@ class Ensemble(BaseEstimator):
 
 
 class MLP(BaseEstimator):
-    def __init__(self, input_dim, hidden_dim, output_dim, *, activation='relu', batch_size=200, learning_rate=0.01, epochs=1000):
+    def __init__(self, input_dim, hidden_dim, output_dim, *, activation='relu', batch_size=200, learning_rate_init=0.01, max_iter=1000):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
         self.activation = activation
         self.batch_size = batch_size
-        self.learning_rate = learning_rate
-        self.epochs = epochs
+        self.learning_rate_init = learning_rate_init
+        self.max_iter = max_iter
         self.loss_curve_ = []
         self.coefs_ = []
         self.intercepts_ = []
@@ -139,12 +139,12 @@ class MLP(BaseEstimator):
             self.intercept_grads[i] = np.clip(
                 self.intercept_grads[i], -max_grad_norm, max_grad_norm)
             # Update weights and biases using gradient descent
-            self.coefs_[i] -= self.learning_rate * self.coef_grads[i]
-            self.intercepts_[i] -= self.learning_rate * self.intercept_grads[i]
+            self.coefs_[i] -= self.learning_rate_init * self.coef_grads[i]
+            self.intercepts_[i] -= self.learning_rate_init * self.intercept_grads[i]
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         y = y.reshape(-1, 1)
-        for epoch in range(self.epochs):
+        for epoch in range(self.max_iter):
             X, y = shuffle(X, y)  # type: ignore
             batches = gen_batches(len(y), self.batch_size)
             for batch in batches:
@@ -195,15 +195,15 @@ class MLP(BaseEstimator):
 
 
 class FONN1(MLP, Ensemble):
-    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_input, *, activation='relu', batch_size=200, learning_rate=0.01, epochs=1000):
+    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_input, *, activation='relu', batch_size=200, learning_rate_init=0.01, max_iter=1000):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
         self.num_trees_input = num_trees_input
         self.activation = activation
         self.batch_size = batch_size
-        self.learning_rate = learning_rate
-        self.epochs = epochs
+        self.learning_rate_init = learning_rate_init
+        self.max_iter = max_iter
         self.loss_curve_ = []
         self.coefs_ = []
         self.intercepts_ = []
@@ -255,15 +255,15 @@ class FONN1(MLP, Ensemble):
 
 
 class FONN2(MLP, Ensemble):
-    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_hidden, *, activation='relu', batch_size=200, learning_rate=0.01, epochs=1000):
+    def __init__(self, input_dim, hidden_dim, output_dim, num_trees_hidden, *, activation='relu', batch_size=200, learning_rate_init=0.01, max_iter=1000):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
         self.num_trees_hidden = num_trees_hidden
         self.activation = activation
         self.batch_size = batch_size
-        self.learning_rate = learning_rate
-        self.epochs = epochs
+        self.learning_rate_init = learning_rate_init
+        self.max_iter = max_iter
         self.loss_curve_ = []
         self.coefs_ = []
         self.intercepts_ = []
@@ -332,8 +332,8 @@ class FONN2(MLP, Ensemble):
             self.intercept_grads[i] = np.clip(
                 self.intercept_grads[i], -max_grad_norm, max_grad_norm)
             # Update weights and biases using gradient descent
-            self.coefs_[i] -= self.learning_rate * self.coef_grads[i]
-            self.intercepts_[i] -= self.learning_rate * self.intercept_grads[i]
+            self.coefs_[i] -= self.learning_rate_init * self.coef_grads[i]
+            self.intercepts_[i] -= self.learning_rate_init * self.intercept_grads[i]
 
     def fit(self, X, y):
         self.trees.fit(X, y)

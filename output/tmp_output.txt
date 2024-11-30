@@ -11,8 +11,6 @@ bootstrapping(data, B): B trees; Add B columns to dataset
 random sampling with replacement
 SHAP Value: how y1 and y2 impact y
 batch normalization
-https://www.datacamp.com/tutorial/neural-network-models-r
-https://rviews.rstudio.com/2020/07/20/shallow-neural-net-from-scratch-using-r-part-1/
 TREENN FONN
 I: tree output append to input
 II tree output append to last hidden layer

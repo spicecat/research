@@ -49,7 +49,7 @@ class FONN1:
         output_error = output - y.reshape(-1, 1)
 
         # Compute gradients for the weights and biases of the output layer
-        d_weights_output = np.dot(self.a_hidden.T, output_error) / y.shape[0]
+        d_weights_output = np.dot(self.a_hidden.T, output_error) / X.shape[0]
         d_bias_output = np.mean(output_error, axis=0)
 
         # Compute hidden layer error and gradients
@@ -76,7 +76,7 @@ class FONN1:
         self.weights_hidden -= learning_rate_init * d_weights_hidden
         self.bias_hidden -= learning_rate_init * d_bias_hidden
 
-    def train(self, X, y, max_iter, learning_rate_init):
+    def fit(self, X, y, max_iter, learning_rate_init):
         # Generate tree outputs for the input layer
         for tree in self.trees_input:
             tree.fit(X, y)
@@ -87,6 +87,9 @@ class FONN1:
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
             if iter % 100 == 0:
                 print(f'Epoch {iter}, Loss: {loss}')
+
+    def predict(self, X):
+        return self.forward(X)
 
     def visualize(self):
         dot = Digraph()
@@ -165,7 +168,7 @@ class FONN2:
         self.a1 = np.tanh(self.z1)  # Tanh activation
 
         hidden_tree_outputs = np.column_stack(
-            [tree.predict(X) for tree in self.trees_hidden])  # self.a1
+            [tree.predict(X) for tree in self.trees_hidden])  # tree.predict(self.a1)
         self.combined_hidden = np.hstack((self.a1, hidden_tree_outputs))
 
         # Compute output layer activations
@@ -177,14 +180,14 @@ class FONN2:
         output_error = output - y.reshape(-1, 1)
 
         # Compute gradients for the weights and biases of the output layer
-        d_weights2 = np.dot(self.combined_hidden.T, output_error) / y.shape[0]
+        d_weights2 = np.dot(self.combined_hidden.T, output_error) / X.shape[0]
         d_bias2 = np.mean(output_error, axis=0)
 
         # Compute hidden layer error and gradients
         hidden_error = np.dot(
             # Tanh derivative
             output_error, self.weights2[:self.hidden_dim].T) * (1 - self.a1 ** 2)
-        d_weights1 = np.dot(X.T, hidden_error) / y.shape[0]
+        d_weights1 = np.dot(X.T, hidden_error) / X.shape[0]
         d_bias1 = np.mean(hidden_error, axis=0)
 
         # Gradient clipping to prevent exploding gradients
@@ -200,7 +203,7 @@ class FONN2:
         self.weights1 -= learning_rate_init * d_weights1
         self.bias1 -= learning_rate_init * d_bias1
 
-    def train(self, X, y, max_iter, learning_rate_init):
+    def fit(self, X, y, max_iter, learning_rate_init):
         # Generate tree outputs for the hidden layer
         for tree in self.trees_hidden:
             tree.fit(X, y)
@@ -212,8 +215,8 @@ class FONN2:
             if iter % 100 == 0:
                 print(f'Epoch {iter}, Loss: {loss}')
 
-    def get_weights(self):
-        return self.weights2
+    def predict(self, X):
+        return self.forward(X)
 
     def visualize(self):
         dot = Digraph()

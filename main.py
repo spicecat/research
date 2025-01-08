@@ -1,42 +1,44 @@
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import time
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from sklearn.neural_network import MLPRegressor
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from models_TrANN import FONN1, FONN2, FONN3, TREENN1, TREENN2, TREENN3
 
 one_hot_encoder = OneHotEncoder(sparse_output=False)
 
 # Load the Boston dataset
-# dataset = "boston"
-# raw_df = pd.read_csv("data/boston.csv")
-# X = raw_df.drop(columns=['MEDV']).values
-# y = raw_df['MEDV'].values
+dataset = "boston"
+raw_df = pd.read_csv("data/boston.csv")
+X = raw_df.drop(columns=["MEDV"]).values
+y = raw_df["MEDV"].values
 
 # # Load LengthOfStay
 # dataset = "LengthOfStay"
 # raw_df = pd.read_csv("data/LengthOfStay.csv")
 # categorical_cols = raw_df.select_dtypes(
-#     include=['object', 'category']).columns.tolist()
+#     include=["object", "category"]).columns.tolist()
 # # raw_df = pd.get_dummies(raw_df, columns=categorical_cols, drop_first=True)
 # raw_df = raw_df.drop(columns=categorical_cols)
-# X = raw_df.drop(columns=['eid', 'lengthofstay']).values
-# y = raw_df['lengthofstay'].values
+# X = raw_df.drop(columns=["eid", "lengthofstay"]).values
+# y = raw_df["lengthofstay"].values
 
 # Load HospitalStay
-dataset = "HospitalStay"
-raw_df = pd.read_csv("data/Healthcare_Investments_and_Hospital_Stay.csv")
-categorical_cols = raw_df.select_dtypes(
-    include=['object', 'category']).columns.tolist()
-# one_hot_encoded = one_hot_encoder.fit_transform(raw_df[categorical_cols])
-# raw_df = pd.concat([raw_df.drop(columns=categorical_cols),
-#                     pd.DataFrame(one_hot_encoded, columns=one_hot_encoder.get_feature_names_out())], axis=1)
-raw_df = raw_df.drop(columns=categorical_cols)
-X = raw_df.drop(columns=['Hospital_Stay']).values
-y = raw_df['Hospital_Stay'].values
+# dataset = "HospitalStay"
+# raw_df = pd.read_csv("data/Healthcare_Investments_and_Hospital_Stay.csv")
+# categorical_cols = raw_df.select_dtypes(
+#     include=["object", "category"]).columns.tolist()
+# # one_hot_encoded = one_hot_encoder.fit_transform(raw_df[categorical_cols])
+# # raw_df = pd.concat([raw_df.drop(columns=categorical_cols),
+# #                     pd.DataFrame(one_hot_encoded, columns=one_hot_encoder.get_feature_names_out())], axis=1)
+# raw_df = raw_df.drop(columns=categorical_cols)
+# X = raw_df.drop(columns=["Hospital_Stay"]).values
+# y = raw_df["Hospital_Stay"].values
 
 X = StandardScaler().fit_transform(X)
 
@@ -76,6 +78,7 @@ def evaluate_model(name, model, n_folds=3):
     end_time = time.time()
     comp_time = end_time - start_time
 
+    # TODO: use mean of metrics
     # Calculate metrics on aggregated predictions
     results.append({
         "Model": name,
@@ -117,7 +120,7 @@ evaluate_model("FONN3", fonn3)
 # Evaluate PureMLP
 start_time = time.time()
 mlp = MLPRegressor(hidden_layer_sizes=(20,), max_iter=max_iter, learning_rate_init=learning_rate_init,
-                   learning_rate='adaptive', n_iter_no_change=100000, random_state=42)
+                   learning_rate="adaptive", n_iter_no_change=100000, random_state=42)
 mlp.fit(X_train, y_train)
 print(mlp.n_iter_)
 predictions = mlp.predict(X_test)

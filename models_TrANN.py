@@ -51,34 +51,34 @@ class FONN1:
             self.a_hidden, self.weights_output) + self.bias_output
         return self.z_output  # Linear activation
 
-    # def _backward(self, y, activations):
-    #     # Backward pass
-    #     output_error = activations - y.reshape(-1, 1)
-    #     d_weights_output = np.dot(
-    #         self.a_hidden.T, output_error) / y.shape[0]
-    #     d_bias_output = np.mean(output_error, axis=0)
-    #     hidden_error = np.dot(
-    #         output_error, self.weights_output.T) * (1 - self.a_hidden ** 2)
-    #     d_weights_hidden = np.dot(
-    #         self.combined_input.T, hidden_error) / y.shape[0]
-    #     d_bias_hidden = np.mean(hidden_error, axis=0)
+    def _backward(self, y, activations):
+        # Backward pass
+        output_error = activations - y.reshape(-1, 1)
+        d_weights_output = np.dot(
+            self.a_hidden.T, output_error) / y.shape[0]
+        d_bias_output = np.mean(output_error, axis=0)
+        hidden_error = np.dot(
+            output_error, self.weights_output.T) * (1 - self.a_hidden ** 2)
+        d_weights_hidden = np.dot(
+            self.combined_input.T, hidden_error) / y.shape[0]
+        d_bias_hidden = np.mean(hidden_error, axis=0)
 
-    #     # Gradient Clipping
-    #     max_grad_norm = 1.0
-    #     d_weights_output = np.clip(
-    #         d_weights_output, -max_grad_norm, max_grad_norm)
-    #     d_bias_output = np.clip(
-    #         d_bias_output, -max_grad_norm, max_grad_norm)
-    #     d_weights_hidden = np.clip(
-    #         d_weights_hidden, -max_grad_norm, max_grad_norm)
-    #     d_bias_hidden = np.clip(
-    #         d_bias_hidden, -max_grad_norm, max_grad_norm)
+        # Gradient Clipping
+        max_grad_norm = 1.0
+        d_weights_output = np.clip(
+            d_weights_output, -max_grad_norm, max_grad_norm)
+        d_bias_output = np.clip(
+            d_bias_output, -max_grad_norm, max_grad_norm)
+        d_weights_hidden = np.clip(
+            d_weights_hidden, -max_grad_norm, max_grad_norm)
+        d_bias_hidden = np.clip(
+            d_bias_hidden, -max_grad_norm, max_grad_norm)
 
-    #     # Update weights and biases
-    #     self.weights_output -= self.learning_rate * d_weights_output
-    #     self.bias_output -= self.learning_rate * d_bias_output
-    #     self.weights_hidden -= self.learning_rate * d_weights_hidden
-    #     self.bias_hidden -= self.learning_rate * d_bias_hidden
+        # Update weights and biases
+        self.weights_output -= self.learning_rate * d_weights_output
+        self.bias_output -= self.learning_rate * d_bias_output
+        self.weights_hidden -= self.learning_rate * d_weights_hidden
+        self.bias_hidden -= self.learning_rate * d_bias_hidden
 
     def fit(self, X, y):
         for tree in self.trees_input:
@@ -87,37 +87,11 @@ class FONN1:
         for epoch in range(self.max_iter):
             # Forward pass
             output = self._forward(X)
+            self._backward(y, output)
 
             # Compute loss
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
-
-            # Backward pass
-            output_error = output - y.reshape(-1, 1)
-            d_weights_output = np.dot(
-                self.a_hidden.T, output_error) / X.shape[0]
-            d_bias_output = np.mean(output_error, axis=0)
-            hidden_error = np.dot(
-                output_error, self.weights_output.T) * (1 - self.a_hidden ** 2)
-            d_weights_hidden = np.dot(
-                self.combined_input.T, hidden_error) / X.shape[0]
-            d_bias_hidden = np.mean(hidden_error, axis=0)
-
-            # Gradient Clipping
-            max_grad_norm = 1.0
-            d_weights_output = np.clip(
-                d_weights_output, -max_grad_norm, max_grad_norm)
-            d_bias_output = np.clip(
-                d_bias_output, -max_grad_norm, max_grad_norm)
-            d_weights_hidden = np.clip(
-                d_weights_hidden, -max_grad_norm, max_grad_norm)
-            d_bias_hidden = np.clip(
-                d_bias_hidden, -max_grad_norm, max_grad_norm)
-
-            # Update weights and biases
-            self.weights_output -= self.learning_rate * d_weights_output
-            self.bias_output -= self.learning_rate * d_bias_output
-            self.weights_hidden -= self.learning_rate * d_weights_hidden
-            self.bias_hidden -= self.learning_rate * d_bias_hidden
+            self.loss_curve_.append(loss)
 
             if epoch % 100 == 0:
                 print(f"Epoch {epoch}, Loss: {loss}")
@@ -205,6 +179,8 @@ class FONN2:
             self.bias_output -= self.learning_rate * d_bias_output
             self.weights_hidden -= self.learning_rate * d_weights_hidden
             self.bias_hidden -= self.learning_rate * d_bias_hidden
+
+            self.loss_curve_.append(loss)
 
             if epoch % 100 == 0:
                 print(f"Epoch {epoch}, Loss: {loss}")
@@ -299,6 +275,8 @@ class FONN3:
             self.weights_hidden -= self.learning_rate * d_weights_hidden
             self.bias_hidden -= self.learning_rate * d_bias_hidden
 
+            self.loss_curve_.append(loss)
+
             if epoch % 100 == 0:
                 print(f"Epoch {epoch}, Loss: {loss}")
 
@@ -383,6 +361,8 @@ class TREENN1:
             self.weights_hidden -= self.learning_rate * d_weights_hidden
             self.bias_hidden -= self.learning_rate * d_bias_hidden
 
+            self.loss_curve_.append(loss)
+
             if epoch % 100 == 0:
                 print(f"Epoch {epoch}, Loss: {loss}")
 
@@ -461,6 +441,8 @@ class TREENN2:
             self.bias_output -= self.learning_rate * d_bias_output
             self.weights_hidden -= self.learning_rate * d_weights_hidden
             self.bias_hidden -= self.learning_rate * d_bias_hidden
+
+            self.loss_curve_.append(loss)
 
             if epoch % 100 == 0:
                 print(f"Epoch {epoch}, Loss: {loss}")
@@ -544,6 +526,8 @@ class TREENN3:
             self.bias_output -= self.learning_rate * d_bias_output
             self.weights_hidden -= self.learning_rate * d_weights_hidden
             self.bias_hidden -= self.learning_rate * d_bias_hidden
+
+            self.loss_curve_.append(loss)
 
             if epoch % 100 == 0:
                 print(f"Epoch {epoch}, Loss: {loss}")

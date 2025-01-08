@@ -81,11 +81,11 @@ class FONN1:
         for tree in self.trees_input:
             tree.fit(X, y)
 
-        for iter in range(max_iter):
+        for epoch in range(max_iter):
             output = self.forward(X)
             self.backward(X, y, output, learning_rate_init)
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
-            if iter % 100 == 0:
+            if epoch % 100 == 0:
                 print(f'Epoch {iter}, Loss: {loss}')
 
     def predict(self, X):
@@ -208,11 +208,11 @@ class FONN2:
         for tree in self.trees_hidden:
             tree.fit(X, y)
 
-        for iter in range(max_iter):
+        for epoch in range(max_iter):
             output = self.forward(X)
             self.backward(X, y, output, learning_rate_init)
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
-            if iter % 100 == 0:
+            if epoch % 100 == 0:
                 print(f'Epoch {iter}, Loss: {loss}')
 
     def predict(self, X):

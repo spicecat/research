@@ -9,6 +9,7 @@ class FONN1:
         self.output_dim = output_dim
         self.num_trees = num_trees
         self.alpha = alpha  # Scaling factor for tree outputs
+        self.loss_curve_ = []
 
         # Initialize and train multiple decision trees for the input layer
         self.trees_input = [
@@ -27,7 +28,7 @@ class FONN1:
             hidden_dim, output_dim) * np.sqrt(2. / hidden_dim)
         self.bias_output = np.zeros(output_dim)
 
-    def forward(self, X):
+    def _forward(self, X):
         # Predict with each tree and scale outputs
         tree_outputs = [tree.predict(X).reshape(-1, 1)
                         for tree in self.trees_input]
@@ -47,11 +48,14 @@ class FONN1:
         self.z_output = np.dot(
             self.a_hidden, self.weights_output) + self.bias_output
         return self.z_output  # Linear activation
+    
+    def _backward(self):
+        pass
 
-    def fit(self, X, y, epochs, learning_rate, gradient_clip=1.0):
+    def fit(self, X, y, epochs, learning_rate):
         for epoch in range(epochs):
             # Forward pass
-            output = self.forward(X)
+            output = self._forward(X)
 
             # Compute loss
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
@@ -68,14 +72,15 @@ class FONN1:
             d_bias_hidden = np.mean(hidden_error, axis=0)
 
             # Gradient Clipping
+            max_grad_norm = 1.0
             d_weights_output = np.clip(
-                d_weights_output, -gradient_clip, gradient_clip)
+                d_weights_output, -max_grad_norm, max_grad_norm)
             d_bias_output = np.clip(
-                d_bias_output, -gradient_clip, gradient_clip)
+                d_bias_output, -max_grad_norm, max_grad_norm)
             d_weights_hidden = np.clip(
-                d_weights_hidden, -gradient_clip, gradient_clip)
+                d_weights_hidden, -max_grad_norm, max_grad_norm)
             d_bias_hidden = np.clip(
-                d_bias_hidden, -gradient_clip, gradient_clip)
+                d_bias_hidden, -max_grad_norm, max_grad_norm)
 
             # Update weights and biases
             self.weights_output -= learning_rate * d_weights_output
@@ -87,7 +92,7 @@ class FONN1:
                 print(f"Epoch {epoch}, Loss: {loss}")
 
     def predict(self, X):
-        return self.forward(X)
+        return self._forward(X)
 
 
 class FONN2:
@@ -96,6 +101,7 @@ class FONN2:
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
         self.num_trees = num_trees
+        self.loss_curve_ = []
 
         # Initialize weights and biases for the input to hidden layer
         self.weights_hidden = np.random.randn(
@@ -114,7 +120,7 @@ class FONN2:
             hidden_dim + num_trees, output_dim) * np.sqrt(2. / (hidden_dim + num_trees))
         self.bias_output = np.zeros(output_dim)
 
-    def forward(self, X):
+    def _forward(self, X):
         # Compute hidden layer activations
         z_hidden = np.dot(X, self.weights_hidden) + self.bias_hidden
         a_hidden = np.tanh(z_hidden)  # Activation function
@@ -129,10 +135,10 @@ class FONN2:
                           self.weights_output) + self.bias_output
         return z_output  # Linear activation
 
-    def fit(self, X, y, epochs, learning_rate, gradient_clip=1.0):
+    def fit(self, X, y, epochs, learning_rate):
         for epoch in range(epochs):
             # Forward pass
-            output = self.forward(X)
+            output = self._forward(X)
 
             # Compute loss
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
@@ -148,14 +154,15 @@ class FONN2:
             d_bias_hidden = np.mean(hidden_error, axis=0)
 
             # Gradient Clipping
+            max_grad_norm = 1.0
             d_weights_output = np.clip(
-                d_weights_output, -gradient_clip, gradient_clip)
+                d_weights_output, -max_grad_norm, max_grad_norm)
             d_bias_output = np.clip(
-                d_bias_output, -gradient_clip, gradient_clip)
+                d_bias_output, -max_grad_norm, max_grad_norm)
             d_weights_hidden = np.clip(
-                d_weights_hidden, -gradient_clip, gradient_clip)
+                d_weights_hidden, -max_grad_norm, max_grad_norm)
             d_bias_hidden = np.clip(
-                d_bias_hidden, -gradient_clip, gradient_clip)
+                d_bias_hidden, -max_grad_norm, max_grad_norm)
 
             # Update weights and biases
             self.weights_output -= learning_rate * d_weights_output
@@ -167,16 +174,17 @@ class FONN2:
                 print(f"Epoch {epoch}, Loss: {loss}")
 
     def predict(self, X):
-        return self.forward(X)
+        return self._forward(X)
 
 
 class FONN3:
-    def __init__(self, input_dim, hidden_dim, output_dim, X_train, y_train, num_trees=3, alpha=0.5):
+    def __init__(self, input_dim, hidden_dim, output_dim, X_train, y_train, num_trees=3, alpha=1.):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
         self.num_trees = num_trees
         self.alpha = alpha  # Scaling factor for tree contributions
+        self.loss_curve_ = []
 
         # Initialize weights and biases for the input to hidden layer
         self.weights_hidden = np.random.randn(
@@ -195,7 +203,7 @@ class FONN3:
             for i in range(num_trees)
         ]
 
-    def forward(self, X):
+    def _forward(self, X):
         # Compute hidden layer activations
         z_hidden = np.dot(X, self.weights_hidden) + self.bias_hidden
         self.a_hidden = np.tanh(z_hidden)  # Activation function
@@ -215,10 +223,10 @@ class FONN3:
             self.alpha * sum(tree_outputs_scaled)
         return self.combined_output
 
-    def fit(self, X, y, epochs, learning_rate, gradient_clip=1.0):
+    def fit(self, X, y, epochs, learning_rate):
         for epoch in range(epochs):
             # Forward pass
-            output = self.forward(X)
+            output = self._forward(X)
 
             # Compute loss
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
@@ -234,14 +242,15 @@ class FONN3:
             d_bias_hidden = np.mean(hidden_error, axis=0)
 
             # Gradient Clipping
+            max_grad_norm = 1.0
             d_weights_output = np.clip(
-                d_weights_output, -gradient_clip, gradient_clip)
+                d_weights_output, -max_grad_norm, max_grad_norm)
             d_bias_output = np.clip(
-                d_bias_output, -gradient_clip, gradient_clip)
+                d_bias_output, -max_grad_norm, max_grad_norm)
             d_weights_hidden = np.clip(
-                d_weights_hidden, -gradient_clip, gradient_clip)
+                d_weights_hidden, -max_grad_norm, max_grad_norm)
             d_bias_hidden = np.clip(
-                d_bias_hidden, -gradient_clip, gradient_clip)
+                d_bias_hidden, -max_grad_norm, max_grad_norm)
 
             # Update weights and biases
             self.weights_output -= learning_rate * d_weights_output
@@ -253,7 +262,7 @@ class FONN3:
                 print(f"Epoch {epoch}, Loss: {loss}")
 
     def predict(self, X):
-        return self.forward(X)
+        return self._forward(X)
 
 
 class TREENN1:
@@ -261,6 +270,7 @@ class TREENN1:
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
+        self.loss_curve_ = []
 
         # Initialize and train the decision tree for the input layer
         self.tree_input = DecisionTreeRegressor(
@@ -274,7 +284,7 @@ class TREENN1:
             hidden_dim, output_dim) * np.sqrt(2. / hidden_dim)
         self.bias_output = np.zeros(output_dim)
 
-    def forward(self, X):
+    def _forward(self, X):
         # Predict with the tree at the input layer
         tree_output = self.tree_input.predict(X).reshape(-1, 1)
 
@@ -292,10 +302,10 @@ class TREENN1:
             self.a_hidden, self.weights_output) + self.bias_output
         return z_output  # Linear activation
 
-    def fit(self, X, y, epochs, learning_rate, gradient_clip=1.0):
+    def fit(self, X, y, epochs, learning_rate):
         for epoch in range(epochs):
             # Forward pass
-            output = self.forward(X)
+            output = self._forward(X)
 
             # Compute loss
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
@@ -312,14 +322,15 @@ class TREENN1:
             d_bias_hidden = np.mean(hidden_error, axis=0)
 
             # Gradient Clipping
+            max_grad_norm = 1.0
             d_weights_output = np.clip(
-                d_weights_output, -gradient_clip, gradient_clip)
+                d_weights_output, -max_grad_norm, max_grad_norm)
             d_bias_output = np.clip(
-                d_bias_output, -gradient_clip, gradient_clip)
+                d_bias_output, -max_grad_norm, max_grad_norm)
             d_weights_hidden = np.clip(
-                d_weights_hidden, -gradient_clip, gradient_clip)
+                d_weights_hidden, -max_grad_norm, max_grad_norm)
             d_bias_hidden = np.clip(
-                d_bias_hidden, -gradient_clip, gradient_clip)
+                d_bias_hidden, -max_grad_norm, max_grad_norm)
 
             # Update weights and biases
             self.weights_output -= learning_rate * d_weights_output
@@ -331,7 +342,7 @@ class TREENN1:
                 print(f"Epoch {epoch}, Loss: {loss}")
 
     def predict(self, X):
-        return self.forward(X)
+        return self._forward(X)
 
 
 class TREENN2:
@@ -339,6 +350,7 @@ class TREENN2:
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
+        self.loss_curve_ = []
 
         # Initialize and train the decision tree for the hidden layer
         self.tree_hidden = DecisionTreeRegressor(
@@ -352,7 +364,7 @@ class TREENN2:
             hidden_dim + 1, output_dim) * np.sqrt(2. / hidden_dim)
         self.bias_output = np.zeros(output_dim)
 
-    def forward(self, X):
+    def _forward(self, X):
         # Compute hidden layer activations
         z_hidden = np.dot(X, self.weights_hidden) + self.bias_hidden
         a_hidden = np.tanh(z_hidden)  # Activation function
@@ -366,10 +378,10 @@ class TREENN2:
                           self.weights_output) + self.bias_output
         return z_output  # Linear activation
 
-    def fit(self, X, y, epochs, learning_rate, gradient_clip=1.0):
+    def fit(self, X, y, epochs, learning_rate):
         for epoch in range(epochs):
             # Forward pass
-            output = self.forward(X)
+            output = self._forward(X)
 
             # Compute loss
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
@@ -385,14 +397,15 @@ class TREENN2:
             d_bias_hidden = np.mean(hidden_error, axis=0)
 
             # Gradient Clipping
+            max_grad_norm = 1.0
             d_weights_output = np.clip(
-                d_weights_output, -gradient_clip, gradient_clip)
+                d_weights_output, -max_grad_norm, max_grad_norm)
             d_bias_output = np.clip(
-                d_bias_output, -gradient_clip, gradient_clip)
+                d_bias_output, -max_grad_norm, max_grad_norm)
             d_weights_hidden = np.clip(
-                d_weights_hidden, -gradient_clip, gradient_clip)
+                d_weights_hidden, -max_grad_norm, max_grad_norm)
             d_bias_hidden = np.clip(
-                d_bias_hidden, -gradient_clip, gradient_clip)
+                d_bias_hidden, -max_grad_norm, max_grad_norm)
 
             # Update weights and biases
             self.weights_output -= learning_rate * d_weights_output
@@ -404,7 +417,7 @@ class TREENN2:
                 print(f"Epoch {epoch}, Loss: {loss}")
 
     def predict(self, X):
-        return self.forward(X)
+        return self._forward(X)
 
 
 class TREENN3:
@@ -412,6 +425,7 @@ class TREENN3:
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
+        self.loss_curve_ = []
 
         # Initialize weights and biases for the input to hidden layer
         self.weights_hidden = np.random.randn(
@@ -427,7 +441,7 @@ class TREENN3:
         self.tree_output = DecisionTreeRegressor(
             max_depth=5, random_state=0).fit(X_train, y_train)
 
-    def forward(self, X):
+    def _forward(self, X):
         # Compute hidden layer activations
         z_hidden = np.dot(X, self.weights_hidden) + self.bias_hidden
         self.a_hidden = np.tanh(z_hidden)  # Activation function
@@ -439,14 +453,14 @@ class TREENN3:
         # Predict with the tree and combine its output with pre-output activations
         tree_output = self.tree_output.predict(X).reshape(-1, 1)
         # Combining neural and tree outputs
-        self.final_output = self.z_output + tree_output
+        self.combined_output = self.z_output + tree_output
 
-        return self.final_output
+        return self.combined_output
 
-    def fit(self, X, y, epochs, learning_rate, gradient_clip=1.0):
+    def fit(self, X, y, epochs, learning_rate):
         for epoch in range(epochs):
             # Forward pass
-            output = self.forward(X)
+            output = self._forward(X)
 
             # Compute loss
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
@@ -461,15 +475,16 @@ class TREENN3:
             d_weights_hidden = np.dot(X.T, hidden_error) / X.shape[0]
             d_bias_hidden = np.mean(hidden_error, axis=0)
 
-            # Gradient Clipping
+           # Gradient Clipping
+            max_grad_norm = 1.0
             d_weights_output = np.clip(
-                d_weights_output, -gradient_clip, gradient_clip)
+                d_weights_output, -max_grad_norm, max_grad_norm)
             d_bias_output = np.clip(
-                d_bias_output, -gradient_clip, gradient_clip)
+                d_bias_output, -max_grad_norm, max_grad_norm)
             d_weights_hidden = np.clip(
-                d_weights_hidden, -gradient_clip, gradient_clip)
+                d_weights_hidden, -max_grad_norm, max_grad_norm)
             d_bias_hidden = np.clip(
-                d_bias_hidden, -gradient_clip, gradient_clip)
+                d_bias_hidden, -max_grad_norm, max_grad_norm)
 
             # Update weights and biases
             self.weights_output -= learning_rate * d_weights_output
@@ -481,4 +496,4 @@ class TREENN3:
                 print(f"Epoch {epoch}, Loss: {loss}")
 
     def predict(self, X):
-        return self.forward(X)
+        return self._forward(X)

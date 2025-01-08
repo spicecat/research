@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from sklearn.neural_network import MLPRegressor
 
-from models_TrANN import FONN1, FONN2, FONN3, TREENN1, TREENN2, TREENN3
+from models_TrANN import FONN1, FONN2, FONN3
 
 one_hot_encoder = OneHotEncoder(sparse_output=False)
 
@@ -92,12 +92,12 @@ epochs = 400
 learning_rate = 0.02
 
 # Evaluate all models
-evaluate_model("TREENN1", TREENN1, epochs=epochs, learning_rate=learning_rate,
-               input_dim=X_train.shape[1], hidden_dim=10, output_dim=1, X_train=X_train, y_train=y_train)
-evaluate_model("TREENN2", TREENN2, epochs=epochs, learning_rate=learning_rate,
-               input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train)
-evaluate_model("TREENN3", TREENN3, epochs=epochs, learning_rate=learning_rate,
-               input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train)
+evaluate_model("TREENN1", FONN1, epochs=epochs, learning_rate=learning_rate,
+               input_dim=X_train.shape[1], hidden_dim=10, output_dim=1, X_train=X_train, y_train=y_train, num_trees=1)
+evaluate_model("TREENN2", FONN2, epochs=epochs, learning_rate=learning_rate,
+               input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train, num_trees=1)
+evaluate_model("TREENN3", FONN3, epochs=epochs, learning_rate=learning_rate,
+               input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train, num_trees=1)
 evaluate_model("FONN1", FONN1, epochs=epochs, learning_rate=learning_rate,
                input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train, num_trees=20)
 evaluate_model("FONN2", FONN2, epochs=epochs, learning_rate=learning_rate,

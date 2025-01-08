@@ -63,7 +63,7 @@ class Ensemble(BaseEstimator):
         # Compute the weighted average of the tree predictions
         weighted_tree_predictions = np.average(
             tree_predictions, axis=1, weights=final_weights)
-        return weighted_tree_predictions
+        return weighted_tree_predictions    
 
     def score(self, X, y):
         return r2_score(y, self.predict(X))
@@ -76,7 +76,7 @@ class MLP(BaseEstimator):
         self.output_dim = output_dim
         self.activation = activation
         self.batch_size = batch_size
-        self.learning_rate_init = learning_rate_init
+        self.learning_rate = learning_rate_init
         self.max_iter = max_iter
         self.loss_curve_ = []
         self.coefs_ = []
@@ -139,8 +139,8 @@ class MLP(BaseEstimator):
             self.intercept_grads[i] = np.clip(
                 self.intercept_grads[i], -max_grad_norm, max_grad_norm)
             # Update weights and biases using gradient descent
-            self.coefs_[i] -= self.learning_rate_init * self.coef_grads[i]
-            self.intercepts_[i] -= self.learning_rate_init * self.intercept_grads[i]
+            self.coefs_[i] -= self.learning_rate * self.coef_grads[i]
+            self.intercepts_[i] -= self.learning_rate * self.intercept_grads[i]
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         y = y.reshape(-1, 1)
@@ -202,7 +202,7 @@ class FONN1(MLP, Ensemble):
         self.num_trees_input = num_trees_input
         self.activation = activation
         self.batch_size = batch_size
-        self.learning_rate_init = learning_rate_init
+        self.learning_rate = learning_rate_init
         self.max_iter = max_iter
         self.loss_curve_ = []
         self.coefs_ = []
@@ -262,7 +262,7 @@ class FONN2(MLP, Ensemble):
         self.num_trees_hidden = num_trees_hidden
         self.activation = activation
         self.batch_size = batch_size
-        self.learning_rate_init = learning_rate_init
+        self.learning_rate = learning_rate_init
         self.max_iter = max_iter
         self.loss_curve_ = []
         self.coefs_ = []
@@ -332,8 +332,8 @@ class FONN2(MLP, Ensemble):
             self.intercept_grads[i] = np.clip(
                 self.intercept_grads[i], -max_grad_norm, max_grad_norm)
             # Update weights and biases using gradient descent
-            self.coefs_[i] -= self.learning_rate_init * self.coef_grads[i]
-            self.intercepts_[i] -= self.learning_rate_init * self.intercept_grads[i]
+            self.coefs_[i] -= self.learning_rate * self.coef_grads[i]
+            self.intercepts_[i] -= self.learning_rate * self.intercept_grads[i]
 
     def fit(self, X, y):
         self.trees.fit(X, y)

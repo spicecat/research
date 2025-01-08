@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from sklearn.neural_network import MLPRegressor
 
-from models_TrANN import FONN1, FONN2, FONN3
+from models_TrANN import FONN1, FONN2, FONN3, TREENN1, TREENN2, TREENN3
 
 one_hot_encoder = OneHotEncoder(sparse_output=False)
 
@@ -47,7 +47,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 results = []
 
 
-def evaluate_model(name, model_func, epochs=100000, learning_rate=0.01, n_folds=3, **kwargs):
+def evaluate_model(name, model, n_folds=3):
     from sklearn.model_selection import KFold
     kf = KFold(n_splits=n_folds, shuffle=True, random_state=42)
 
@@ -64,9 +64,7 @@ def evaluate_model(name, model_func, epochs=100000, learning_rate=0.01, n_folds=
         y_fold_val = y_train[val_idx]
 
         # Train model on this fold
-        model = model_func(**kwargs)
-        model.fit(X_fold_train, y_fold_train, epochs=epochs,
-                    learning_rate=learning_rate)
+        model.fit(X_fold_train, y_fold_train)
 
         # Get predictions
         predictions = model.predict(X_fold_val)
@@ -88,26 +86,37 @@ def evaluate_model(name, model_func, epochs=100000, learning_rate=0.01, n_folds=
     })
 
 
-epochs = 400
-learning_rate = 0.02
+input_dim = X_train.shape[1]
+hidden_dim = 10
+output_dim = 1
+max_iter = 400
+learning_rate_init = 0.02
+
+treenn1 = TREENN1(input_dim, hidden_dim, output_dim,
+                  learning_rate_init, max_iter)
+treenn2 = TREENN2(input_dim, hidden_dim, output_dim,
+                  learning_rate_init, max_iter)
+treenn3 = TREENN3(input_dim, hidden_dim, output_dim,
+                  learning_rate_init, max_iter)
+fonn1 = FONN1(input_dim, hidden_dim, output_dim,
+              20, learning_rate_init, max_iter)
+fonn2 = FONN2(input_dim, hidden_dim, output_dim,
+              20, learning_rate_init, max_iter)
+fonn3 = FONN3(input_dim, hidden_dim, output_dim,
+              20, learning_rate_init, max_iter)
+
 
 # Evaluate all models
-evaluate_model("TREENN1", FONN1, epochs=epochs, learning_rate=learning_rate,
-               input_dim=X_train.shape[1], hidden_dim=10, output_dim=1, X_train=X_train, y_train=y_train, num_trees=1)
-evaluate_model("TREENN2", FONN2, epochs=epochs, learning_rate=learning_rate,
-               input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train, num_trees=1)
-evaluate_model("TREENN3", FONN3, epochs=epochs, learning_rate=learning_rate,
-               input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train, num_trees=1)
-evaluate_model("FONN1", FONN1, epochs=epochs, learning_rate=learning_rate,
-               input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train, num_trees=20)
-evaluate_model("FONN2", FONN2, epochs=epochs, learning_rate=learning_rate,
-               input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train, num_trees=20)
-evaluate_model("FONN3", FONN3, epochs=epochs, learning_rate=learning_rate,
-               input_dim=X_train.shape[1], hidden_dim=20, output_dim=1, X_train=X_train, y_train=y_train, num_trees=20)
+evaluate_model("TREENN1", treenn1)
+evaluate_model("TREENN2", treenn2)
+evaluate_model("TREENN3", treenn3)
+evaluate_model("FONN1", fonn1)
+evaluate_model("FONN2", fonn2)
+evaluate_model("FONN3", fonn3)
 
 # Evaluate PureMLP
 start_time = time.time()
-mlp = MLPRegressor(hidden_layer_sizes=(20,), max_iter=epochs, learning_rate_init=learning_rate,
+mlp = MLPRegressor(hidden_layer_sizes=(20,), max_iter=max_iter, learning_rate_init=learning_rate_init,
                    learning_rate='adaptive', n_iter_no_change=100000, random_state=42)
 mlp.fit(X_train, y_train)
 print(mlp.n_iter_)
@@ -124,7 +133,7 @@ results.append({
 
 # Save results
 results_df = pd.DataFrame(results)
-output_file = f"output/results_{dataset}_{epochs}_{str(learning_rate)[2:]}_{time.strftime('%F_%T')}"
+output_file = f"output/results_{dataset}_{max_iter}_{str(learning_rate_init)[2:]}_{time.strftime('%F_%T')}"
 results_df.to_csv(output_file, index=False)
 print(f"Results saved to {output_file}")
 print(results_df)
@@ -133,3 +142,5 @@ print(results_df)
 # time limit
 # hospital stay length data
 # categorical
+
+# conda activate research && make && clear && python3 main.pyc

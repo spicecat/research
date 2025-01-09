@@ -90,7 +90,7 @@ def evaluate_model(name, model, n_folds=3):
 
 
 input_dim = X_train.shape[1]
-hidden_dim = 10
+hidden_dim = 20
 output_dim = 1
 max_iter = 400
 learning_rate_init = 0.02

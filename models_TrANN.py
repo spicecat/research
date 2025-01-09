@@ -190,7 +190,7 @@ class FONN2:
 
 
 class FONN3:
-    def __init__(self, input_dim, hidden_dim, output_dim, num_trees=3, learning_rate_init=0.01, max_iter=1000, alpha=1.):
+    def __init__(self, input_dim, hidden_dim, output_dim, num_trees=3, learning_rate_init=0.01, max_iter=1000, alpha=0.5):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim

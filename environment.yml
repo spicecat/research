@@ -2,10 +2,13 @@ name: research
 channels:
   - defaults
 dependencies:
-  - pandas
+  - ipykernel
   - matplotlib
   - numpy
-  - scikit-learn
-  - ipykernel
-  - pygraphviz
   - openpyxl
+  - pandas
+  - pygraphviz
+  - scikit-learn
+  - pip:
+    - optuna
+    - optuna-integration

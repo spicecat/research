@@ -142,7 +142,7 @@ results.append(
 
 # Save results
 results_df = pd.DataFrame(results)
-output_file = f"output/results_{dataset}_{max_iter}_{str(learning_rate_init)[2:]}_{time.strftime('%F_%T')}"
+output_file = f"output/results_{dataset}_{max_iter}_{str(learning_rate_init)[2:]}_{time.strftime('%F_%T')}.csv"
 results_df.to_csv(output_file, index=False)
 print(f"Results saved to {output_file}")
 print(results_df)

@@ -43,7 +43,8 @@ y = raw_df["MEDV"].values
 X = StandardScaler().fit_transform(X)
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42)
+    X, y, test_size=0.2, random_state=42
+)
 
 # Results storage
 results = []
@@ -51,6 +52,7 @@ results = []
 
 def evaluate_model(name, model, n_folds=3):
     from sklearn.model_selection import KFold
+
     kf = KFold(n_splits=n_folds, shuffle=True, random_state=42)
 
     all_predictions = []
@@ -80,13 +82,15 @@ def evaluate_model(name, model, n_folds=3):
 
     # TODO: use mean of metrics
     # Calculate metrics on aggregated predictions
-    results.append({
-        "Model": name,
-        "R² Score": r2_score(all_true_values, all_predictions),
-        "MAE": mean_absolute_error(all_true_values, all_predictions),
-        "MSE": mean_squared_error(all_true_values, all_predictions),
-        "Time (s)": comp_time
-    })
+    results.append(
+        {
+            "Model": name,
+            "R² Score": r2_score(all_true_values, all_predictions),
+            "MAE": mean_absolute_error(all_true_values, all_predictions),
+            "MSE": mean_squared_error(all_true_values, all_predictions),
+            "Time (s)": comp_time,
+        }
+    )
 
 
 input_dim = X_train.shape[1]
@@ -95,18 +99,12 @@ output_dim = 1
 max_iter = 400
 learning_rate_init = 0.02
 
-treenn1 = TREENN1(input_dim, hidden_dim, output_dim,
-                  learning_rate_init, max_iter)
-treenn2 = TREENN2(input_dim, hidden_dim, output_dim,
-                  learning_rate_init, max_iter)
-treenn3 = TREENN3(input_dim, hidden_dim, output_dim,
-                  learning_rate_init, max_iter)
-fonn1 = FONN1(input_dim, hidden_dim, output_dim,
-              20, learning_rate_init, max_iter)
-fonn2 = FONN2(input_dim, hidden_dim, output_dim,
-              20, learning_rate_init, max_iter)
-fonn3 = FONN3(input_dim, hidden_dim, output_dim,
-              20, learning_rate_init, max_iter)
+treenn1 = TREENN1(input_dim, hidden_dim, output_dim, learning_rate_init, max_iter)
+treenn2 = TREENN2(input_dim, hidden_dim, output_dim, learning_rate_init, max_iter)
+treenn3 = TREENN3(input_dim, hidden_dim, output_dim, learning_rate_init, max_iter)
+fonn1 = FONN1(input_dim, hidden_dim, output_dim, 20, learning_rate_init, max_iter)
+fonn2 = FONN2(input_dim, hidden_dim, output_dim, 20, learning_rate_init, max_iter)
+fonn3 = FONN3(input_dim, hidden_dim, output_dim, 20, learning_rate_init, max_iter)
 
 
 # Evaluate all models
@@ -119,20 +117,28 @@ evaluate_model("FONN3", fonn3)
 
 # Evaluate PureMLP
 start_time = time.time()
-mlp = MLPRegressor(hidden_layer_sizes=(20,), max_iter=max_iter, learning_rate_init=learning_rate_init,
-                   learning_rate="adaptive", n_iter_no_change=100000, random_state=42)
+mlp = MLPRegressor(
+    hidden_layer_sizes=(20,),
+    max_iter=max_iter,
+    learning_rate_init=learning_rate_init,
+    learning_rate="adaptive",
+    n_iter_no_change=100000,
+    random_state=42,
+)
 mlp.fit(X_train, y_train)
 print(mlp.n_iter_)
 predictions = mlp.predict(X_test)
 end_time = time.time()
 
-results.append({
-    "Model": "PureMLP",
-    "R² Score": r2_score(y_test, predictions),
-    "MAE": mean_absolute_error(y_test, predictions),
-    "MSE": mean_squared_error(y_test, predictions),
-    "Time (s)": end_time - start_time
-})
+results.append(
+    {
+        "Model": "PureMLP",
+        "R² Score": r2_score(y_test, predictions),
+        "MAE": mean_absolute_error(y_test, predictions),
+        "MSE": mean_squared_error(y_test, predictions),
+        "Time (s)": end_time - start_time,
+    }
+)
 
 # Save results
 results_df = pd.DataFrame(results)

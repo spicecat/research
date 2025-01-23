@@ -5,7 +5,7 @@ Using the output of decision trees as additional input features for a neural net
 ```bash
 # create environment
 conda env create -f environment.yml -n research
-```  
+```
 
 ```bash
 # update environment

@@ -96,8 +96,8 @@ class FONN1:
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
             self.loss_curve_.append(loss)
 
-            if epoch % 100 == 0:
-                print(f"Epoch {epoch}, Loss: {loss}")
+            # if epoch % 100 == 0:
+            #    print(f"Epoch {epoch}, Loss: {loss}")
 
     def predict(self, X):
         return self._forward(X)
@@ -192,8 +192,8 @@ class FONN2:
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
             self.loss_curve_.append(loss)
 
-            if epoch % 100 == 0:
-                print(f"Epoch {epoch}, Loss: {loss}")
+            # if epoch % 100 == 0:
+             #    print(f"Epoch {epoch}, Loss: {loss}")
 
     def predict(self, X):
         return self._forward(X)
@@ -293,8 +293,8 @@ class FONN3:
             loss = np.mean((output - y.reshape(-1, 1)) ** 2)
             self.loss_curve_.append(loss)
 
-            if epoch % 100 == 0:
-                print(f"Epoch {epoch}, Loss: {loss}")
+            # if epoch % 100 == 0:
+             #    print(f"Epoch {epoch}, Loss: {loss}")
 
     def predict(self, X):
         return self._forward(X)

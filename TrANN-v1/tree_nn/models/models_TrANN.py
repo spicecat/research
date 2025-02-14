@@ -100,6 +100,15 @@ class FONN1:
     def predict(self, X):
         return self._forward(X)
 
+    def get_params(self, deep):
+        return {
+            "hidden_dim": self.hidden_dim,
+            "num_trees": self.num_trees,
+            "learning_rate_init": self.learning_rate,
+            "max_iter": self.max_iter,
+            "alpha": self.alpha,
+        }
+
     def set_params(self, **params):
         for key, value in params.items():
             setattr(self, key, value)
@@ -194,6 +203,14 @@ class FONN2:
 
     def predict(self, X):
         return self._forward(X)
+
+    def get_params(self, deep):
+        return {
+            "hidden_dim": self.hidden_dim,
+            "num_trees": self.num_trees,
+            "learning_rate_init": self.learning_rate,
+            "max_iter": self.max_iter,
+        }
 
     def set_params(self, **params):
         for key, value in params.items():
@@ -295,6 +312,15 @@ class FONN3:
     def predict(self, X):
         return self._forward(X)
 
+    def get_params(self, deep):
+        return {
+            "hidden_dim": self.hidden_dim,
+            "num_trees": self.num_trees,
+            "learning_rate_init": self.learning_rate,
+            "max_iter": self.max_iter,
+            "alpha": self.alpha,
+        }
+
     def set_params(self, **params):
         for key, value in params.items():
             setattr(self, key, value)
@@ -305,12 +331,33 @@ class TREENN1(FONN1):
     def __init__(self, hidden_dim, learning_rate_init=0.01, max_iter=1000):
         super().__init__(hidden_dim, 1, learning_rate_init, max_iter, 1.0)
 
+    def get_params(self, deep):
+        return {
+            "hidden_dim": self.hidden_dim,
+            "learning_rate_init": self.learning_rate,
+            "max_iter": self.max_iter,
+        }
+
 
 class TREENN2(FONN2):
     def __init__(self, hidden_dim, learning_rate_init=0.01, max_iter=1000):
         super().__init__(hidden_dim, 1, learning_rate_init, max_iter)
 
+    def get_params(self, deep):
+        return {
+            "hidden_dim": self.hidden_dim,
+            "learning_rate_init": self.learning_rate,
+            "max_iter": self.max_iter,
+        }
+
 
 class TREENN3(FONN3):
     def __init__(self, hidden_dim, learning_rate_init=0.01, max_iter=1000):
         super().__init__(hidden_dim, 1, learning_rate_init, max_iter, 1.0)
+
+    def get_params(self, deep):
+        return {
+            "hidden_dim": self.hidden_dim,
+            "learning_rate_init": self.learning_rate,
+            "max_iter": self.max_iter,
+        }

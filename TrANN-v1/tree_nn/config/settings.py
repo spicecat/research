@@ -2,11 +2,10 @@
 
 # Model parameters
 MODEL_PARAMS = {
-    "hidden_dim": 20,
-    "output_dim": 1,
-    "num_trees": 20,
-    "epochs": 10000,
-    "learning_rate": 0.01,
+    "hidden_dim": 10,
+    "num_trees": 10,
+    "max_iter": 4000,
+    "learning_rate_init": 0.01,
     "random_state": 42,
 }
 

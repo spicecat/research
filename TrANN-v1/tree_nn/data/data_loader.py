@@ -1,11 +1,11 @@
 """Data loading and preprocessing utilities."""
 
-import numpy as np
-import pandas as pd
+import io
 import ssl
 import urllib.request
-import io
-from sklearn.model_selection import train_test_split
+
+import numpy as np
+import pandas as pd
 
 
 class DataLoader:
@@ -37,4 +37,4 @@ class DataLoader:
         raw_df = DataLoader.get_data(data_url)
         X = np.hstack([raw_df.values[::2, :-1], raw_df.values[1::2, :2]])
         y = raw_df.values[1::2, 2].reshape(-1, 1).ravel()
-        return train_test_split(X, y, test_size=0.2, random_state=42)
+        return X, y

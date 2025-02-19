@@ -1,12 +1,11 @@
 """Main script for running Tree Neural Network experiments."""
 
-from config.settings import MODEL_PARAMS
+from config.settings import MODEL_PARAMS, TRAIN_TEST_SPLIT
 from data.data_loader import DataLoader
 from sklearn.neural_network import MLPRegressor
 
 from utils.evaluation import ModelEvaluator
 from models.models_TrANN import TREENN1, TREENN2, TREENN3, FONN1, FONN2, FONN3
-
 
 def main():
     # Load data
@@ -18,6 +17,8 @@ def main():
     # Base parameters for all models
     base_params = {
         "hidden_dim": MODEL_PARAMS["hidden_dim"],
+        "max_iter": MODEL_PARAMS["max_iter"],
+        "learning_rate_init": MODEL_PARAMS["learning_rate_init"],
     }
 
     # Evaluate tree models
@@ -26,12 +27,14 @@ def main():
         ("TREENN2", TREENN2),
         ("TREENN3", TREENN3),
     ]:
-        evaluator.evaluate_model(name, model, X, y, **base_params)
+        evaluator.evaluate_model(name, model, X, y, cv=TRAIN_TEST_SPLIT, **base_params)
 
     # Evaluate forest models
     forest_params = {**base_params, "num_trees": MODEL_PARAMS["num_trees"]}
     for name, model in [("FONN1", FONN1), ("FONN2", FONN2), ("FONN3", FONN3)]:
-        evaluator.evaluate_model(name, model, X, y, **forest_params)
+        evaluator.evaluate_model(
+            name, model, X, y, cv=TRAIN_TEST_SPLIT, **forest_params
+        )
 
     # Evaluate PureMLP
     mlp_params = {
@@ -42,6 +45,9 @@ def main():
         "n_iter_no_change": MODEL_PARAMS["max_iter"],
     }
     evaluator.evaluate_model("PureMLP", MLPRegressor, X, y, **mlp_params)
+
+    print(evaluator.results)
+    print(evaluator.raw_cv_results)
 
     evaluator.save_results()
     evaluator.save_raw_cv_results()

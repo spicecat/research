@@ -1,9 +1,10 @@
 """Model evaluation utilities."""
 
 import time
+
 import pandas as pd
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import cross_validate, train_test_split
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
 
 class ModelEvaluator:
@@ -25,48 +26,53 @@ class ModelEvaluator:
             sklearn estimator class to evaluate (must implement fit and predict).
         X, y : array-like
             Data used for evaluation.
-        cv : int or float, default=5
+        cv : int or float
             If an int, use that many folds for cross-validation.
             If a float between 0 and 1, use it as the test size for a train-test split.
         **kwargs : dict
             Additional model parameters.
         """
-        # If cv is a float between 0 and 1, use train-test split
         if isinstance(cv, float) and 0 < cv < 1:
-            # Split the data into training and test sets using cv as test_size.
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=cv, random_state=42)
-            model = model_func(**kwargs)
+            self._train_test_split(name, model_func, X, y, cv, **kwargs)
+        else:
+            self._cross_validation(name, model_func, X, y, cv, **kwargs)
 
-            # Measure training time.
-            start_fit = time.time()
-            model.fit(X_train, y_train)
-            fit_time = time.time() - start_fit
+    def _train_test_split(self, name, model_func, X, y, test_size, **kwargs):
+        # Split the data into training and test sets using cv as test_size.
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=42
+        )
+        model = model_func(**kwargs)
 
-            # Measure scoring time.
-            start_score = time.time()
-            y_pred = model.predict(X_test)
-            score_time = time.time() - start_score
+        # Measure training time.
+        start_fit = time.time()
+        model.fit(X_train, y_train)
+        fit_time = time.time() - start_fit
 
-            # Calculate metrics.
-            r2_val = r2_score(y_test, y_pred)
-            mae_val = mean_absolute_error(y_test, y_pred)
-            mse_val = mean_squared_error(y_test, y_pred)
+        # Measure scoring time.
+        start_score = time.time()
+        y_pred = model.predict(X_test)
+        score_time = time.time() - start_score
 
-            print(name, {"R2": r2_val, "MAE": mae_val, "MSE": mse_val, "Fit Time": fit_time, "Score Time": score_time})
+        # Calculate metrics.
+        r2_val = r2_score(y_test, y_pred)
+        mae_val = mean_absolute_error(y_test, y_pred)
+        mse_val = mean_squared_error(y_test, y_pred)
 
-            # Save overall results.
-            self.results.append(
-                {
-                    "Model": name,
-                    "R² Score": r2_val,
-                    "MAE": mae_val,
-                    "MSE": mse_val,
-                    "Time (s)": fit_time + score_time,
-                }
-            )
+        # Save overall results.
+        self.results.append(
+            {
+                "Model": name,
+                "R² Score": r2_val,
+                "MAE": mae_val,
+                "MSE": mse_val,
+                "Time (s)": fit_time + score_time,
+            }
+        )
 
-            # Save the raw results as a single "fold" (fold 0).
-            self.raw_cv_results.append({
+        # Save the raw results as a single "fold" (fold 0).
+        self.raw_cv_results.append(
+            {
                 "Model": name,
                 "Fold": 0,
                 "Test R2": r2_val,
@@ -74,34 +80,37 @@ class ModelEvaluator:
                 "Test MSE": mse_val,
                 "Fit Time": fit_time,
                 "Score Time": score_time,
-            })
-        else:
-            # Otherwise, assume cv is an integer number of folds for cross-validation.
-            model = model_func(**kwargs)
-            scoring = {
-                "r2": "r2",
-                "mae": "neg_mean_absolute_error",
-                "mse": "neg_mean_squared_error",
+                "kwargs": kwargs,
             }
-            cv_results = cross_validate(
-                model, X, y, cv=cv, scoring=scoring, return_train_score=False
-            )
+        )
 
-            print(name, cv_results)
-            self.results.append(
+    def _cross_validation(self, name, model_func, X, y, cv, **kwargs):
+        model = model_func(**kwargs)
+        scoring = {
+            "r2": "r2",
+            "mae": "neg_mean_absolute_error",
+            "mse": "neg_mean_squared_error",
+        }
+        cv_results = cross_validate(
+            model, X, y, cv=cv, scoring=scoring, return_train_score=False
+        )
+
+        self.results.append(
+            {
+                "Model": name,
+                "R² Score": cv_results["test_r2"].mean(),
+                "MAE": -cv_results["test_mae"].mean(),
+                "MSE": -cv_results["test_mse"].mean(),
+                "Time (s)": cv_results["fit_time"].mean()
+                + cv_results["score_time"].mean(),
+            }
+        )
+
+        # Aggregate each fold's raw cv_results into self.raw_cv_results.
+        num_folds = len(cv_results["test_r2"])
+        for fold in range(num_folds):
+            self.raw_cv_results.append(
                 {
-                    "Model": name,
-                    "R² Score": cv_results["test_r2"].mean(),
-                    "MAE": -cv_results["test_mae"].mean(),
-                    "MSE": -cv_results["test_mse"].mean(),
-                    "Time (s)": (cv_results["fit_time"] + cv_results["score_time"]).sum(),
-                }
-            )
-
-            # Aggregate each fold's raw cv_results into self.raw_cv_results.
-            num_folds = len(cv_results["test_r2"])
-            for fold in range(num_folds):
-                self.raw_cv_results.append({
                     "Model": name,
                     "Fold": fold,
                     "Test R2": cv_results["test_r2"][fold],
@@ -109,7 +118,9 @@ class ModelEvaluator:
                     "Test MSE": -cv_results["test_mse"][fold],
                     "Fit Time": cv_results["fit_time"][fold],
                     "Score Time": cv_results["score_time"][fold],
-                })
+                    "kwargs": kwargs,
+                }
+            )
 
     def save_results(self, filepath="model_results.csv"):
         """Save evaluation results to CSV."""

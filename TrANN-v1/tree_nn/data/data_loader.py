@@ -38,3 +38,10 @@ class DataLoader:
         X = np.hstack([raw_df.values[::2, :-1], raw_df.values[1::2, :2]])
         y = raw_df.values[1::2, 2].reshape(-1, 1).ravel()
         return X, y
+
+    @staticmethod
+    def load_california_data():
+        from sklearn.datasets import fetch_california_housing
+
+        housing = fetch_california_housing()
+        return housing.data, housing.target

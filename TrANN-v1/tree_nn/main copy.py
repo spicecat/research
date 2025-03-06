@@ -3,10 +3,10 @@
 import time
 
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from config.settings import MODEL_PARAMS, TRAIN_TEST_SPLIT
 from data.data_loader import DataLoader
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
 
 from models.forest_models import FONN1, FONN2, FONN3
@@ -28,7 +28,7 @@ def main():
         model_func,
         epochs=MODEL_PARAMS["max_iter"],
         learning_rate=MODEL_PARAMS["learning_rate_init"],
-        **kwargs
+        **kwargs,
     ):
         """Evaluates a given model and stores the results."""
         start_time = time.time()
@@ -64,7 +64,11 @@ def main():
 
     # Evaluate forest models
     forest_params = {**base_params, "num_trees": MODEL_PARAMS["num_trees"]}
-    for name, model in [("FONN1", FONN1), ("FONN2", FONN2), ("FONN3", FONN3)]:
+    for name, model in [
+        ("FONN1", FONN1),
+        ("FONN2", FONN2),
+        ("FONN3", FONN3),
+    ]:
         evaluate_model(name, model, **forest_params)
 
     # Evaluate PureMLP
@@ -92,8 +96,9 @@ def main():
 
     # Save results
     results_df = pd.DataFrame(results)
-    results_df.to_csv("model_results.csv", index=False)
-    print("Results saved to model_results.csv")
+    output_file = f'output/model_results_{MODEL_PARAMS["max_iter"]}_{TRAIN_TEST_SPLIT}_{time.strftime("%F_%T")}.csv'
+    results_df.to_csv(output_file, index=False)
+    print(f"Results saved to {output_file}")
     print(results_df)
     print(mlp.n_iter_)
 

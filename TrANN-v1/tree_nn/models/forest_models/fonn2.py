@@ -72,5 +72,5 @@ class FONN2:
             self.weights_hidden -= learning_rate * d_weights_hidden
             self.bias_hidden -= learning_rate * d_bias_hidden
 
-            if epoch % 100 == 0:
-                print(f"Epoch {epoch}, Loss: {loss}")
+            # if epoch % 100 == 0:
+            #     print(f"Epoch {epoch}, Loss: {loss}")

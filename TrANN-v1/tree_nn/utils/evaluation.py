@@ -1,6 +1,7 @@
 """Model evaluation utilities."""
 
 import time
+from config.settings import TRAIN_TEST_SPLIT
 
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -14,7 +15,7 @@ class ModelEvaluator:
         self.results = []
         self.raw_cv_results = []  # Aggregates raw cv_results
 
-    def evaluate_model(self, name, model_func, X, y, cv=0.2, **kwargs):
+    def evaluate_model(self, name, model, X, y, cv=TRAIN_TEST_SPLIT):
         """
         Evaluate a model using cross-validation or train-test split (if cv is a float) and store its results.
 
@@ -33,16 +34,15 @@ class ModelEvaluator:
             Additional model parameters.
         """
         if isinstance(cv, float) and 0 < cv < 1:
-            self._train_test_split(name, model_func, X, y, cv, **kwargs)
+            self._train_test_split(name, model, X, y, cv)
         else:
-            self._cross_validation(name, model_func, X, y, cv, **kwargs)
+            self._cross_validation(name, model, X, y, cv)
 
-    def _train_test_split(self, name, model_func, X, y, test_size, **kwargs):
+    def _train_test_split(self, name, model, X, y, test_size):
         # Split the data into training and test sets using cv as test_size.
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=test_size, random_state=42
         )
-        model = model_func(**kwargs)
 
         # Measure training time.
         start_fit = time.time()
@@ -80,12 +80,10 @@ class ModelEvaluator:
                 "Test MSE": mse_val,
                 "Fit Time": fit_time,
                 "Score Time": score_time,
-                "kwargs": kwargs,
             }
         )
 
-    def _cross_validation(self, name, model_func, X, y, cv, **kwargs):
-        model = model_func(**kwargs)
+    def _cross_validation(self, name, model, X, y, cv):
         scoring = {
             "r2": "r2",
             "mae": "neg_mean_absolute_error",
@@ -118,17 +116,16 @@ class ModelEvaluator:
                     "Test MSE": -cv_results["test_mse"][fold],
                     "Fit Time": cv_results["fit_time"][fold],
                     "Score Time": cv_results["score_time"][fold],
-                    "kwargs": kwargs,
                 }
             )
 
-    def save_results(self, filepath="model_results.csv"):
+    def save_results(self, filepath=f"output/model_results.csv"):
         """Save evaluation results to CSV."""
         results_df = pd.DataFrame(self.results)
         results_df.to_csv(filepath, index=False)
         return results_df
 
-    def save_raw_cv_results(self, filepath="raw_cv_results.csv"):
+    def save_raw_cv_results(self, filepath=f"output/raw_cv_results.csv"):
         """Save all raw cross-validation results to CSV."""
         raw_df = pd.DataFrame(self.raw_cv_results)
         raw_df.to_csv(filepath, index=False)

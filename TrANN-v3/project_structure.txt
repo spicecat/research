@@ -1,0 +1,23 @@
+tree_nn/
+├── config/
+│   └── settings.py
+├── data/
+│   └── data_loader.py
+├── models/
+│   ├── __init__.py
+│   ├── base_model.py
+│   ├── tree_models/
+│   │   ├── __init__.py
+│   │   ├── treenn1.py
+│   │   ├── treenn2.py
+│   │   └── treenn3.py
+│   └── forest_models/
+│       ├── __init__.py
+│       ├── fonn1.py
+│       ├── fonn2.py
+│       └── fonn3.py
+├── utils/
+│   ├── __init__.py
+│   └── evaluation.py
+├── main.py
+└── README.md 

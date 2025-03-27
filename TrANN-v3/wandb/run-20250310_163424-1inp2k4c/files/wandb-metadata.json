@@ -1,0 +1,31 @@
+{
+  "os": "Linux-5.15.0-128-generic-x86_64-with-glibc2.35",
+  "python": "CPython 3.12.8",
+  "startedAt": "2025-03-10T23:34:25.261443Z",
+  "program": "/home/ahteh/Developer/research/TrANN-v3/tree_nn/main.py",
+  "codePath": "TrANN-v3/tree_nn/main.py",
+  "git": {
+    "remote": "https://github.com/spicecat/research",
+    "commit": "587b4d98554e03742fd2b29f87bf4918d5be8c49"
+  },
+  "email": "67yEGW@protonmail.ch",
+  "root": "/home/ahteh/Developer/research/TrANN-v3",
+  "host": "circinus-35.ics.uci.edu",
+  "executable": "/home/ahteh/miniconda3/envs/research/bin/python",
+  "codePathLocal": "tree_nn/main.py",
+  "cpu_count": 12,
+  "cpu_count_logical": 24,
+  "disk": {
+    "/": {
+      "total": "52521566208",
+      "used": "20129710080"
+    }
+  },
+  "memory": {
+    "total": "101330743296"
+  },
+  "cpu": {
+    "count": 12,
+    "countLogical": 24
+  }
+}

@@ -10,4 +10,4 @@ MODEL_PARAMS = {
 }
 
 # Data parameters
-TRAIN_TEST_SPLIT = 5
+TRAIN_TEST_SPLIT = 0.2  # 5

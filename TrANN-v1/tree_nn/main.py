@@ -27,26 +27,26 @@ def main():
     }
 
     # Evaluate tree models
-    for name, model in [
-        ("TREENN1", TREENN1),
-        ("TREENN2", TREENN2),
-        ("TREENN3", TREENN3),
-    ]:
-        evaluator.evaluate_model(
-            name,
-            Pipeline(
-                [("scaler", SCALERS["standard"]), ("model", model(**base_params))]
-            ),
-            X,
-            y,
-            cv=TRAIN_TEST_SPLIT,
-        )
+    # for name, model in [
+    #     ("TREENN1", TREENN1),
+    #     ("TREENN2", TREENN2),
+    #     ("TREENN3", TREENN3),
+    # ]:
+    #     evaluator.evaluate_model(
+    #         name,
+    #         Pipeline(
+    #             [("scaler", SCALERS["standard"]), ("model", model(**base_params))]
+    #         ),
+    #         X,
+    #         y,
+    #         cv=TRAIN_TEST_SPLIT,
+    #     )
 
     # Evaluate forest models
     forest_params = {**base_params, "num_trees": MODEL_PARAMS["num_trees"]}
     for name, model in [
         ("FONN1", FONN1),
-        ("FONN2", FONN2),
+        # ("FONN2", FONN2),
         ("FONN3", FONN3),
     ]:
         evaluator.evaluate_model(
@@ -60,22 +60,22 @@ def main():
         )
 
     # Evaluate PureMLP
-    mlp_params = {
-        "hidden_layer_sizes": (MODEL_PARAMS["hidden_dim"],),
-        "max_iter": MODEL_PARAMS["max_iter"],
-        "learning_rate_init": MODEL_PARAMS["learning_rate_init"],
-        "random_state": MODEL_PARAMS["random_state"],
-        "n_iter_no_change": MODEL_PARAMS["max_iter"],
-    }
-    evaluator.evaluate_model(
-        "PureMLP",
-        Pipeline(
-            [("scaler", SCALERS["standard"]), ("model", MLPRegressor(**mlp_params))]
-        ),
-        X,
-        y,
-        cv=TRAIN_TEST_SPLIT,
-    )
+    # mlp_params = {
+    #     "hidden_layer_sizes": (MODEL_PARAMS["hidden_dim"],),
+    #     "max_iter": MODEL_PARAMS["max_iter"],
+    #     "learning_rate_init": MODEL_PARAMS["learning_rate_init"],
+    #     "random_state": MODEL_PARAMS["random_state"],
+    #     "n_iter_no_change": MODEL_PARAMS["max_iter"],
+    # }
+    # evaluator.evaluate_model(
+    #     "PureMLP",
+    #     Pipeline(
+    #         [("scaler", SCALERS["standard"]), ("model", MLPRegressor(**mlp_params))]
+    #     ),
+    #     X,
+    #     y,
+    #     cv=TRAIN_TEST_SPLIT,
+    # )
 
     print(evaluator.results)
     print(evaluator.raw_cv_results)

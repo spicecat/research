@@ -18,7 +18,7 @@ DERIVATIVES = {
 
 
 class Ensemble(BaseEstimator):
-    def __init__(self, num_trees, max_depth=3):
+    def __init__(self, num_trees, max_depth=2):
         self.num_trees = num_trees
         self.trees = [
             DecisionTreeRegressor(max_depth=max_depth, random_state=i)
@@ -224,7 +224,7 @@ class FONN1(MLP, Ensemble):
         max_iter=1000,
         learning_rate_init=0.01,
         batch_size=200,
-        max_depth=3,
+        max_depth=2,
     ):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
@@ -298,7 +298,7 @@ class FONN2(MLP, Ensemble):
         max_iter=1000,
         learning_rate_init=0.01,
         batch_size=200,
-        max_depth=3,
+        max_depth=2,
     ):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim

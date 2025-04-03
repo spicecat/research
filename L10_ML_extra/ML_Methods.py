@@ -85,7 +85,7 @@ def cal_r2(y_true, y_pred):
 # retadj: stock monthly return (adjust for delisting)
 # exret : excess return (= retadj - rf)
 # rf    : risk-free rate
-retdata = pd.read_stata('D:/Research/Data/ML_Methods/ML_sample.dta')
+retdata = pd.read_stata('ML_sample.dta')
 retdata['ym'] = (retdata['year'] - 1960) * 12 + (retdata['month'] - 1)
 retdata = retdata.astype({'permno': 'int', 'year': 'int', 'month': 'int', 'ym': 'int'})
 retdata = retdata[['permno', 'year', 'month', 'ym', 'lme', 'retadj', 'exret'] + CharsVars]

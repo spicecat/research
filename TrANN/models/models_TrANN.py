@@ -20,7 +20,7 @@ class FONN1:
 
         # Initialize decision trees for the input layer
         self.trees_input = [
-            DecisionTreeRegressor(max_depth=5, random_state=i) for i in range(num_trees)
+            DecisionTreeRegressor(max_depth=2, random_state=i) for i in range(num_trees)
         ]
 
     def _initialize_weights(self, input_dim, output_dim):
@@ -122,7 +122,7 @@ class FONN2:
 
         # Initialize  decision trees for the hidden layer
         self.trees_hidden = [
-            DecisionTreeRegressor(max_depth=5, random_state=i) for i in range(num_trees)
+            DecisionTreeRegressor(max_depth=2, random_state=i) for i in range(num_trees)
         ]
 
     def _initialize_weights(self, input_dim, output_dim):
@@ -219,7 +219,7 @@ class FONN3:
 
         # Initialize decision trees for the output layer
         self.trees_output = [
-            DecisionTreeRegressor(max_depth=5, random_state=i) for i in range(num_trees)
+            DecisionTreeRegressor(max_depth=2, random_state=i) for i in range(num_trees)
         ]
 
     def _initialize_weights(self, input_dim, output_dim):

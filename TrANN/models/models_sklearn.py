@@ -1,11 +1,13 @@
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import StandardScaler
-from sklearn.neural_network import MLPRegressor
 from typing import Literal
 
+import numpy as np
+from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.preprocessing import StandardScaler
 
-class Ensemble(RandomForestRegressor):
+
+class Ensemble(RandomForestRegressor, RegressorMixin, BaseEstimator):
     def __init__(
             self,
             n_estimators=100,
@@ -13,7 +15,7 @@ class Ensemble(RandomForestRegressor):
             stack=False,
             criterion: Literal['squared_error', 'absolute_error',
                                'friedman_mse', 'poisson'] = 'squared_error',
-            max_depth=None,
+            max_depth=2,
             min_samples_split=2,
             min_samples_leaf=1,
             min_weight_fraction_leaf=0.0,
@@ -56,7 +58,7 @@ class Ensemble(RandomForestRegressor):
         return super().predict(X)
 
 
-class MLP(MLPRegressor):
+class MLP(MLPRegressor, RegressorMixin, BaseEstimator):
     pass
 
 
@@ -385,10 +387,9 @@ def plot_loss(model, title='Loss Curve'):
 
 if __name__ == '__main__':
 
+    import numpy as np
     import pandas as pd
     from sklearn.preprocessing import StandardScaler
-
-    import numpy as np
     np.random.seed(42)
 
     # Load the Boston dataset

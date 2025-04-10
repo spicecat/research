@@ -43,8 +43,28 @@ from sklearn.ensemble import RandomForestRegressor
 # stdcf   : Cash flow volatility
 # sue     : Unexpected quarterly earnings
 # tang    : Debt capacity/firm tangibility
-CharsVars = ['absacc', 'beta', 'cfp', 'chpmia', 'ep', 'gma', 'herf', 'idiovol', 'lev', 'mom12m',
-             'mom6m', 'nincr', 'pchdepr', 'ps', 'roavol', 'roeq', 'salecash', 'stdcf', 'sue', 'tang']
+CharsVars = [
+    "absacc",
+    "beta",
+    "cfp",
+    "chpmia",
+    "ep",
+    "gma",
+    "herf",
+    "idiovol",
+    "lev",
+    "mom12m",
+    "mom6m",
+    "nincr",
+    "pchdepr",
+    "ps",
+    "roavol",
+    "roeq",
+    "salecash",
+    "stdcf",
+    "sue",
+    "tang",
+]
 
 # Sample split
 # Training sample  : 2000 ~ 2009 (10 years)
@@ -63,6 +83,7 @@ ym_test_ed = (2019 - 1960) * 12 + 11
 # Then average these models' outputs in testing sample
 navg = 5
 
+
 ################################################################################
 # Function: winsorize
 def winsorize(X, q):
@@ -73,10 +94,12 @@ def winsorize(X, q):
     X[X > q_u] = q_u
     return X
 
+
 # Function: calculate R2
 # Follow Gu, Kelly, and Xiu (2020), the denominator is without demeaning
 def cal_r2(y_true, y_pred):
     return 100 * (1 - np.sum(np.square(y_true - y_pred)) / np.sum(np.square(y_true)))
+
 
 ################################################################################
 # Load data
@@ -85,20 +108,24 @@ def cal_r2(y_true, y_pred):
 # retadj: stock monthly return (adjust for delisting)
 # exret : excess return (= retadj - rf)
 # rf    : risk-free rate
-retdata = pd.read_stata('D:/Research/Data/ML_Methods/ML_sample.dta')
-retdata['ym'] = (retdata['year'] - 1960) * 12 + (retdata['month'] - 1)
-retdata = retdata.astype({'permno': 'int', 'year': 'int', 'month': 'int', 'ym': 'int'})
-retdata = retdata[['permno', 'year', 'month', 'ym', 'lme', 'retadj', 'exret'] + CharsVars]
-retdata = retdata.sort_values(by=['ym', 'permno'], ascending=True).reset_index(drop=True)
-assert not retdata.duplicated(subset=['ym', 'permno']).any()
+retdata = pd.read_stata("D:/Research/Data/ML_Methods/ML_sample.dta")
+retdata["ym"] = (retdata["year"] - 1960) * 12 + (retdata["month"] - 1)
+retdata = retdata.astype({"permno": "int", "year": "int", "month": "int", "ym": "int"})
+retdata = retdata[
+    ["permno", "year", "month", "ym", "lme", "retadj", "exret"] + CharsVars
+]
+retdata = retdata.sort_values(by=["ym", "permno"], ascending=True).reset_index(
+    drop=True
+)
+assert not retdata.duplicated(subset=["ym", "permno"]).any()
 
 # Winsorize
 # The winsorized return is only used in training sample
-retdata['exret_winsor'] = retdata.groupby('ym')['exret'].transform(winsorize, q=0.01)
+retdata["exret_winsor"] = retdata.groupby("ym")["exret"].transform(winsorize, q=0.01)
 
 # Time index
 ym_dc = {}
-for i, ym_i in enumerate(retdata['ym']):
+for i, ym_i in enumerate(retdata["ym"]):
     if ym_dc.get(ym_i) is None:
         ym_dc[ym_i] = [i]
     else:
@@ -126,11 +153,11 @@ idx_test_ed = max(ym_dc[ym_test_ed])
 
 # Training & validation & testing sample
 X_train = retdata.loc[idx_train_st:idx_train_ed, CharsVars].values
-Y_train = retdata.loc[idx_train_st:idx_train_ed, 'exret_winsor'].values
+Y_train = retdata.loc[idx_train_st:idx_train_ed, "exret_winsor"].values
 X_valid = retdata.loc[idx_valid_st:idx_valid_ed, CharsVars].values
-Y_valid = retdata.loc[idx_valid_st:idx_valid_ed, 'exret'].values
+Y_valid = retdata.loc[idx_valid_st:idx_valid_ed, "exret"].values
 X_test = retdata.loc[idx_test_st:idx_test_ed, CharsVars].values
-Y_test = retdata.loc[idx_test_st:idx_test_ed, 'exret'].values
+Y_test = retdata.loc[idx_test_st:idx_test_ed, "exret"].values
 del retdata
 
 ################################################################################
@@ -154,8 +181,14 @@ RF_ls = []
 n_hp_ls = len(hp_ls)
 R2_valid_ls = np.full(n_hp_ls, np.nan)
 for i, hp_i in enumerate(hp_ls):
-    print('Training (RF):', i + 1, '/', n_hp_ls)
-    RF = RandomForestRegressor(max_depth=hp_i[0], n_estimators=hp_i[1], max_features=hp_i[2], n_jobs=4, random_state=i)
+    print("Training (RF):", i + 1, "/", n_hp_ls)
+    RF = RandomForestRegressor(
+        max_depth=hp_i[0],
+        n_estimators=hp_i[1],
+        max_features=hp_i[2],
+        n_jobs=4,
+        random_state=i,
+    )
     RF.fit(X_train, Y_train)
     Y_pred = RF.predict(X_valid)
     R2_valid_ls[i] = cal_r2(Y_valid, Y_pred)
@@ -184,8 +217,14 @@ GBRT_ls = []
 n_hp_ls = len(hp_ls)
 R2_valid_ls = np.full(n_hp_ls, np.nan)
 for i, hp_i in enumerate(hp_ls):
-    print('Training (GBRT):', i + 1, '/', n_hp_ls)
-    GBRT = GradientBoostingRegressor(max_depth=hp_i[0], n_estimators=hp_i[1], learning_rate=hp_i[2], max_features='sqrt', random_state=i)
+    print("Training (GBRT):", i + 1, "/", n_hp_ls)
+    GBRT = GradientBoostingRegressor(
+        max_depth=hp_i[0],
+        n_estimators=hp_i[1],
+        learning_rate=hp_i[2],
+        max_features="sqrt",
+        random_state=i,
+    )
     GBRT.fit(X_train, Y_train)
     Y_pred = GBRT.predict(X_valid)
     R2_valid_ls[i] = cal_r2(Y_valid, Y_pred)
@@ -221,15 +260,17 @@ NN_ls = []
 n_hp_ls = len(hp_ls)
 R2_valid_ls = np.full(n_hp_ls, np.nan)
 for i, hp_i in enumerate(hp_ls):
-    print('Training (NN):', i + 1, '/', n_hp_ls)
+    print("Training (NN):", i + 1, "/", n_hp_ls)
     tf.random.set_seed(i)
-    NN = tf.keras.models.Sequential([
-        tf.keras.layers.Dropout(hp_i[0]),
-        tf.keras.layers.Dense(4, activation='relu'),
-        tf.keras.layers.Dense(4, activation='relu'),
-        tf.keras.layers.Dense(1, activation='linear')
-    ])
-    NN.compile(optimizer=tf.keras.optimizers.Adam(hp_i[1]), loss='mse')
+    NN = tf.keras.models.Sequential(
+        [
+            tf.keras.layers.Dropout(hp_i[0]),
+            tf.keras.layers.Dense(4, activation="relu"),
+            tf.keras.layers.Dense(4, activation="relu"),
+            tf.keras.layers.Dense(1, activation="linear"),
+        ]
+    )
+    NN.compile(optimizer=tf.keras.optimizers.Adam(hp_i[1]), loss="mse")
     NN.fit(x=X_train_tf, y=Y_train_tf, batch_size=hp_i[2], epochs=hp_i[3], verbose=0)
     Y_pred = np.reshape(NN(X_valid_tf, training=False).numpy(), [-1])
     R2_valid_ls[i] = cal_r2(Y_valid, Y_pred)
@@ -241,12 +282,15 @@ for i, mid in enumerate(avg_models_id):
     if i == 0:
         Y_pred = np.reshape(NN_ls[mid](X_test_tf, training=False).numpy(), [-1]) / navg
     else:
-        Y_pred = Y_pred + np.reshape(NN_ls[mid](X_test_tf, training=False).numpy(), [-1]) / navg
+        Y_pred = (
+            Y_pred
+            + np.reshape(NN_ls[mid](X_test_tf, training=False).numpy(), [-1]) / navg
+        )
 R2_NN = cal_r2(Y_test, Y_pred)
 
 ################################################################################
 # Print
-print('R2 - OLS  (%):', R2_OLS)
-print('R2 - RF   (%):', R2_RF)
-print('R2 - GBRT (%):', R2_GBRT)
-print('R2 - NN   (%):', R2_NN)
+print("R2 - OLS  (%):", R2_OLS)
+print("R2 - RF   (%):", R2_RF)
+print("R2 - GBRT (%):", R2_GBRT)
+print("R2 - NN   (%):", R2_NN)

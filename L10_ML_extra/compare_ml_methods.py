@@ -23,51 +23,59 @@ import time
 from ML_TrANN_Methods import run_asset_pricing_with_trann
 
 # Setup paths
-data_path = 'ML_sample.dta'  # Adjust this path to your data file location
+data_path = "ML_sample.dta"  # Adjust this path to your data file location
+
 
 def plot_results(results):
     """Create a bar plot to compare the R2 values of different methods"""
     # Create a bar plot
     plt.figure(figsize=(10, 6))
-    
+
     # Sort models in a specific order
-    model_order = ['OLS', 'RF', 'GBRT', 'NN', 'TREENN1']
+    model_order = ["OLS", "RF", "GBRT", "NN", "TREENN1"]
     # Filter only models that exist in results
     models = [model for model in model_order if model in results]
     r2_values = [results[model] for model in models]
-    
+
     # Set up colors with a professional palette
-    colors = sns.color_palette('Blues_d', len(models))
-    
+    colors = sns.color_palette("Blues_d", len(models))
+
     # Highlight TREENN1 method with a different color
     for i, model in enumerate(models):
-        if model == 'TREENN1':
-            colors[i] = sns.color_palette('Reds_d')[2]
-    
+        if model == "TREENN1":
+            colors[i] = sns.color_palette("Reds_d")[2]
+
     # Create the bar chart
     bars = plt.bar(models, r2_values, color=colors)
-    
+
     # Add labels and title
-    plt.xlabel('Machine Learning Models')
-    plt.ylabel('Out-of-Sample R² (%)')
-    plt.title('Comparison of Machine Learning Methods for Asset Pricing')
-    
+    plt.xlabel("Machine Learning Models")
+    plt.ylabel("Out-of-Sample R² (%)")
+    plt.title("Comparison of Machine Learning Methods for Asset Pricing")
+
     # Add text labels on top of the bars
     for bar in bars:
         height = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2., height + 0.1,
-                 f'{height:.2f}%', ha='center', va='bottom', fontweight='bold')
-    
+        plt.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height + 0.1,
+            f"{height:.2f}%",
+            ha="center",
+            va="bottom",
+            fontweight="bold",
+        )
+
     # Add grid for better readability
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+
     # Ensure y-axis starts from zero
     plt.ylim(bottom=0)
-    
+
     # Save the plot
     plt.tight_layout()
-    plt.savefig('ml_comparison_results.png', dpi=300)
+    plt.savefig("ml_comparison_results.png", dpi=300)
     plt.show()
+
 
 def create_latex_table(results):
     """Create a LaTeX table for the paper"""
@@ -81,47 +89,48 @@ def create_latex_table(results):
 Method & Out-of-Sample $R^2$ (\\%) \\\\
 \\midrule
 """
-    
+
     # Sort models in a specific order
-    model_order = ['OLS', 'RF', 'GBRT', 'NN', 'TREENN1']
+    model_order = ["OLS", "RF", "GBRT", "NN", "TREENN1"]
     # Filter only models that exist in results
     models = [model for model in model_order if model in results]
-    
+
     # Add each method to the table
     for model in models:
         r2 = results[model]
         # Format the model name for LaTeX
-        if model == 'GBRT':
-            model_name = 'Gradient Boosting Regression Tree (GBRT)'
-        elif model == 'RF':
-            model_name = 'Random Forest (RF)'
-        elif model == 'NN':
-            model_name = 'Neural Network (NN)'
-        elif model == 'OLS':
-            model_name = 'Ordinary Least Squares (OLS)'
-        elif model == 'TREENN1':
-            model_name = 'Tree Neural Network (TREENN1)'
+        if model == "GBRT":
+            model_name = "Gradient Boosting Regression Tree (GBRT)"
+        elif model == "RF":
+            model_name = "Random Forest (RF)"
+        elif model == "NN":
+            model_name = "Neural Network (NN)"
+        elif model == "OLS":
+            model_name = "Ordinary Least Squares (OLS)"
+        elif model == "TREENN1":
+            model_name = "Tree Neural Network (TREENN1)"
         else:
             model_name = model
-        
+
         latex_table += f"{model_name} & {r2:.4f} \\\\\n"
-    
+
     latex_table += """\\bottomrule
 \\end{tabular}
 \\end{table}
 """
-    
+
     # Save the LaTeX table to a file
-    with open('ml_comparison_table.tex', 'w') as f:
+    with open("ml_comparison_table.tex", "w") as f:
         f.write(latex_table)
-    
+
     return latex_table
+
 
 def create_explainability_analysis():
     """
     Create an analysis of the explainability aspects of TREENN1 model
     compared to traditional models in asset pricing.
-    
+
     This function generates a markdown document discussing the explainability
     advantages of TREENN1 model in the context of asset pricing.
     """
@@ -202,31 +211,34 @@ is as important as its predictive accuracy.
 The integration of a tree and neural network in TREENN1 provides a framework where we can extract interpretable rules 
 while still benefiting from the flexibility of deep learning approaches.
 """
-    
+
     # Save the explainability analysis to a file
-    with open('treenn1_explainability_analysis.md', 'w') as f:
+    with open("treenn1_explainability_analysis.md", "w") as f:
         f.write(explainability_doc)
-    
-    print("Explainability analysis document created: treenn1_explainability_analysis.md")
+
+    print(
+        "Explainability analysis document created: treenn1_explainability_analysis.md"
+    )
+
 
 def main():
     """Main function to run the comparison"""
     print("=" * 80)
     print("COMPARING MACHINE LEARNING METHODS FOR ASSET PRICING")
     print("=" * 80)
-    
+
     start_time = time.time()
-    
+
     # Check if the data file exists
     if not os.path.exists(data_path):
         print(f"Error: Data file '{data_path}' not found.")
         print(f"Please ensure the ML_sample.dta file is in the correct location.")
         return
-    
+
     # Run all models
     print("\nRunning all models (OLS, RF, GBRT, NN, TREENN1)...")
     results = run_asset_pricing_with_trann(data_path)
-    
+
     # Display the results
     print("\nResults Summary:")
     print("-" * 50)
@@ -235,29 +247,30 @@ def main():
     for model, r2 in results.items():
         print(f"{model:<10} | {r2:<20.4f}")
     print("-" * 50)
-    
+
     # Save results to CSV
     results_df = pd.DataFrame([results])
-    results_df.to_csv('all_ml_comparison_results.csv', index=False)
+    results_df.to_csv("all_ml_comparison_results.csv", index=False)
     print("\nResults saved to 'all_ml_comparison_results.csv'")
-    
+
     # Plot the results
     print("\nGenerating visualization...")
     plot_results(results)
     print("Visualization saved to 'ml_comparison_results.png'")
-    
+
     # Create LaTeX table
     print("\nGenerating LaTeX table for paper...")
     latex_table = create_latex_table(results)
     print("LaTeX table saved to 'ml_comparison_table.tex'")
-    
+
     # Create explainability analysis
     print("\nGenerating explainability analysis document...")
     create_explainability_analysis()
-    
+
     # Report execution time
     execution_time = time.time() - start_time
     print(f"\nExecution completed in {execution_time:.2f} seconds.")
 
+
 if __name__ == "__main__":
-    main() 
+    main()

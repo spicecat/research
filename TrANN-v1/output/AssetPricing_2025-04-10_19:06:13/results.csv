@@ -1,0 +1,2 @@
+model,mean_fit_time,mean_score_time,mean_train_score,mean_test_score,params
+Tree,7.477638196945191,0.035568523406982425,38.395648275545064,-243.94680130420178,{}

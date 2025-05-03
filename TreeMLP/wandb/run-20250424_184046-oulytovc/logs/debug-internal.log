@@ -1,0 +1,16 @@
+{"time":"2025-04-24T18:40:46.947217445-07:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/home/ahteh/Developer/research/TreeMLP/wandb/run-20250424_184046-oulytovc/logs/debug-core.log"}
+{"time":"2025-04-24T18:40:47.122849664-07:00","level":"INFO","msg":"created new stream","id":"oulytovc"}
+{"time":"2025-04-24T18:40:47.122900357-07:00","level":"INFO","msg":"stream: started","id":"oulytovc"}
+{"time":"2025-04-24T18:40:47.122952273-07:00","level":"INFO","msg":"writer: Do: started","stream_id":"oulytovc"}
+{"time":"2025-04-24T18:40:47.12297354-07:00","level":"INFO","msg":"handler: started","stream_id":"oulytovc"}
+{"time":"2025-04-24T18:40:47.122957767-07:00","level":"INFO","msg":"sender: started","stream_id":"oulytovc"}
+{"time":"2025-04-24T18:40:47.294243345-07:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-24T18:40:49.712092366-07:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-04-24T18:40:49.712150838-07:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-04-24T18:40:50.22010192-07:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-04-24T18:40:50.339719302-07:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-04-24T18:40:50.345320327-07:00","level":"INFO","msg":"stream: closing","id":"oulytovc"}
+{"time":"2025-04-24T18:40:50.345338996-07:00","level":"INFO","msg":"handler: closed","stream_id":"oulytovc"}
+{"time":"2025-04-24T18:40:50.345349886-07:00","level":"INFO","msg":"writer: Close: closed","stream_id":"oulytovc"}
+{"time":"2025-04-24T18:40:50.345368843-07:00","level":"INFO","msg":"sender: closed","stream_id":"oulytovc"}
+{"time":"2025-04-24T18:40:50.346187202-07:00","level":"INFO","msg":"stream: closed","id":"oulytovc"}

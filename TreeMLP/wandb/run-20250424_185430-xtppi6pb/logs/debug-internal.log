@@ -1,0 +1,16 @@
+{"time":"2025-04-24T18:54:30.950527324-07:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/home/ahteh/Developer/research/TreeMLP/wandb/run-20250424_185430-xtppi6pb/logs/debug-core.log"}
+{"time":"2025-04-24T18:54:31.18714739-07:00","level":"INFO","msg":"created new stream","id":"xtppi6pb"}
+{"time":"2025-04-24T18:54:31.187186825-07:00","level":"INFO","msg":"stream: started","id":"xtppi6pb"}
+{"time":"2025-04-24T18:54:31.187217048-07:00","level":"INFO","msg":"writer: Do: started","stream_id":"xtppi6pb"}
+{"time":"2025-04-24T18:54:31.187254998-07:00","level":"INFO","msg":"sender: started","stream_id":"xtppi6pb"}
+{"time":"2025-04-24T18:54:31.187262341-07:00","level":"INFO","msg":"handler: started","stream_id":"xtppi6pb"}
+{"time":"2025-04-24T18:54:31.540962314-07:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-24T18:54:33.948071044-07:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-04-24T18:54:33.948144078-07:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-04-24T18:54:34.369668031-07:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-04-24T18:54:34.47674733-07:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-04-24T18:54:34.485226094-07:00","level":"INFO","msg":"stream: closing","id":"xtppi6pb"}
+{"time":"2025-04-24T18:54:34.485242287-07:00","level":"INFO","msg":"handler: closed","stream_id":"xtppi6pb"}
+{"time":"2025-04-24T18:54:34.485253663-07:00","level":"INFO","msg":"writer: Close: closed","stream_id":"xtppi6pb"}
+{"time":"2025-04-24T18:54:34.485268702-07:00","level":"INFO","msg":"sender: closed","stream_id":"xtppi6pb"}
+{"time":"2025-04-24T18:54:34.486390234-07:00","level":"INFO","msg":"stream: closed","id":"xtppi6pb"}

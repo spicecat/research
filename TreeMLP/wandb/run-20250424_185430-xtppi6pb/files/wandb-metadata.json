@@ -1,0 +1,31 @@
+{
+  "os": "Linux-5.15.0-135-generic-x86_64-with-glibc2.35",
+  "python": "CPython 3.13.3",
+  "startedAt": "2025-04-25T01:54:30.945570Z",
+  "program": "/home/ahteh/Developer/research/TreeMLP/openml_regression_benchmark_full.ipynb",
+  "codePath": "TreeMLP/openml_regression_benchmark_full.ipynb",
+  "git": {
+    "remote": "https://github.com/spicecat/research",
+    "commit": "4c57afc5a9b2a3d7718d9003f0b9e1b025e6d684"
+  },
+  "email": "67yEGW@protonmail.ch",
+  "root": "/home/ahteh/Developer/research/TreeMLP",
+  "host": "circinus-18.ics.uci.edu",
+  "executable": "/home/ahteh/Developer/research/.venv/bin/python",
+  "codePathLocal": "openml_regression_benchmark_full.ipynb",
+  "cpu_count": 12,
+  "cpu_count_logical": 24,
+  "disk": {
+    "/": {
+      "total": "52521566208",
+      "used": "16574509056"
+    }
+  },
+  "memory": {
+    "total": "101330743296"
+  },
+  "cpu": {
+    "count": 12,
+    "countLogical": 24
+  }
+}

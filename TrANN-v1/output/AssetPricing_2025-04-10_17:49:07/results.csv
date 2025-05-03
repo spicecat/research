@@ -1,6 +1,0 @@
-model,mean_fit_time,mean_score_time,mean_train_score,mean_test_score,params
-Tree,7.018373107910156,0.030330371856689454,38.66521115120925,-244.6585743452603,{}
-Ensemble_sk 5,2.9790536403656005,0.01780252456665039,1.640363330508825,-1.6033235178392968,{}
-MLP_sk_drop_standard 5,129.0286868572235,0.06067981719970703,-0.4888764600762463,-0.08011949744408442,"{'model__learning_rate_init': 0.06687751345479367, 'model__max_iter': 100, 'model__early_stopping': False, 'model__n_iter_no_change': 100}"
-TREENN1_sk_drop_standard 5,132.34423351287842,0.07524476051330567,0.2595535063091603,-0.9199821422627696,"{'model__learning_rate_init': 0.023721050654601273, 'model__max_iter': 100, 'model__early_stopping': False, 'model__n_iter_no_change': 100}"
-TREENN2_sk_drop_standard 5,134.55687136650084,0.06246004104614258,-7588.9671773187265,-25829.4853352797,"{'model__learning_rate_init': 0.07283042248533339, 'model__max_iter': 100, 'model__early_stopping': False, 'model__n_iter_no_change': 100}"

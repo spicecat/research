@@ -1,0 +1,22 @@
+wandb_version: 1
+
+dataset_idx:
+  value: 4
+gb_lr:
+  value: 0.05
+gb_n_estimators:
+  value: 100
+mlp_layers:
+  value:
+  - 128
+  - 64
+mlp_lr:
+  value: 0.001
+mlp_max_iter:
+  value: 200
+model:
+  value: RandomForest
+rf_max_depth:
+  value: null
+rf_n_estimators:
+  value: 300

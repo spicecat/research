@@ -1,0 +1,21 @@
+wandb_version: 1
+
+dataset_idx:
+  value: 0
+gb_lr:
+  value: 0.05
+gb_n_estimators:
+  value: 300
+mlp_layers:
+  value:
+  - 64
+mlp_lr:
+  value: 0.01
+mlp_max_iter:
+  value: 400
+model:
+  value: MLP
+rf_max_depth:
+  value: null
+rf_n_estimators:
+  value: 500

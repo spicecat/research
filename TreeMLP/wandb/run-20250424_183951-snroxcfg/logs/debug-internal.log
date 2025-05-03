@@ -1,0 +1,16 @@
+{"time":"2025-04-24T18:39:51.639494988-07:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/home/ahteh/Developer/research/TreeMLP/wandb/run-20250424_183951-snroxcfg/logs/debug-core.log"}
+{"time":"2025-04-24T18:39:51.816548343-07:00","level":"INFO","msg":"created new stream","id":"snroxcfg"}
+{"time":"2025-04-24T18:39:51.816595362-07:00","level":"INFO","msg":"stream: started","id":"snroxcfg"}
+{"time":"2025-04-24T18:39:51.816653977-07:00","level":"INFO","msg":"writer: Do: started","stream_id":"snroxcfg"}
+{"time":"2025-04-24T18:39:51.816674429-07:00","level":"INFO","msg":"handler: started","stream_id":"snroxcfg"}
+{"time":"2025-04-24T18:39:51.816659556-07:00","level":"INFO","msg":"sender: started","stream_id":"snroxcfg"}
+{"time":"2025-04-24T18:39:51.95454811-07:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-24T18:39:55.160004402-07:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-04-24T18:39:55.160442624-07:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-04-24T18:39:55.604261278-07:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-04-24T18:39:55.720883384-07:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-04-24T18:39:55.727706931-07:00","level":"INFO","msg":"stream: closing","id":"snroxcfg"}
+{"time":"2025-04-24T18:39:55.727727505-07:00","level":"INFO","msg":"handler: closed","stream_id":"snroxcfg"}
+{"time":"2025-04-24T18:39:55.727741373-07:00","level":"INFO","msg":"writer: Close: closed","stream_id":"snroxcfg"}
+{"time":"2025-04-24T18:39:55.727747072-07:00","level":"INFO","msg":"sender: closed","stream_id":"snroxcfg"}
+{"time":"2025-04-24T18:39:55.728638175-07:00","level":"INFO","msg":"stream: closed","id":"snroxcfg"}

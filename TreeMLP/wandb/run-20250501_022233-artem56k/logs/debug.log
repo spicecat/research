@@ -1,0 +1,391 @@
+2025-05-01 02:22:33,668 INFO    MainThread:2312375 [wandb_setup.py:_flush():68] Current SDK version is 0.19.10
+2025-05-01 02:22:33,668 INFO    MainThread:2312375 [wandb_setup.py:_flush():68] Configure stats pid to 2312375
+2025-05-01 02:22:33,668 INFO    MainThread:2312375 [wandb_setup.py:_flush():68] Loading settings from /home/ahteh/.config/wandb/settings
+2025-05-01 02:22:33,669 INFO    MainThread:2312375 [wandb_setup.py:_flush():68] Loading settings from /home/ahteh/Developer/research/TreeMLP/wandb/settings
+2025-05-01 02:22:33,669 INFO    MainThread:2312375 [wandb_setup.py:_flush():68] Loading settings from environment variables
+2025-05-01 02:22:33,670 INFO    MainThread:2312375 [wandb_init.py:setup_run_log_directory():724] Logging user logs to /home/ahteh/Developer/research/TreeMLP/wandb/run-20250501_022233-artem56k/logs/debug.log
+2025-05-01 02:22:33,671 INFO    MainThread:2312375 [wandb_init.py:setup_run_log_directory():725] Logging internal logs to /home/ahteh/Developer/research/TreeMLP/wandb/run-20250501_022233-artem56k/logs/debug-internal.log
+2025-05-01 02:22:33,672 INFO    MainThread:2312375 [wandb_init.py:monkeypatch_ipython():643] configuring jupyter hooks <wandb.sdk.wandb_init._WandbInit object at 0x7f8e56225e80>
+2025-05-01 02:22:33,673 INFO    MainThread:2312375 [wandb_init.py:init():852] calling init triggers
+2025-05-01 02:22:33,673 INFO    MainThread:2312375 [wandb_init.py:init():857] wandb.init called with sweep_config: {}
+config: {'random_state': 42, 'suite_id': '8f0ea660163b436bbd4abd49665c7b1d', '_wandb': {}}
+2025-05-01 02:22:33,673 INFO    MainThread:2312375 [wandb_init.py:init():893] starting backend
+2025-05-01 02:22:33,673 INFO    MainThread:2312375 [wandb_init.py:init():897] sending inform_init request
+2025-05-01 02:22:33,683 INFO    MainThread:2312375 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2025-05-01 02:22:33,684 INFO    MainThread:2312375 [wandb_init.py:init():907] backend started and connected
+2025-05-01 02:22:33,687 INFO    MainThread:2312375 [wandb_run.py:_label_probe_notebook():1369] probe notebook
+2025-05-01 02:22:33,690 INFO    MainThread:2312375 [wandb_init.py:init():1002] updated telemetry
+2025-05-01 02:22:33,724 INFO    MainThread:2312375 [wandb_init.py:init():1026] communicating run to backend with 90.0 second timeout
+2025-05-01 02:22:34,119 INFO    MainThread:2312375 [wandb_init.py:init():1101] starting run threads in backend
+2025-05-01 02:22:34,303 INFO    MainThread:2312375 [wandb_run.py:_console_start():2566] atexit reg
+2025-05-01 02:22:34,304 INFO    MainThread:2312375 [wandb_run.py:_redirect():2414] redirect: wrap_raw
+2025-05-01 02:22:34,304 INFO    MainThread:2312375 [wandb_run.py:_redirect():2483] Wrapping output streams.
+2025-05-01 02:22:34,304 INFO    MainThread:2312375 [wandb_run.py:_redirect():2506] Redirects installed.
+2025-05-01 02:22:34,312 INFO    MainThread:2312375 [wandb_init.py:init():1147] run started, returning control to user process
+2025-05-01 02:22:34,312 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:22:34,329 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:22:34,329 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:22:34,334 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:22:35,219 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:22:35,219 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:22:35,222 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:22:35,236 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:22:35,236 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:22:35,241 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:22:35,655 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:22:35,656 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:22:35,658 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:22:48,402 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:22:48,403 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:22:48,405 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:22:48,424 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:22:48,424 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:22:48,429 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:23:05,483 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:23:05,484 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:23:05,686 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:23:21,768 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:23:21,768 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:23:21,772 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:23:23,483 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:23:23,483 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:23:23,489 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:23:34,261 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:23:34,261 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:24:04,232 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:24:04,238 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:24:04,238 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:24:04,242 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:24:15,570 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:24:15,570 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:24:45,025 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:03,598 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:03,598 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:03,601 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:03,617 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:03,618 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:03,623 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:03,654 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:03,654 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:03,657 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:03,766 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:03,767 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:03,769 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:03,908 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:03,908 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:03,911 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:04,033 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:04,033 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:04,035 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:04,199 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:04,199 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:04,201 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:04,216 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:04,217 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:04,222 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:04,343 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:04,343 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:04,345 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:04,461 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:04,461 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:04,463 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:15,709 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:15,709 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:15,712 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:20,547 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:20,547 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:20,549 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:20,564 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:20,564 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:20,569 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:26,420 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:26,420 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:26,425 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:30,024 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:30,024 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:30,028 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:32,279 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:32,280 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:32,281 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:32,380 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:32,380 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:32,382 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:32,398 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:32,398 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:32,403 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:32,481 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:32,482 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:32,484 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:35,024 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:35,024 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:35,027 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:35,043 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:35,044 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:35,048 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:37,292 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:37,292 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:26:37,295 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:26:42,777 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:26:42,777 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:12,319 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:12,325 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:12,325 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:12,329 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:12,335 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:12,335 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:12,337 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:12,342 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:12,342 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:12,344 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:12,349 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:12,349 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:12,351 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:12,357 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:12,357 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,175 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,190 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,190 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,195 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,201 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,201 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,203 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,208 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,208 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,210 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,222 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,222 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,227 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,483 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,483 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,486 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,508 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,508 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,509 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,532 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,532 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,534 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,603 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,603 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,605 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,702 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,702 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,704 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:42,718 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:42,718 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:42,723 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:48,847 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:48,847 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:27:48,849 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:27:48,855 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:27:48,855 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:18,587 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:18,604 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:18,604 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:18,609 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:18,615 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:18,616 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:18,617 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:18,633 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:18,633 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:18,638 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:18,732 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:18,732 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:18,734 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:18,739 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:18,739 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:18,742 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:19,000 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:19,001 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:19,002 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:19,009 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:19,009 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:19,010 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:19,241 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:19,241 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:19,244 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:19,249 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:19,249 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:19,251 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:28:19,264 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:28:19,264 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:28:19,269 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:32:13,979 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:32:13,979 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:32:13,981 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:32:13,998 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:32:13,998 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:32:14,003 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:32:34,696 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:32:34,696 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:32:34,701 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:32:35,151 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:32:35,151 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:32:35,154 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:33:50,484 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:33:50,485 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:33:50,486 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:33:50,503 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:33:50,503 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:33:50,508 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:33:50,885 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:33:50,885 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:33:50,887 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:19,059 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:19,059 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:19,062 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:19,068 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:19,068 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:48,236 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:48,251 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:48,251 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:48,257 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:48,263 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:48,263 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:48,265 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:48,270 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:48,270 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:48,272 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:48,277 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:48,277 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:48,278 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:48,292 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:48,292 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:48,297 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:51,802 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:51,802 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:51,804 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:51,818 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:51,818 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:51,823 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:51,965 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:51,965 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:51,967 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:55,718 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:55,718 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:55,721 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:34:55,746 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:34:55,746 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:34:55,754 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:06,246 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:06,246 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:06,249 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:06,262 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:06,263 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:06,268 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:06,404 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:06,404 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:06,407 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:06,881 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:06,881 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:36,132 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:36,139 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:36,139 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:36,141 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:36,146 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:36,146 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:36,148 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:36,153 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:36,153 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:36,155 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:36,160 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:36,161 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:36,163 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:36,176 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:36,177 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:36,181 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:45,179 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:45,179 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:45,181 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:45,195 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:45,195 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:45,200 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:45,786 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:45,787 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:45,789 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:45,803 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:45,803 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:45,809 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:45,816 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:45,816 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:45,818 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:45,992 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:45,992 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:45,994 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:57,634 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:57,634 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:57,636 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:57,649 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:57,650 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:57,654 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:58,438 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:58,438 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:58,441 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:35:58,455 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:35:58,455 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:35:58,460 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:17,286 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:17,287 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:17,289 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:17,302 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:17,302 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:17,307 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:33,824 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:33,825 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:33,826 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:33,841 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:33,841 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:33,846 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:39,290 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:39,290 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:39,293 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:39,308 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:39,308 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:39,313 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:49,579 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:49,580 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:49,582 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:49,597 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:49,597 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:49,602 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:53,554 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:53,554 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:53,556 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:36:53,571 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:36:53,571 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:36:53,576 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:37:08,084 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:37:08,084 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:37:08,086 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:37:08,100 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:37:08,100 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:37:08,104 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:37:08,458 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:37:08,458 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:37:08,460 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:37:12,826 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:37:12,826 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:37:12,828 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:37:12,842 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:37:12,842 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:37:12,847 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:39:50,200 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:39:50,201 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:39:50,207 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:41:11,394 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:41:11,395 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:41:11,397 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:41:11,411 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:41:11,411 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:41:11,416 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:41:43,168 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:41:43,168 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:41:43,171 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:41:43,185 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:41:43,185 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:41:43,190 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:42:26,706 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:42:26,707 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:42:26,709 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend
+2025-05-01 02:42:26,723 INFO    MainThread:2312375 [jupyter.py:save_ipynb():401] [no run ID] not saving jupyter notebook
+2025-05-01 02:42:26,723 INFO    MainThread:2312375 [wandb_init.py:_pre_run_cell_hook():602] [no run ID] pausing backend
+2025-05-01 02:42:26,728 INFO    MainThread:2312375 [wandb_init.py:_post_run_cell_hook():613] [no run ID] resuming backend

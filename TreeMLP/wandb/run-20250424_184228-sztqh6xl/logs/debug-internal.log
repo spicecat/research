@@ -1,0 +1,16 @@
+{"time":"2025-04-24T18:42:28.466790037-07:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/home/ahteh/Developer/research/TreeMLP/wandb/run-20250424_184228-sztqh6xl/logs/debug-core.log"}
+{"time":"2025-04-24T18:42:28.646057946-07:00","level":"INFO","msg":"created new stream","id":"sztqh6xl"}
+{"time":"2025-04-24T18:42:28.646112011-07:00","level":"INFO","msg":"stream: started","id":"sztqh6xl"}
+{"time":"2025-04-24T18:42:28.646179409-07:00","level":"INFO","msg":"writer: Do: started","stream_id":"sztqh6xl"}
+{"time":"2025-04-24T18:42:28.646192537-07:00","level":"INFO","msg":"handler: started","stream_id":"sztqh6xl"}
+{"time":"2025-04-24T18:42:28.646195771-07:00","level":"INFO","msg":"sender: started","stream_id":"sztqh6xl"}
+{"time":"2025-04-24T18:42:28.773343121-07:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-24T18:42:38.212071567-07:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-04-24T18:42:38.21255898-07:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-04-24T18:42:38.610585734-07:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-04-24T18:42:38.745404969-07:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-04-24T18:42:38.75216681-07:00","level":"INFO","msg":"stream: closing","id":"sztqh6xl"}
+{"time":"2025-04-24T18:42:38.752192946-07:00","level":"INFO","msg":"handler: closed","stream_id":"sztqh6xl"}
+{"time":"2025-04-24T18:42:38.752206519-07:00","level":"INFO","msg":"writer: Close: closed","stream_id":"sztqh6xl"}
+{"time":"2025-04-24T18:42:38.752255897-07:00","level":"INFO","msg":"sender: closed","stream_id":"sztqh6xl"}
+{"time":"2025-04-24T18:42:38.753207118-07:00","level":"INFO","msg":"stream: closed","id":"sztqh6xl"}

@@ -1,7 +1,0 @@
-{"time":"2025-04-24T18:40:07.85525906-07:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/home/ahteh/Developer/research/TreeMLP/wandb/run-20250424_184007-1ukzkl1s/logs/debug-core.log"}
-{"time":"2025-04-24T18:40:08.031430356-07:00","level":"INFO","msg":"created new stream","id":"1ukzkl1s"}
-{"time":"2025-04-24T18:40:08.03147636-07:00","level":"INFO","msg":"stream: started","id":"1ukzkl1s"}
-{"time":"2025-04-24T18:40:08.031528706-07:00","level":"INFO","msg":"handler: started","stream_id":"1ukzkl1s"}
-{"time":"2025-04-24T18:40:08.03154613-07:00","level":"INFO","msg":"sender: started","stream_id":"1ukzkl1s"}
-{"time":"2025-04-24T18:40:08.031540297-07:00","level":"INFO","msg":"writer: Do: started","stream_id":"1ukzkl1s"}
-{"time":"2025-04-24T18:40:08.205684101-07:00","level":"INFO","msg":"Starting system monitor"}
